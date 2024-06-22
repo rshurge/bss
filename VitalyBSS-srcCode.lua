@@ -3717,3 +3717,973 @@ function mainAutofarmFunction()
 end
 
 local autoDig
+
+local autoRBC = {
+	Listeners = {}, 
+	Functions = {takeRBQuest, getActiveChallange}, 
+	redBeesPriorityList = {["Rage"] = 6,["Bear"] = 1,["Shy"] = 15,["Rad"] = 16,["Shy"] = 15,["Rad"] = 16,["Shy"] = 15,["Rad"] = 16,["Brave"] = 9,["Baby"] = 13,["Windy"] = 5,["Spicy"] = 7,["Fire"] = 20,["Tabby"] = 2,["Cool"] = 36,["Demo"] = 32,["Lion"] = 41,["Honey"] = 30,["Demon"] = 37,["Riley"] = 26,["Vector"] = 8,["Hasty"] = 40,["Ninja"] = 42,["Bucko"] = 34,["Fuzzy"] = 23,["Music"] = 14,["Gummy"] = 17,["Puppy"] = 43,["Basic"] = 18,["Bumble"] = 27,["Bomber"] = 31,["Bubble"] = 33,["Cobalt"] = 35,["Frosty"] = 39,["Rascal"] = 44,["Tadpole"] = 21,["Precise"] = 3,["Digital"] = 4,["Looker"] = 10,["Photon"] = 12,["Shocked"] = 45,["Diamond"] = 28,["Buoyant"] = 29,["Vicious"] = 22,["Festive"] = 24,["Crimson"] = 11,["Stubborn"] = 46,["Carpenter"] = 19,["Commander"] = 25,["Exhausted"] = 38 },
+	farmField = function(field)
+		if not (findField(game.Players.LocalPlayer.Character.HumanoidRootPart.Position) == field)  then
+			moveTo(field.Position + Vector3.new(0,3,0))
+			task.wait(.5)
+			PlayerActivesCommand:FireServer({["Name"] = "Sprinkler Builder"})
+			task.wait()
+		end
+
+		if not macvitalyrov2.toggles.autodig then
+			autoDig.Set(true)
+		end
+
+		local function importantFarmTaskCallback(token)
+			return findField(token.Position) == field
+		end
+
+		local isFarmed = farmNearest(importantFarmTaskCallback)
+
+		if not isFarmed and (tick() - temptable.lastWalkToNearest > 3) then
+			local randomFlower = getRandomFlower(field)
+			if randomFlower then
+				temptable.lastWalkToNearest = tick()
+				api.humanoid():MoveTo(randomFlower.Position)
+			end
+		end
+	end,
+	getTaskField = function(questTask)
+		if questTask.Zone then
+			return questTask.Zone
+		elseif questTask.Color then
+			return vitaly.autoQuestSettings["best"..questTask.Color.."Field"]
+		else
+			return vitaly.autoQuestSettings["bestRedField"]
+		end
+	end
+}
+
+
+autoRBC.Functions = {
+	getActiveChallange = function() 
+		return secureCall(RoboBearGui.GetActiveChallengeData, Activatables)
+	end,
+
+	selectQuest = function()
+		Events.ClientCall("RoboBearQuestSelect", math.random(1,2))
+	end,
+
+	selectBee = function(beesTable)
+		local playerFile = getClientStatCache()
+		local bestBee = {priority = math.huge, index = 1, beeName = nil}
+		for beeIndex=1, #beesTable do
+			local obfuscatedBee = beesTable[beeIndex]
+			local obfuscatedBeeX = obfuscatedBee[1]
+			local obfuscatedBeeY = obfuscatedBee[2]
+
+			local beeFile = secureCall(StatTools.GetBeeFile, Activatables, playerFile, obfuscatedBeeX, obfuscatedBeeY)
+			if beeFile then
+				local beePriority = autoRBC.redBeesPriorityList[beeFile.Type]
+				if beePriority and beePriority < bestBee.priority then
+					bestBee.priority = beePriority
+					bestBee.index = beeIndex
+					bestBee.beeName = beeFile.Type
+				end
+			end
+		end
+		Events.ClientCall("RoboBearBeeSelect", bestBee.index or 1)
+	end,
+
+	chooseUpgrades = function()
+		Events.ClientCall("RoboBearRoundStart")
+	end,
+
+	onRoundStart = function()
+		while task.wait() do
+			local currentChallangeData = autoRBC.Functions.getActiveChallange()
+			if not currentChallangeData then return end
+
+			local playerFile = getClientStatCache()
+
+			local ActiveQuest = currentChallangeData.ActiveQuest
+
+			if not ActiveQuest or not ActiveQuest.Tasks then continue end
+
+			local tasks = ActiveQuest.Tasks
+			local progress = secureCall(Quests.GetProgression, Activatables, nil, tasks, playerFile)
+			if progress then
+				writefile("rbc/progress_1.json", game.HttpService:JSONEncode(progress))
+				writefile("rbc/teasks_1.json", game.HttpService:JSONEncode(tasks))
+				for i,v in ipairs(tasks) do
+					if progress[i][1] < 1 then
+						local taskType = tasks[i].Type
+						if taskType == "Collect Pollen" or taskType == "Make Honey" or taskType == "Collect Goo" then
+							local taskTable = {}
+							if taskType == "Collect Pollen" then
+								taskTable.Color = tasks[i].Color
+								taskTable.Zone = tasks[i].Zone
+							elseif taskType == "Make Honey" or taskType == "Collect Goo" then
+								taskTable.Color = "Red"
+							end
+							local fieldName = autoRBC.getTaskField(taskTable)
+							-- print(fieldName)
+							if fieldName and game.Workspace.FlowerZones:FindFirstChild(fieldName) then
+								pcall(function() 
+									autoRBC.farmField(game.Workspace.FlowerZones:FindFirstChild(fieldName))
+								end)
+							end
+						end
+						break
+					end
+				end
+			end
+		end
+	end,
+
+	onRoundEnd = function()
+		local playerInventory = getClientStatCache("Eggs")
+		if playerInventory.Cogs then
+			local function buyDrive(driveName)
+				if player:DistanceFromCharacter(Vector3.new(-473, 60, 106)) > 25 then
+					moveTo(Vector3.new(-473, 60, 106))
+					task.wait(.25)
+				end
+				task.wait(.25)
+				Events.ClientCall("ItemPackageEvent", "Purchase", {
+					Type = "Robo Bear "..driveName, Amount = 1, Category = "Bundle"
+				})
+				task.wait(.1)
+			end
+			while playerInventory.Cogs >= 50 do
+				if (playerInventory.WhiteDrive or 0) < 5 then
+					buyDrive("White Drive")
+				elseif (playerInventory.RedDrive or 0) < 5 then
+					buyDrive("Red Drive")
+				elseif (playerInventory.BlueDrive or 0) < 5 then
+					buyDrive("Blue Drive")
+				elseif (playerInventory.GlitchedDrive or 0) < 5 then
+					buyDrive("Gitched Drive")
+				else break end
+			end
+			task.wait()
+		end
+		autoRBC.Functions.takeRBQuest()
+	end,
+
+	onChallangeEnd = function() 
+		for i,v in pairs(autoRBC["Listeners"]) do
+			pcall(function() v:Disconnect() end)
+		end
+
+		Events.ClientCall("RoboBearClaimRewards")
+
+		temptable.autoRBC.latestRBC = tick() + 5
+
+		task.wait(2.5)
+
+		temptable.autoRBC.isActive = false
+	end,
+	takeRBQuest = function()
+		warn(2)
+		local attempts = 0
+		local activaChallange = autoRBC.Functions.getActiveChallange()
+		while (not activaChallange or activaChallange.RoundState ~= "Running") and attempts < 5 do
+
+			if api.magnitude(RoboBear.Platform.Position) <= 25 and not ScreenGui.NPC.Visible then
+				while not ScreenGui.NPC.Visible and not (api.magnitude(RoboBear.Platform.Position) > 25) do
+					secureCall(ActivatablesNPC.ButtonEffect, Activatables, player, RoboBear)
+					task.wait(.5)
+					continue
+				end
+			elseif api.magnitude(RoboBear.Platform.Position) > 25 then
+				moveTo(RoboBear.Platform.Position + Vector3.new(0,3,0))
+				task.wait(.5)
+				continue
+			end
+
+			local tempTimestamp = tick()
+
+			repeat task.wait() until ScreenGui.NPC.Visible or tick() - tempTimestamp > 10
+
+			while ScreenGui.NPC.Visible do
+				local optionText = ScreenGui.NPC.OptionFrame.Option1.Text
+				if ScreenGui.NPC.OptionFrame.Visible 
+					and ScreenGui.NPC.OptionFrame.Option1.Visible 
+					and (optionText:find("Spend 1 Robo Pass") or optionText:find("Start Round")) then
+					setIdentity(2)
+					firesignal(ScreenGui.NPC.OptionFrame.Option1.MouseButton1Click)
+					setIdentity(origThreadIdentity)
+				else
+					setIdentity(2)
+					firesignal(ScreenGui.NPC.ButtonOverlay.MouseButton1Click)
+					setIdentity(origThreadIdentity)
+				end
+				task.wait()
+			end
+
+			task.wait(2.5)
+			attempts = attempts + 1
+			activaChallange = autoRBC.Functions.getActiveChallange()
+		end
+		task.wait(0.5)
+		return autoRBC.Functions.getActiveChallange()
+	end
+}
+
+
+
+function mainAutoRBCFunction()
+	warn(1)
+	autoRBC["Listeners"][1] = EventsDir.RoboBearQuestSelect.OnClientEvent:Connect(autoRBC.Functions.selectQuest)
+	autoRBC["Listeners"][2] = EventsDir.RoboBearBeeSelect.OnClientEvent:Connect(autoRBC.Functions.selectBee)
+	autoRBC["Listeners"][3] = EventsDir.RoboBearUpgradeSelect.OnClientEvent:Connect(autoRBC.Functions.chooseUpgrades)
+	autoRBC["Listeners"][4] = EventsDir.RoboBearRoundStart.OnClientEvent:Connect(autoRBC.Functions.onRoundStart)
+	autoRBC["Listeners"][5] = EventsDir.RoboBearRoundEnd.OnClientEvent:Connect(autoRBC.Functions.onRoundEnd)
+	autoRBC["Listeners"][6] = EventsDir.RoboBearChallengeEnd.OnClientEvent:Connect(autoRBC.Functions.onChallangeEnd)
+
+	if autoRBC.Functions.takeRBQuest() then temptable.autoRBC.isActive = true end
+end
+
+function webhookFieldsList()
+	local currentHoney = getClientStatCache("Totals","Honey")
+	local timePassed = math.round(tick() - currentvitalyLoadedAt)
+	-- print(currentHoney, temptable.honeyAtStart)
+	local honeyGained = currentHoney - temptable.honeyAtStart
+	-- print(currentHoney, timePassed, honeyGained)
+
+	local honeyPerHour = math.floor(honeyGained / timePassed) * 3600
+	local dailyHoney = getDailyHoney()
+
+	local totalHoneyString = truncate(currentHoney)
+	local honeyGainedString = truncate(honeyGained)
+	local honeyPerHourString = truncate(honeyPerHour)
+	local honeyPerDayString = truncate(dailyHoney)
+
+	if not vitaly.webhookSettings.onlyTruncated then
+		totalHoneyString = addcommas(currentHoney).." ("..totalHoneyString..")"
+		honeyGainedString = addcommas(honeyGained).." ("..honeyGainedString..")"
+		honeyPerHourString = addcommas(honeyPerHour).." ("..honeyPerHourString..")"
+		honeyPerDayString = addcommas(dailyHoney).." ("..honeyPerDayString..")"
+	end
+
+	local uptimeString = truncatetime(timePassed)
+	local fields = {}
+
+	if vitaly.webhookSettings.showTotalHoney then
+		table.insert(fields, {
+			["name"] = "Total Honey:",
+			["value"] = totalHoneyString,
+			["inline"] =  false
+		})
+	end
+	table.insert(fields, {
+		["name"] = "Session Honey:       ",
+		["value"] = honeyGainedString,
+		["inline"] =  true
+	})
+	table.insert(fields, {
+		["name"] = "Session Uptime:     ",
+		["value"] = uptimeString,
+		["inline"] =  true
+	})
+	if vitaly.webhookSettings.showHoneyPerHour then
+		table.insert(fields, {
+			["name"] = "Honey Per Hour:       ",
+			["value"] = honeyPerHourString,
+			["inline"] = false
+		})
+	end
+	if vitaly.webhookSettings.showDailyHoney then
+		table.insert(fields, {
+			["name"] = "Honey Per Day:     ", -- 
+			["value"] = honeyPerDayString,
+			["inline"] = false
+		})
+	end
+	if vitaly.webhookSettings.showNectars then
+		local nectars = getAllNectar(true)
+		local nectarsString = ""
+		for index, nectar in pairs(nectars) do
+			if nectar.time == 0 then continue end
+			nectarsString = nectarsString..""..(nectarEmojis[nectar.name] or nectar.name..":").." "..nectar.time
+			nectarsString = nectarsString.."\n"
+		end
+		if #nectarsString > 1 then
+			table.insert(fields, {
+				["name"] = "Nectars:",
+				["value"] = nectarsString,
+				["inline"] =  false
+			})
+		end
+	end
+	if vitaly.webhookSettings.showPlanters then
+		local plantersString = ""
+		pcall(function()
+			local minePlanters = getMinePlanters()
+			for i,v in pairs(minePlanters) do
+				plantersString = plantersString..""..plantersEmojis[v.PotModel.Name].." "..math.floor(v.GrowthPercent*1000)/10 .. "%\n"
+			end
+		end)
+		if plantersString ~= "" then
+			table.insert(fields, {
+				name = "Active Planters",
+				value = plantersString,
+				inline = false
+			})
+		end
+	end
+	if vitaly.webhookSettings.showItems then
+		local itemsString = ""
+		for index, item in pairs(vitaly.webhookSettings.itemsList) do
+			local systemItem = getItemByName(item)
+			if systemItem and systemItem.SystemName then 
+				local systemName = systemItem.SystemName
+				local count = getClientStatCache("Eggs", systemName) or 0
+				itemsString = itemsString .. item .. ": **" .. tostring(count) .. "**\n"
+			end
+		end
+		if itemsString ~= "" then
+			table.insert(fields, {
+				name = "Items",
+				value = itemsString,
+				inline = false
+			})
+		end
+	end
+	return fields
+end
+
+function generateWebhookBody(settings)
+	local body = {
+		["username"] = player.Name,
+		["content"] = settings.content or "",
+		["embeds"] = {{
+			["title"] = "**"..settings.embedTitle.."**",
+			["description"] = settings.embedDescription or "",
+			["type"] = "rich",
+			["color"] = tonumber(settings.color) or tonumber(vitaly.webhookSettings.webhookColor),
+			["fields"] = settings.fields or {},
+			["footer"] = {
+				["text"] = os.date("%x").." • "..os.date("%I")..":"..os.date("%M")..--[[":"..os.date("%S")..]]" "..os.date("%p")
+			}
+		}}
+	}
+	return body
+end
+
+function sendWebhook(body)
+	local headers = {
+		["content-Type"] = "application/json"
+	}
+	xpcall(function()
+		httpreq({
+			Url = vitaly.webhookSettings.webhookUrl, 
+			Body = HttpService:JSONEncode(body), 
+			Method = "POST", 
+			Headers = headers
+		})
+		task.wait()
+		temptable.lastWebhookSent = math.round(tick())
+	end, function(err) warn(("%s | Failed to send webhook: %s"):format(temptable.version, err)) end)
+end
+
+function questWebhook(npc,fields)
+	local thumbnail = npcsIcons[npc]
+	local data = generateWebhookBody({
+		embedTitle = "Macro V3 | Quests",
+		thumbnail = thumbnail,
+		fields = fields
+	})
+	sendWebhook(data)
+end
+
+function sendHourlyWebhook(isTest)
+	local ping = vitaly.webhookSettings.pingUser and "<@"..vitaly.webhookSettings.discordId..">" or ""
+	local data = generateWebhookBody({
+		content = (isTest and ping ~= "" and ping..", your webhook is working!") or (isTest and ping == "" and "Your webhook is working!") or ping,
+		embedTitle = isTest and "Webhook Test" or "Honey Update",
+		fields = webhookFieldsList()
+	})
+	sendWebhook(data)
+end
+
+function sendTestWebhook()
+	local data = generateWebhookBody({
+		embedTitle = "Test Webhook",
+		embedDescription = "Hey from vitaly"
+	})
+	sendWebhook(data)
+end
+
+local newMemoryMatchStartGame = function() end
+local MemoryMatchStartGame
+
+if not getgenv().autoMMConfigured then
+	getgenv().autoMMConfigured = true
+	LPH_NO_VIRTUALIZE(function()
+		MemoryMatchStartGame = MinigameGui.StartGame
+
+		local function UpdateGameTable(a)
+			local dupes = {}
+			local exclude = a.Game.MatchedTiles
+
+			for index, value in pairs(a.Game.RevealedTiles) do
+				if exclude[index] == nil then 
+					if dupes[value] == nil then
+						dupes[value] = {Indexes = {index}}
+					else
+						table.insert(dupes[value]["Indexes"], index)
+					end
+				end
+			end
+
+			for i,v in pairs(dupes) do
+				if #v.Indexes < 2 then dupes[i] = nil end
+			end
+
+			return dupes
+		end
+
+		newMemoryMatchStartGame = function(a)
+			if not vitaly.toggles.automemorymatch and not vitaly.autoQuestSettings then return end
+			repeat task.wait() until a and a.Game and a.Game.Grid and a.Game.Grid.InputActive
+			temptable.activeMemoryMatch = a
+			for Index = 1, a.Game.NumTiles do
+				task.wait()
+				warn("You have",a.Game.Chances,"chances left")
+				if a.Game.Chances == 0 then break end
+				setIdentity(2)
+				local tile
+				xpcall(function()tile=a.Game.Grid:GetTileAtIndex(Index)end,function(err)warn("Err:",err)end)
+				setIdentity(origThreadIdentity)
+
+				if a.Game.LastSelectedIndex ~= nil then
+					local searchFor = a.Game.RevealedTiles[a.Game.LastSelectedIndex]
+					local dupes = UpdateGameTable(a)
+					for i2,v2 in pairs(dupes) do
+						if i2 == searchFor and v2.Indexes[1] ~= Index then 
+							setIdentity(2)
+							tile = a.Game.Grid:GetTileAtIndex(v2.Indexes[1]) 
+							setIdentity(origThreadIdentity)
+							break 
+						end
+					end
+				else
+					local dupes = UpdateGameTable(a)
+					for i,v in pairs(dupes) do
+						if #v.Indexes > 1 then
+							setIdentity(2)
+							MemoryMatchModule.RegisterTileSelected(a.Game, a.Game.Grid:GetTileAtIndex(v.Indexes[1]))
+							setIdentity(origThreadIdentity)
+							repeat task.wait() until a.Game.Grid.InputActive or a.Game.Chances <= 0
+							setIdentity(2)
+							tile = a.Game.Grid:GetTileAtIndex(v.Indexes[2])
+							setIdentity(origThreadIdentity)
+							task.wait()
+							break
+						end
+					end
+				end
+				setIdentity(2)
+				MemoryMatchModule.RegisterTileSelected(a.Game, tile)
+				setIdentity(origThreadIdentity)
+				repeat task.wait() until a.Game.Grid.InputActive or a.Game.Chances <= 0
+				task.wait()
+			end
+			warn("Finishing memory Match")
+			Events.ClientCall("MemoryMatchEvent", {
+				Action = "Finish"
+			})
+			warn("Ending Game")
+			setIdentity(2)
+			MinigameGui.EndGame()
+			setIdentity(origThreadIdentity)
+			warn("Game ended successfully")
+			temptable.activeMemoryMatch = nil
+		end
+		local hookedMemoryMatchStartGame; hookedMemoryMatchStartGame = hookfunction(MemoryMatchStartGame, function(...)
+			local a = hookedMemoryMatchStartGame(...)
+			coroutine.wrap(function() task.wait(1) newMemoryMatchStartGame(a) end)()
+			return a
+		end)
+	end)()
+end
+
+function hiddenQuestWebhookListener(isPoolQuest, arg1)
+	task.wait(3)
+	if not vitaly.webhookSettings.sendQuests then return end
+
+	local fullQuest = (not isPoolQuest and getQuestInfo(arg1)) or nil
+	local originalNPC = (not isPoolQuest and fullQuest and fullQuest.NPC) or arg1
+	local NPC = originalNPC
+	local QuestName = (not isPoolQuest and fullQuest and fullQuest.DisplayName) or nil
+
+	local polarPower = tostring(getClientStatCache("Modifiers", "MaxBeeEnergy", "_", "Mods", 1, "Combo") or 0)
+	local questCount = tostring(getClientStatCache("Totals", "QuestPoolCounts", originalNPC) or 0)
+	pcall(function() NPC = originalNPC:gsub("Bear 2", "Bear") end)
+
+	if isPoolQuest then
+		local temp = getClientStatCache("Quests", "PoolLastQuests", tostring(originalNPC))
+		local tempQuestInfo = getQuestInfo(temp)
+		if temp then QuestName = (tempQuestInfo.DisplayName or tempQuestInfo.Name) end
+	end
+
+	local suffix = 
+		(NPC=="Polar Bear" and "\n\n"..miscEmojis["Polar Power"].." x"..polarPower) or 
+		("\n\n"..(tonumber(questCount) and "Total "..NPC.."'s quests completed: "..questCount) or "...")
+
+	local fields = {}
+
+	if isPoolQuest then
+		table.insert(fields,{
+			name = "Completed Repeatable Quest",
+			value = (QuestName or NPC)..suffix
+		})
+	else
+		table.insert(fields,{
+			name = "Completed Quest",
+			value = QuestName
+		})
+	end
+
+	questWebhook(NPC, fields)
+end
+
+getgenv().questWebhookListener = setmetatable({Active = true}, {
+	__index = function(tbl, key) 
+		if key == "HiddenListener" then
+			return hiddenQuestWebhookListener
+		else
+			return rawget(tbl, key)
+		end
+	end
+})
+
+if false then
+
+	if not getgenv().questListener then
+		getgenv().questListener = true
+
+		LPH_NO_VIRTUALIZE(function()
+			local a = require(game:GetService("ReplicatedStorage").Events)
+			local oldClientCall
+			oldClientCall = hookfunction(a.ClientCall, function(...)
+				local event, arg1 = ...
+				if event == "CompleteQuest" or event == "CompleteQuestFromPool" then
+					xpcall(function()
+						coroutine.wrap(function(event, arg1) 
+							setIdentity(8)
+							questWebhookListener.HiddenListener((event == "CompleteQuest" and false) or true, arg1)
+						end)(event, arg1)
+					end, function(err) if vitaly.webhookSettings.sendQuests then warn("Cannot send ") end end)
+				end
+				return oldClientCall(...)
+			end)
+		end)()
+	end
+
+end
+
+function placeSprinkler(position, withoutWait, withoutJump)
+	-- Place a sprinkler at the specified position
+	local humanoid = api.humanoid()
+	if position then
+		local temp1 = nil
+		task.spawn(function() temp1 = walkTo(position, 2) end)
+		repeat task.wait() until temp1 ~= nil
+	end
+
+	if not withoutJump then
+		task.wait(.1)
+		humanoid.Jump = true
+		task.wait(.2)
+	end
+	PlayerActivesCommand:FireServer({["Name"] = "Sprinkler Builder"})
+	if not withoutWait then
+		task.wait(1)
+	end
+end
+
+local sprinklerCounts = {
+	["The Supreme Saturator"] = 1,
+	["Basic Sprinkler"] = 1,
+	["Silver Soakers"] = 2,
+	["Golden Gushers"] = 3,
+	["Diamond Drenchers"] = 4
+}
+
+function placeSprinklers(fieldPos)
+	if not fieldPos then return end
+	print("sprinklers")
+	local sprinkler = getClientStatCache("EquippedSprinkler")
+	local flowerSize = 4
+
+	local sprinklersToPlace = sprinklerCounts[sprinkler] or 0
+	local placedSprinklersCount = 0
+
+	local centerPos = fieldPos
+
+	for _,v in pairs(Workspace.Gadgets:GetChildren()) do
+		if v.Name == sprinkler and isFieldSame(centerPos, v.Base.Position) then
+			placedSprinklersCount += 1
+		end
+	end
+
+	if placedSprinklersCount >= sprinklersToPlace then return  end
+
+	if sprinklersToPlace == 1 then
+		placeSprinkler(centerPos, true, true)
+	elseif sprinklersToPlace == 2 then
+		placeSprinkler(centerPos + Vector3.new(-3*flowerSize, 0, -3*flowerSize))
+		placeSprinkler(centerPos + Vector3.new(3*flowerSize, 0, 3*flowerSize), true, false)
+	elseif sprinklersToPlace == 3 then
+		placeSprinkler(centerPos + Vector3.new(3*flowerSize, 0, -3*flowerSize))
+		placeSprinkler(centerPos + Vector3.new(-4*flowerSize, 0, -3*flowerSize))
+		placeSprinkler(centerPos + Vector3.new(0*flowerSize, 0, 3*flowerSize), true, false)
+	elseif sprinklersToPlace == 4 then
+		placeSprinkler(centerPos + Vector3.new(-4*flowerSize, 0, 0*flowerSize))
+		placeSprinkler(centerPos + Vector3.new(4*flowerSize, 0, 0*flowerSize))
+		placeSprinkler(centerPos + Vector3.new(0*flowerSize, 0, 4*flowerSize))
+		placeSprinkler(centerPos + Vector3.new(0*flowerSize, 0, -4*flowerSize), true, false)
+	end
+end
+
+function getBeeRarity(beeName)
+	local fullBeeData = beesTable.fullData[beeName:gsub(" Bee", "")]
+	if fullBeeData then return fullBeeData.Rarity end
+	return ""
+end
+
+function isBeeExpected(beeCell)
+	local beeName = beeCell.CellType.Value:gsub("Bee", " Bee")
+	local beeRarity = getBeeRarity(beeName)
+	local isGifted = beeCell:FindFirstChild("GiftedCell") and true or false
+
+	local stop = false
+
+	if temptable.autoRJSettings.requireAnyGifted and isGifted then 
+		stop = true 
+	end
+
+	if table.find(temptable.autoRJSettings.selectedRarities, "Any "..beeRarity) or table.find(temptable.autoRJSettings.selectedRarities, "Gifted Any "..beeRarity) and isGifted then
+		stop = true
+	end
+
+	if table.find(temptable.autoRJSettings.selectedBees, beeName) or table.find(temptable.autoRJSettings.selectedBees, "Gifted "..beeName) and isGifted then
+		stop = true
+	end
+	return stop
+end
+
+
+
+
+local Window = Fluent:CreateWindow({
+	Title = "vitaly",
+	SubTitle = "",
+	TabWidth = 140,
+	TabHeight = 80,
+	Size = UDim2.fromOffset(650, 350),
+	Acrylic = true,
+	Theme = "Dark",
+	MinimizeKey = Enum.KeyCode.RightShift
+})
+
+
+local Tabs = {
+	Home = Window:AddTab({ Title = "Home", Icon = "home" }),
+	Farming = Window:AddTab({ Title = "Farming", Icon = "bot" }),
+	Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
+	AutoQuest = Window:AddTab({ Title = "Auto Quest", Icon = "book" }),
+	Planters = Window:AddTab({ Title = "Planters", Icon = "sprout" }),
+	Puffshrooms = Window:AddTab({ Title = "Puffshrooms", Icon = "biohazard" }),
+	Misc = Window:AddTab({ Title = "Miscellaneous", Icon = "sprout" }),
+	Webhook = Window:AddTab({ Title = "Discord Webhook", Icon = "sprout" }),
+	Settings = Window:AddTab({ Title = "Settings", Icon = "sprout" }),
+	Config = Window:AddTab({ Title = "Config", Icon = "settings" }),
+	Premium = Window:AddTab({ Title = "Premium", Icon = "star" })
+}
+
+
+local Options = Fluent.Options
+
+
+Fluent:Notify({
+	Title = "Fluent",
+	Content = "The script has been loaded.",
+	Duration = 8
+})
+
+Window:SelectTab(1)
+local homeTab = Tabs.Home
+local informationSection = homeTab:AddSection("Information")
+
+informationSection:AddButton({
+	Title = "Redeem Codes",
+	Tooltip = "",
+	Callback = function() 
+		for _, code in pairs(temptable.codesTable) do
+			Events.ClientCall("PromoCodeEvent", code)
+			task.wait(0.5)
+		end
+	end
+})
+
+informationSection:AddToggle("StopEverythingToggle", {
+	Title = "Stop Everything",
+	Description = "",
+	Default = false,
+	Callback = function(state)
+		temptable.stopEverything = state
+	end
+})
+
+
+local farmingTab = Tabs.Farming
+
+farmingTab:AddDropdown("Farming Field", {
+	Title = "Select Farming Field",
+	Values = fieldsTable,
+	Multi = false,
+	Default = vitaly.autoFarmSettings.field,
+	Callback = function(selected)
+		vitaly.autoFarmSettings.field = selected
+	end
+})
+
+farmingTab:AddToggle("Autofarm [⚙]", {
+	Title = "Toggle Autofarm",
+	Default = vitaly.toggles.autofarm,
+	Callback = function(State)
+		vitaly.toggles.autofarm = State
+		if State then
+			Tasks:Add("Autofarm", mainAutofarmFunction, true)
+		else
+			if Tasks:Get("Autofarm") then Tasks:Cancel("Autofarm") end
+			player.DevComputerMovementMode = Enum.DevComputerMovementMode.UserChoice
+		end
+	end
+})
+
+farmingTab:AddToggle("Auto Sprinkler", {
+	Title = "Toggle Auto Sprinkler",
+	Default = vitaly.autoFarmSettings.autoSprinkler or true,
+	Callback = function(State)
+		vitaly.autoFarmSettings.autoSprinkler = State
+	end
+})
+
+farmingTab:AddToggle("Auto Dig", {
+	Title = "Toggle Auto Dig",
+	Default = vitaly.toggles.autodig,
+	Callback = function(State)
+		vitaly.toggles.autodig = State
+		if State then
+			Tasks:Add("Auto Dig", function()
+				while task.wait(0.03) do
+					local success, errorMsg = pcall(function()
+						dig()
+					end)
+					if not success then
+						error(errorMsg)
+					end
+				end
+			end, true)
+		else
+			if Tasks:Get("Auto Dig") then
+				Tasks:Cancel("Auto Dig")
+			end
+		end
+	end
+})
+
+
+
+local farmingTab = Tabs.Farming
+
+farmingTab:AddToggle("ignoreHoneyTokens", {
+	Title = "Ignore Honey Tokens",
+	Default = vitaly.autoFarmSettings.ignoreHoneyTokens,
+	Callback = function(state)
+		vitaly.autoFarmSettings.ignoreHoneyTokens = state
+	end
+})
+
+farmingTab:AddToggle("farmFlames", {
+	Title = "Farm Flames",
+	Default = vitaly.autoFarmSettings.farmFlames,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmFlames = state
+	end
+})
+
+-- Toggle: Farm Bubbles
+farmingTab:AddToggle("farmBubbles", {
+	Title = "Farm Bubbles",
+	Default = vitaly.autoFarmSettings.farmBubbles,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmBubbles = state
+	end
+})
+
+-- Toggle: Farm Fuzzy Bombs
+farmingTab:AddToggle("farmFuzzyBombs", {
+	Title = "Farm Fuzzy Bombs",
+	Default = vitaly.autoFarmSettings.farmFuzzyBombs,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmFuzzyBombs = state
+	end
+})
+
+-- Toggle: Farm Under Clouds
+farmingTab:AddToggle("farmUnderClouds", {
+	Title = "Farm Under Clouds",
+	Default = vitaly.autoFarmSettings.farmUnderClouds,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmUnderClouds = state
+	end
+})
+
+-- Toggle: Farm Under Balloons
+farmingTab:AddToggle("farmUnderBalloons", {
+	Title = "Farm Under Balloons",
+	Default = vitaly.autoFarmSettings.farmUnderBalloons,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmUnderBalloons = state
+	end
+})
+
+-- Toggle: Farm Shower
+farmingTab:AddToggle("farmShower", {
+	Title = "Farm Shower",
+	Default = vitaly.autoFarmSettings.farmShower,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmShower = state
+	end
+})
+
+-- Toggle: Farm Coconuts
+farmingTab:AddToggle("farmCoconuts", {
+	Title = "Farm Coconuts",
+	Default = vitaly.autoFarmSettings.farmCoconuts,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmCoconuts = state
+	end
+})
+
+-- Toggle: Farm Glitched Tokens
+farmingTab:AddToggle("farmDupedTokens", {
+	Title = "Farm Glitched Tokens",
+	Default = vitaly.autoFarmSettings.farmDupedTokens,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmDupedTokens = state
+	end
+})
+
+-- Toggle: Farm Sprouts
+farmingTab:AddToggle("farmSprouts", {
+	Title = "Farm Sprouts",
+	Default = vitaly.autoFarmSettings.farmSprouts,
+	Callback = function(state)
+		vitaly.autoFarmSettings.farmSprouts = state
+	end
+})
+
+-- Toggle: Smart Bubble Bloat
+farmingTab:AddToggle("smartBubbleBloat", {
+	Title = "Smart Bubble Bloat"..Star,
+	Default = vitaly.autoFarmSettings.smartBubbleBloat,
+	Callback = function(state)
+		vitaly.autoFarmSettings.smartBubbleBloat = state
+	end
+})
+
+-- Toggle: Smart Precise Crosshair
+farmingTab:AddToggle("smartPreciseCrosshair", {
+	Title = "Smart Precise Crosshair"..Star,
+	Default = vitaly.autoFarmSettings.smartPreciseCrosshair,
+	Callback = function(state)
+		vitaly.autoFarmSettings.smartPreciseCrosshair = state
+	end
+})
+
+
+-- Toggle: Use Instant Conversion
+farmingTab:AddToggle("instantToggle", {
+	Title = "Use Instant Conversion",
+	Default = vitaly.convertSettings.instantToggle,
+	Callback = function(state)
+		vitaly.convertSettings.instantToggle = state
+	end
+})
+
+
+local selectedInstantValues = {}
+
+farmingTab:AddParagraph({
+	Title = "Selected Instant Conversion",
+	Content = ""
+})
+
+for _, option in ipairs(instantConvList) do
+	local toggleName = "toggle_" .. option
+	local defaultValue = vitaly.convertSettings.selectedInstant and vitaly.convertSettings.selectedInstant[option] or false
+
+	farmingTab:AddToggle(toggleName, {
+		Title = option,
+		Default = defaultValue,
+		Callback = function(state)
+			selectedInstantValues[option] = state
+			vitaly.convertSettings.selectedInstant = selectedInstantValues
+		end
+	})
+end
+
+-- Optional: Another paragraph for separation (if needed)
+farmingTab:AddParagraph({
+	Title = "",
+	Content = ""
+})
+
+
+
+-- Toggle: Auto Honey Mask
+farmingTab:AddToggle("AutoHoneyM", {
+	Title = "Auto Honey Mask",
+	Default = vitaly.toggles.AutoHoneyM,
+	Callback = function(state)
+		vitaly.toggles.AutoHoneyM = state
+	end
+})
+
+
+-- Add toggles directly under Tabs.Farming for Automatisation section
+Tabs.Farming:AddToggle("autodispensers", {
+	Title = "Auto Dispensers",
+	Default = vitaly.toggles.autodispensers,
+	Callback = function(state)
+		vitaly.toggles.autodispensers = state
+	end
+})
+
+Tabs.Farming:AddToggle("autoboosters", {
+	Title = "Auto Boosters",
+	Default = vitaly.toggles.autoboosters,
+	Callback = function(state)
+		vitaly.toggles.autoboosters = state
+	end
+})
+
+Tabs.Farming:AddToggle("automemorymatch", {
+	Title = "Auto Memory Match",
+	Default = vitaly.toggles.automemorymatch,
+	Callback = function(state)
+		vitaly.toggles.automemorymatch = state
+	end
+})
+
+for i, v in pairs(AllToysTable.toysTable) do
+	Tabs.Farming:AddToggle(i, {
+		Title = "Auto " .. v,
+		Default = vitaly.toggles[i],
+		Callback = function(state)
+			vitaly.toggles[i] = state
+		end
+	})
+end
