@@ -1,15 +1,15 @@
 function GetUi() 
-    if getgenv().Tvk then
-    if game.CoreGui:FindFirstChild("Sea Hub GUI") then
+    if getgenv().perfect then
+    if game.CoreGui:FindFirstChild("Perfect Hub GUI") then
         for a, v in ipairs(game.CoreGui:GetChildren()) do
-            if v.Name == "Sea Hub GUI" then
+            if v.Name == "Perfect Hub GUI" then
                 v:Destroy()
             end
         end
     end
 end
-getgenv().Tvk = true
-getgenv().Chon = true
+getgenv().perfect = true
+getgenv().hub = true
 
 local oldcolor = {
     ["Border Color"] = Color3.fromRGB(131, 181, 255),
@@ -123,20 +123,20 @@ local j = game:GetService("HttpService")
 local k = "!CustomUI.json"
 function SaveCustomUISettings()
     local j = game:GetService("HttpService")
-    if not isfolder("Sea Hub") then
-        makefolder("Sea Hub")
+    if not isfolder("Perfect Hub") then
+        makefolder("Perfect Hub")
     end
-    writefile("Sea Hub/" .. k, j:JSONEncode(CorrectTable(e)))
+    writefile("Perfect Hub/" .. k, j:JSONEncode(CorrectTable(e)))
 end
 function ReadCustomUISetting()
     local l, m =
         pcall(
         function()
             local j = game:GetService("HttpService")
-            if not isfolder("Sea Hub") then
-                makefolder("Sea Hub")
+            if not isfolder("Perfect Hub") then
+                makefolder("Perfect Hub")
             end
-            local n = j:JSONDecode(readfile("Sea Hub/" .. k))
+            local n = j:JSONDecode(readfile("Perfect Hub/" .. k))
             for d, v in pairs(n) do
                 local function o()
                     if v.Color == nil then
@@ -171,7 +171,7 @@ function ReadCustomUISetting()
         return ReadCustomUISetting()
     end
 end
-if not getgenv().Chon then 
+if not getgenv().hub then 
     e = DCorrectTable(ReadCustomUISetting())
     for d, v in pairs(e) do
         b[d] = v.Color
@@ -275,7 +275,7 @@ u.GetIMG = function(C)
 end
 u.Gui = Instance.new("ScreenGui")
 u.Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-u.Gui.Name = "Sea Hub GUI"
+u.Gui.Name = "Perfect Hub GUI"
 getgenv().ReadyForGuiLoaded = false
 spawn(
     function()
@@ -288,7 +288,7 @@ spawn(
 )
 u.NotiGui = Instance.new("ScreenGui")
 u.NotiGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-u.NotiGui.Name = "Sea Hub Notification"
+u.NotiGui.Name = "Perfect Hub Notification"
 local F = Instance.new("Frame")
 local G = Instance.new("UIListLayout")
 F.Name = "NotiContainer"
@@ -305,274 +305,7 @@ G.VerticalAlignment = Enum.VerticalAlignment.Bottom
 G.Padding = UDim.new(0, 5)
 wait()
 getgenv().GUI = u.Gui
---syn.unprotect_gui(GUI)
--- // GOOGLE TRANSLATE // --
 
--- function SetUpTranslate()
---     local YourLang = "vi" -- Language code that the messages are going to be translated to
-
---     local googlev = isfile'googlev.txt' and readfile'googlev.txt' or ''
---     local request = request or syn.request
-    
---     local function outputHook(fnc)
---         return function(...)
---             return fnc('[INLINE TRANSLATOR]', ...)
---         end
---     end
---     local translate, getISOCode do
---         function googleConsent(Body) -- Because google really said: "Fuck you."
---             local args = {}
-    
---             for match in Body:gmatch('<input type="hidden" name=".-" value=".-">') do
---                 local k,v = match:match('<input type="hidden" name="(.-)" value="(.-)">')
---                 args[k] = v
---             end
---             googlev = args.v
---             writefile('googlev.txt', args.v)
---         end
-    
---         local function got(url, Method, Body) -- Basic version of https://www.npmjs.com/package/got using synapse's request API for google websites
---             Method = Method or "GET"
-            
---             local res = request({
---                 Url = url,
---                 Method = Method,
---                 Headers = {cookie="CONSENT=YES+"..googlev},
---                 Body = Body
---             })
-            
---             if res.Body:match('https://consent.google.com/s') then
---                 googleConsent(res.Body)
---                 res = request({
---                     Url = url,
---                     Method = "GET",
---                     Headers = {cookie="CONSENT=YES+"..googlev}
---                 })
---             end
-            
---             return res
---         end
-    
---         getgenv().languages = {
---             auto = "Automatic",
---             ['zh-cn'] = "Chinese Simplified",
---             ['zh-tw'] = "Chinese Traditional",
---             en = "English",
---             fr = "French",
---             de = "German",
---             el = "Greek",
---             hu = "Hungarian",
---             id = "Indonesian",
---             it = "Italian",
---             ja = "Japanese",
---             ko = "Korean",
---             mg = "Malagasy",
---             pl = "Polish",
---             pt = "Portuguese",
---             ru = "Russian",
---             es = "Spanish",
---             tr = "Turkish",
---             vi = "Vietnamese",
---         };
---         local listl = {}
---         for k,v in pairs(languages) do table.insert(listl,k) end
---         function SetRandomLang() 
---             YourLang = listl[math.random(1,#listl)]
---         end
---         function find(lang)
---             for i,v in pairs(languages) do
---                 if i == lang or v == lang then
---                     return i
---                 end
---             end
---         end
-    
---         function isSupported(lang)
---             local key = find(lang)
---             return key and true or false 
---         end
-    
---         function getISOCode(lang)
---             local key = find(lang)
---             return key
---         end
-    
---         function stringifyQuery(dataFields)
---             local data = ""
---             for k, v in pairs(dataFields) do
---                 if type(v) == "table" then
---                     for _,v in pairs(v) do
---                         data = data .. ("&%s=%s"):format(
---                             game.HttpService:UrlEncode(k),
---                             game.HttpService:UrlEncode(v)
---                         )
---                     end
---                 else
---                     data = data .. ("&%s=%s"):format(
---                         game.HttpService:UrlEncode(k),
---                         game.HttpService:UrlEncode(v)
---                     )
---                 end
---             end
---             data = data:sub(2)
---             return data
---         end
-    
---         local reqid = math.random(1000,9999)
---         local rpcidsTranslate = "MkEWBc"
---         local rootURL = "https://translate.google.com/"
---         local executeURL = "https://translate.google.com/_/TranslateWebserverUi/data/batchexecute"
---         local fsid, bl
-    
---         do -- init
---             local InitialReq = got(rootURL)
---             fsid = InitialReq.Body:match('"FdrFJe":"(.-)"')
---             bl = InitialReq.Body:match('"cfb2h":"(.-)"')
---         end
-    
---         local HttpService = game:GetService("HttpService")
---         function jsonE(o)
---             return HttpService:JSONEncode(o)
---         end
---         function jsonD(o)
---             return HttpService:JSONDecode(o)
---         end
-    
---         function translate(str, to, from)
---             reqid = reqid + 10000
---             from = from and getISOCode(from) or 'auto'
---             to = to and getISOCode(to) or 'en'
-    
---             local data = {{str, from, to, true}, {nil}}
-    
---             local freq = {
---                 {
---                     {
---                         rpcidsTranslate, 
---                         jsonE(data),
---                         nil,
---                         "generic"
---                     }
---                 }
---             }
-    
---             local url = executeURL..'?'..stringifyQuery{rpcids = rpcidsTranslate, ['f.sid'] = fsid, bl = bl, hl="en", _reqid = reqid-10000, rt = 'c'}
---             local body = stringifyQuery{['f.req'] = jsonE(freq)}
-            
---             local req = got(url, "POST", body)
-            
---             local body = jsonD(req.Body:match'%[.-%]\n')
---             local translationData = jsonD(body[1][3])
---             local result = {
---                 text = "",
---                 from = {
---                     language = "",
---                     text = ""
---                 },
---                 raw = ""
---             }
---             result.raw = translationData
---             result.text = translationData[2][1][1][6][1][1]
-            
---             result.from.language = translationData[3]
---             result.from.text = translationData[2][5][1]
-    
---             return result
---         end
---     end
---     function translateFrom(message)
---         local translation = translate(message, YourLang)
-    
---         local text
---         if translation.from.language ~= YourLang then 
---             text = translation.text
---         end
-    
---         return {text, translation.from.language}
---     end
---     function Translate(message) 
---         local s,translated =  pcall(function() 
---             return translateFrom(message)[1]
---         end)
---         if s then return translated 
---         else
---             --print(message,translated)
---         end
---     end
--- end
--- SetUpTranslate()
--- getgenv().TranslateCache = {}
--- if not isfolder("Sea Hub") then
---     makefolder("Sea Hub")
--- end
--- local s,Translated = pcall(function() 
---     return game.HttpService:JSONDecode(readfile("Sea Hub/!UIText.json"))
--- end)
--- function SaveFile() 
---     pcall(function() 
---         writefile("Sea Hub/!UIText.json",game.HttpService:JSONEncode(getgenv().TranslateCache))
---     end)
--- end
--- function isnumber() end
--- local UIChanged = false
--- if s and Translated then 
---     getgenv().TranslateCache = Translated end
--- if GUI then 
---     GUI.DescendantAdded:Connect(function(des) 
---         if des then 
---             if pcall(function() return des.Text end) then 
---                 delay(0,function() 
---                     if des.Text=="" or #des.Text<=4 or tonumber(des.Text)~=nil then
---                         return
---                     end
---                     if string.match(des.Text,"Sea Hub") then 
---                         local tvk = des.Text:gsub("Sea Hub","Trung Tâm Biển")
---                         des.Text = tvk
---                         return
---                     end
---                     local old = des.Text
---                     local c = 0
---                     while des.Text==old and c<3 do 
---                         --SetRandomLang()
---                         if getgenv().TranslateCache[des.Text] then 
---                             des.Text = getgenv().TranslateCache[des.Text]
---                             return
---                         end
---                         local t = Translate(des.Text)
---                         if t and t ~= old then 
---                             getgenv().TranslateCache[des.Text] = t
---                             UIChanged =true
---                             if t then des.Text = t end
---                         end
---                         wait(1)
---                         c=c+1
---                     end
---                     getgenv().TranslateCache[des.Text]  = des.Text
---                     UIChanged =true
---                 end)
---             end
---         end
---     end)
--- end
--- spawn(function() 
---     local t = tick()
---     while wait(2) do 
---         if tick()-t>30 then 
---             if UIChanged then 
---                 SaveFile()
---                 UIChanged = false
---             end
---         else
---             SaveFile()
---         end
---     end
--- end)
--- if syn.protect_gui then
---     syn.protect_gui(u.Gui)
---     syn.protect_gui(u.NotiGui)
---     u.Gui.Parent = game:GetService("CoreGui")
---     u.NotiGui.Parent = game:GetService("CoreGui")
--- end
 u.Gui.Parent = game:GetService("CoreGui")
 u.NotiGui.Parent = game:GetService("CoreGui")
 
@@ -642,7 +375,7 @@ function t.CreateNoti(H)
     local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
     local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
     local g = V .. "," .. W .. "," .. X
-    Q.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().TitleNameNoti
+    Q.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().TitleNameNoti
     table.insert(
         c["Title Text Color"],
         function()
@@ -650,7 +383,7 @@ function t.CreateNoti(H)
             local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
             local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
             local g = V .. "," .. W .. "," .. X
-            Q.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().TitleNameNoti
+            Q.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().TitleNameNoti
         end
     )
     Q.Name = "TextLabelNoti"
@@ -768,7 +501,7 @@ function t.CreateNoti(H)
     )
 end
 function t.CreateMain(H)
-    local Z = tostring(H.Title) or "Sea Hub"
+    local Z = tostring(H.Title) or "Perfect Hub"
     getgenv().MainDesc = H.Desc or ""
     local _ = false
     cac = false
@@ -871,7 +604,7 @@ function t.CreateMain(H)
         local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
         local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
         local g = V .. "," .. W .. "," .. X
-        ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+        ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
         table.insert(
             c["Title Text Color"],
             function()
@@ -880,7 +613,7 @@ function t.CreateMain(H)
                 local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
                 local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
                 local g = V .. "," .. W .. "," .. X
-                ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+                ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
             end
         )
         local as
@@ -941,7 +674,7 @@ function t.CreateMain(H)
     local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
     local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
     local g = V .. "," .. W .. "," .. X
-    ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+    ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
     table.insert(
         c["Title Text Color"],
         function()
@@ -950,7 +683,7 @@ function t.CreateMain(H)
             local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
             local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
             local g = V .. "," .. W .. "," .. X
-            ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+            ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
         end
     )
     local ar
@@ -1080,7 +813,7 @@ function t.CreateMain(H)
     local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
     local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
     local g = V .. "," .. W .. "," .. X
-    ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+    ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
     table.insert(
         c["Title Text Color"],
         function()
@@ -1088,7 +821,7 @@ function t.CreateMain(H)
             local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
             local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
             local g = V .. "," .. W .. "," .. X
-            ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+            ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
         end
     )
     ak.Name = "SettionMain"
@@ -1216,7 +949,6 @@ function t.CreateMain(H)
             av = not av
             pa = av and 1 or 0
             ro = av and 180 or 0
-          --  aq:JumpToIndex(pa)
             game.TweenService:Create(am, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {Rotation = ro}):Play(
 
             )
