@@ -1,3 +1,9 @@
+repeat 
+	task.wait() 
+until game:IsLoaded() 
+	and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") 
+	and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
+
 for i,v in pairs(workspace.Decorations["Diamond Mask Hall"]:GetChildren()) do
 	if v:FindFirstChild("GateScript") and v.Name == "Part" then
 		v.CanTouch = false
@@ -6606,4 +6612,19 @@ Tasks:Add("Auto Face", function()
 			continue
 		end
 	end
-end
+end, true)
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+
+InterfaceManager:SetFolder("vitaly")
+SaveManager:SetFolder("vitaly/bss")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Config)
+SaveManager:BuildConfigSection(Tabs.Config)
+
+Window:SelectTab(1)
+
+SaveManager:LoadAutoloadConfig()
