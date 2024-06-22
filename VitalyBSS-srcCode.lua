@@ -727,3 +727,2993 @@ cocoPad.Anchored = true
 cocoPad.CanCollide = false
 cocoPad.Transparency = 1
 cocoPad.Parent = Workspace
+
+local tunnelPart = Instance.new("Part")
+tunnelPart.Anchored = true
+tunnelPart.CanCollide = true
+tunnelPart.Position = Vector3.new(410, 27, -48)
+tunnelPart.Size = Vector3.new(10,1,10)
+tunnelPart.Transparency = 1
+tunnelPart.Parent = Workspace
+Workspace.Decorations.TrapTunnel["Tunnel Ceiling"].CanCollide = false
+
+if not Workspace:FindFirstChild("Cave") then
+	local CaveFolder = Instance.new("Folder", Workspace)
+	CaveFolder.Name = "Cave"
+
+	local FillPart = Instance.new("Part", CaveFolder)
+	FillPart.Name = "FillPart"
+	FillPart.Position = Vector3.new(-29.765, 70.252, -144)
+	FillPart.Size = Vector3.new(149.529, 10.607, 89.198)
+	FillPart.Transparency = 1
+end
+
+function removeFromTable(Table, element)
+	return table.remove(Table, table.find(Table, element))
+end
+
+function getTweenSpeed()
+	return (vitaly.localPlayerSettings.tweenSpeed * 10) or 70
+end
+
+function bssAlert(style, text)
+	secureCall(AlertBoxes.Push, player.PlayerScripts.AlertBoxes, nil, text, nil, style)
+end
+
+function checkCave(startPos, endPos)
+	local direction = (endPos - startPos).Unit
+	local ray = Ray.new(startPos, direction * (endPos - startPos).magnitude)
+	local part = Workspace:FindPartOnRayWithWhitelist(ray, {Workspace.Cave})
+	if part then return true else return false end
+end
+
+getgenv().TweenNoclip = nil
+function stopTween()
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoidRootPart = character.PrimaryPart
+	local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+
+	if getgenv().TweenNoclip then 
+		pcall(function() TweenNoclip:Disconnect() end) 
+		TweenNoclip = nil 
+	end
+
+	if humanoidRootPart then
+		for i,v in pairs(humanoidRootPart:GetChildren()) do
+			if v:IsA("AlignPosition") or v:IsA("AlignOrientation") then
+				v:Destroy()
+			end
+		end
+	end
+
+	if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Freefall) end
+end
+
+function tween(pos, speed, caveAvoid)
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild("Humanoid")
+	local humanoidRootPart = character.PrimaryPart
+	local b = false
+	if checkCave(humanoidRootPart.Position, pos) and not caveAvoid then
+		tween(Vector3.new(8, 90, -140), speed, true)
+		character = player.Character or player.CharacterAdded:Wait()
+		humanoid = character:WaitForChild("Humanoid")
+		humanoidRootPart = character.PrimaryPart
+	end
+
+	stopTween()
+	local fixedSpeed = false
+	if speed then fixedSpeed = true end
+
+	local alignPos = Instance.new("AlignPosition")
+	alignPos.Mode = Enum.PositionAlignmentMode.OneAttachment
+	alignPos.Attachment0 = humanoidRootPart.RootAttachment
+	alignPos.MaxForce = math.huge
+	alignPos.MaxVelocity = (fixedSpeed and speed) or getTweenSpeed()
+	alignPos.Position = pos
+	alignPos.Parent = humanoidRootPart
+
+	local alignOrientation = Instance.new("AlignOrientation")
+	alignOrientation.Attachment0 = humanoidRootPart.RootAttachment
+	alignOrientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
+	alignOrientation.RigidityEnabled = true
+	alignOrientation.CFrame = humanoidRootPart.CFrame
+	alignOrientation.Parent = humanoidRootPart
+
+	-- humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	-- task.wait()
+	humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+
+	getgenv().TweenNoclip = RunService.PostSimulation:Connect(function()
+		for _, part in character:GetDescendants() do
+			if part:IsA("BasePart") and part.CanCollide then
+				part.CanCollide = false
+			end
+		end
+	end)
+
+	local startTimestamp = tick()
+	local playerDied = false
+	local a = humanoid.Died:Connect(function() 
+		playerDied = true
+	end)
+
+	local tempNoClip = getgenv().TweenNoclip
+
+	repeat 
+		task.wait()
+		if not fixedSpeed then
+			alignPos.MaxVelocity = getTweenSpeed()
+		end
+	until 
+	player:DistanceFromCharacter(pos) <= 5
+		or tempNoClip ~= getgenv().TweenNoclip 
+		or playerDied
+		or (tick() - startTimestamp) > 30
+
+	a:Disconnect()
+	if playerDied then
+		stopTween()
+		warn("ok1")
+		player.CharacterAdded:Wait()
+		task.wait(0.5)
+		if caveAvoid then return end
+		return false, tween(pos, speed)
+	end
+
+	if (tick() - startTimestamp) > 45 then 
+		error("[Macro V3] (%s) | An error has occurred: %s"):format(temptable.version, "Tween timed out.") 
+	end
+
+	if tempNoClip == TweenNoclip then
+		return true, stopTween()
+	end
+
+	return false
+end
+
+function startTween(pos, speed)
+	local tweenCompleted = nil
+	coroutine.wrap(function() 
+		tweenCompleted = pcall(function() 
+			tween(pos, speed)
+		end)
+		if tweenCompleted == nil then tweenCompleted = false end
+	end)()
+	repeat task.wait() until tweenCompleted ~= nil
+end
+
+getgenv().moveTo = function(pos)
+	startTween(pos + Vector3.new(0,3,0))
+end
+
+function jsonEncode(tbl)
+	local jsonString
+	pcall(function() jsonString = HttpService:JSONEncode(tbl) end)
+	return jsonString
+end
+
+function jsonDecode(json)
+	local luaTable
+	local a,s = pcall(function() luaTable = HttpService:JSONDecode(json) end)
+	return luaTable
+end
+
+function getPartsFromRay(ray, whitelist)
+	if typeof(whitelist) == "Instance" then whitelist = whitelist:GetDescendants() 
+	elseif typeof(whitelist) == "nil"  then whitelist = {} end
+
+	local Parts = {}
+	local LastPart
+
+	repeat
+		LastPart = workspace:FindPartOnRayWithIgnoreList(ray, Parts)
+		table.insert(Parts, LastPart)
+	until LastPart == nil
+
+	for i,v in pairs(Parts) do
+		if not table.find(whitelist, v) then table.remove(Parts, i) continue end
+	end
+
+	return Parts
+end
+
+function walkTo(pos, timeout)
+	timeout = timeout or 30
+	local startedWalking = tick()
+	local walkFinished = false
+	player.DevComputerMovementMode = Enum.DevComputerMovementMode.Scriptable
+	api.humanoid():MoveTo(pos)
+	local walkFinishedSignal = api.humanoid().MoveToFinished:Connect(function() walkFinished = true end)
+
+	repeat 
+		task.wait()
+	until walkFinished or (tick() - startedWalking) > timeout
+	pcall(function() walkFinishedSignal:Disconnect() end)
+	api.humanoid():MoveTo(api.humanoidrootpart().Position)
+	player.DevComputerMovementMode = Enum.DevComputerMovementMode.UserChoice
+	return walkFinished
+end
+
+while not player:FindFirstChild("Honeycomb") do 
+	for i = 8,3,-1 do
+		local hive = Workspace.Honeycombs:FindFirstChild("Hive"..i)
+		if hive and not hive.Owner.Value then
+			repeat
+				if api.magnitude(hive.SpawnPos.Value.p, api.humanoidrootpart().Position) < 10 then
+					secureCall(ActivatablesHives.ButtonEffect, Activatables, player, hive.Platform.Value)
+
+					task.wait(.75)
+				else 
+					moveTo(hive.SpawnPos.Value.p - Vector3.new(0,2,0))
+				end
+				task.wait()
+			until hive.Owner.Value or player:FindFirstChild("Honeycomb")
+			if player:FindFirstChild("Honeycomb") then break end
+		end
+	end
+end
+
+plrHive = player:FindFirstChild("Honeycomb").Value
+
+function isBeesmas()
+	local active = Workspace:WaitForChild"Toys":FindFirstChild"Beesmas Tree" and true
+
+	return active
+end
+
+
+function findField(position)
+	local ray = Ray.new(position+Vector3.new(0, -35, 0), Vector3.new(0,100, 0))
+	local hit, hitPos = workspace:FindPartOnRayWithWhitelist(ray, {game.Workspace.FlowerZones})
+	if hit and hit.Parent.Name == "FlowerZones" then
+		return hit
+	else
+		return nil
+	end
+end
+
+function getNumbers(str)
+	local nums = {}
+	for num in str:gmatch("%d+") do
+		table.insert(nums, tonumber(num))
+	end
+	return nums
+end
+
+function truncate(num)
+	num = tonumber(math.round(num))
+	if num <= 0 then
+		return 0
+	end
+	local savenum = ""
+	local i = 0
+	local suff = ""
+	local suffixes = {"k","M","B","T","qd","Qn","sx","Sp","O","N"}
+	local length = math.floor(math.log10(num)+1)
+	while num > 999 do
+		i = i + 1
+		suff = suffixes[i] or "???"
+		num = num/1000
+		savenum = (math.floor(num*100)/100)..suff
+	end
+	if i == 0 then
+		return num
+	end
+	return savenum
+end
+
+function truncatetime(sec)
+	local second = tostring(sec%60)
+	local minute = tostring(math.floor(sec / 60 - math.floor(sec / 3600) * 60))
+	local hour = tostring(math.floor(sec / 3600))
+
+	return (#hour == 1 and "0"..hour or hour)..":"..(#minute == 1 and "0"..minute or minute)..":"..(#second == 1 and "0"..second or second)
+end
+
+function pressButton(button)
+	VirtualInputManager:SendKeyEvent(true, button, false, game)
+	game:GetService("RunService").Heartbeat:Wait()
+	VirtualInputManager:SendKeyEvent(false, button, false, game)
+end
+
+function addcommas(num)
+	local str = tostring(num):reverse():gsub("(%d%d%d)", "%1,"):reverse()
+	if str:sub(1,1) == "," then
+		str = str:sub(2)
+	end
+	return str
+end
+
+function getTokenId(token)
+	local id = "0"
+	if token and token.Parent and token:FindFirstChildOfClass("Decal") then
+		local texture = token:FindFirstChildOfClass("Decal").Texture
+		local tempId = tonumber(tostring(texture):match("%d+"))
+		if tempId then id = tempId end
+	end
+	return id
+end
+
+local accessoryShopsLocations = {
+	["Diamond Mask Shop"] = Vector3.new(-335, 132, -391),
+	["Demon Mask Shop"] = Vector3.new(297, 27, 274),
+	["Master Shop"] = Vector3.new(-486, 69, 0)
+}
+
+local accessoryShops = {
+	["Diamond Mask"] = accessoryShopsLocations["Diamond Mask Shop"],
+	["Demon Mask"] = accessoryShopsLocations["Demon Mask Shop"],
+	["Honey Mask"] = accessoryShopsLocations["Master Shop"]
+}
+
+function remoteEquipAccessory(accessory)
+	Events.ClientCall("ItemPackageEvent", "Equip", {
+		Mute = false,
+		Type = accessory,
+		Category = "Accessory"
+	})
+end
+
+function requestAccessoryEquip(accessory)
+	local shopPosition = accessoryShops[accessory]
+	if not shopPosition then
+		return false, "Invalid input!"
+	end
+
+	local accessoryType = accessoriesTable[accessory]
+	if not accessoryType then
+		return false, "Accessory not found!"
+	end
+
+
+	if not checkAccessory({Type = accessory}, getClientStatCache()) then 
+		return false, "Player does not have "..accessory
+	end
+
+	local currentAccessory = updateClientStatCache("EquippedAccessories", accessoryType)
+
+
+	if currentAccessory == accessory then
+		return false, "Already equipped " .. accessory
+	end
+
+	if vitaly.vars.equipAccessoryMethod == "Tween" then
+		moveTo(shopPosition)
+	elseif vitaly.vars.equipAccessoryMethod == "Teleport" then
+		api.humanoidrootpart().CFrame = CFrame.new(shopPosition)
+	end
+
+	task.wait(0.1)
+	if (api.magnitude(shopPosition) < 25) or vitaly.vars.equipAccessoryMethod == "Remote" then
+		remoteEquipAccessory(accessory)
+		return true
+	else
+		return false
+	end
+end
+
+function getRandomRareToken()
+	for i=#temptable.tokensTable, 1, -1 do
+		local token = temptable.tokensTable[i]
+		if not token or not token.Parent then continue end
+
+		local tokenId = tostring(getTokenId(token))
+		if table.find(vitaly.vars.raresList, tokenId) then
+			return token
+		end
+	end
+end
+
+function getMinePlanters()
+	local minePlantersTable = {}
+	pcall(function()
+		local plantedPlanters = debug.getupvalues(LocalPlanters.LoadPlanter)[4]
+		for i, v in pairs(plantedPlanters) do
+			if v.IsMine and v.PotModel and v.Active and not v.Collected then
+				table.insert(minePlantersTable,v)
+			end
+		end
+	end)
+	return minePlantersTable
+end
+
+function updateClientStatCache(...)
+	return ClientStatCache:Update({...})
+end
+
+function getClientStatCache(...)
+	return ClientStatCache:Get({...})
+end
+
+function getDailyHoney()
+	return ClientStatCache.GetDailyTotal(nil, "Honey") - (ClientStatCache.GetDailyTotal(nil, "ChallengeHoney") - (ClientStatCache.GetDailyTotal(nil, {"EggsReceived","SysHoney"})))
+end
+
+function getWarningDisks()
+	local warningDisks = {}
+	for i,v in pairs(game.Workspace.Particles:GetChildren()) do
+		if v.Name == "WarningDisk" or v.Name == "Thorn" then 
+			table.insert(warningDisks,v) 
+		end
+	end
+	return warningDisks
+end
+
+if _G.debugging then
+	warn("Tables init.")
+end
+
+--Tables
+
+local npcIconsEndpoint = "https://static.wikia.nocookie.net/bee-swarm-simulator/images/"
+local npcsIcons = {
+	["Polar Bear"]   = npcIconsEndpoint.."2/23/Polar.png",
+	["Bucko Bee"]    = npcIconsEndpoint.."3/3d/GiftedBuckoBeeNPCTransparent.png",
+	["Black Bear"]   = npcIconsEndpoint.."7/71/Black.png",
+	["Mother Bear"]  = npcIconsEndpoint.."a/af/MotherBearTrans.png",
+	["Brown Bear"]   = npcIconsEndpoint.."0/06/Brown.png",
+	["Panda Bear"]   = npcIconsEndpoint.."0/00/Panda.png",
+	["Science Bear"] = npcIconsEndpoint.."a/a5/Science.png",
+	["Dapper Bear"]  = npcIconsEndpoint.."4/4b/DapperBear.png",
+	["Spirit Bear"]  = npcIconsEndpoint.."2/21/Spirit_bear333.png",
+	["Riley Bee"]    = npcIconsEndpoint.."b/b0/GiftedRileyBeeNPCTransparent.png"
+}
+
+local miscEmojis = {
+	["Polar Power"] = "<:PolarPower:1080979354030444594>"
+}
+
+local nectarEmojis = {
+	["Refreshing Nectar"]   = "<:Refreshing:1080956994070007818>",
+	["Invigorating Nectar"] = "<:Invigorating:1080967902800392354>",
+	["Comforting Nectar"]   = "<:Comforting:1080968750888652960>",
+	["Motivating Nectar"]   = "<:Motivating:1080969173536096357>",
+	["Satisfying Nectar"]   = "<:Satisfying:1080969460288073748>"
+}
+
+local plantersEmojis = {
+	["Paper Planter"]         = "<:PaperPlanter:1084965375965405265>",
+	["Plastic Planter"]       = "<:PlasticPlanter:1084965381711597598>",
+	["Candy Planter"]         = "<:CandyPlanter:1084965368147226716>",
+}
+
+AllToysTable = {
+	["toysTable"] = {
+		['autoWealthClock'] = "Wealth Clock",
+		['autoHoneystorm'] = "Honeystorm",
+		['autoFreeAntPass'] = "Free Ant Pass Dispenser",
+		['autoFreeRoboPass'] = "Free Robo Pass Dispenser"
+	},
+	["boostersTable"] = {
+		['whiteBooster'] = 'Field Booster',
+		['redBooster'] = 'Red Field Booster',
+		['blueBooster'] = 'Blue Field Booster'
+	},
+	["dispensersTable"] = {
+		['treatDispenser'] = "Treat Dispenser",
+		['royalJellyDispenser'] = "Free Royal Jelly Dispenser",
+		['blueberryDispenser'] = "Blueberry Dispenser",
+		['strawberryDispenser'] = "Strawberry Dispenser",
+		['coconutDispenser'] = "Coconut Dispenser",
+		["glueDispenser"] = "Glue Dispenser"
+	},
+	["memoryMatchTable"] = {}
+}
+
+if isBeesmas() then
+	AllToysTable["beesmasToysTable"] = {
+		['autoSamovar'] = "Samovar",
+		['autoStockings'] = "Stockings",
+		['autoOnettArt'] = "Onett's Lid Art",
+		['autoCandles'] = "Honeyday Candles",
+		['autoFeast'] = "Beesmas Feast",
+		['autoSnowMachine'] = "Snow Machine",
+		['autoHoneyWreath'] = "Honey Wreath"
+	}
+	AllToysTable["toysTable"]["autoMotherHouse"] = "Gingerbread House"
+end
+
+fieldsTable = {}
+blueFields = {}
+redFields = {}
+whiteFields = {}
+
+monstersTable = {}
+plantersTable = {}
+plantersDropdownTable = {}
+nectarsTable = {}
+accessoriesTable = {}
+
+sproutRarities = {
+	[Color3.fromRGB(103,162,201)] = "Moon",
+	[Color3.fromRGB(180, 190, 186)] = "Common",
+
+}
+
+showerTable = {}
+beesTable = {namesOnly = {}, fullData = {}, raritiesTable = {"Any Common", "Any Rare", "Any Epic", "Any Legendary", "Any Mythic"}}
+npcsTable = {"Black Bear", "Brown Bear", "Panda Bear", "Science Bear", "Polar Bear", "Spirit Bear", "Bucko Bee", "Riley Bee", "Honey Bee", "Onett", "Bee Bear 5"}
+
+nectarsDropdownTable = {
+	"Comforting Nectar",
+	"Satisfying Nectar",
+	"Invigorating Nectar",
+	"Refreshing Nectar",
+	"Motivating Nectar"
+}
+
+if _G.debugging then
+	warn("Tables init done. Waiting 1 second")
+	task.wait(1)
+end
+
+if _G.debugging then
+	warn("Tables init 2.")
+end
+
+--Tables init
+for fieldIndex, field in pairs(Workspace.FlowerZones:GetChildren()) do
+	table.insert(fieldsTable, field.Name)
+	if not field:FindFirstChild("ColorGroup") then
+		local colorGroup = Instance.new("StringValue")
+		colorGroup.Name = "ColorGroup"
+		colorGroup.Value = "White"
+		colorGroup.Parent = field
+	end
+	if field.ColorGroup.Value == "Blue" then table.insert(blueFields, field.Name)
+	elseif field.ColorGroup.Value == "Red" then table.insert(redFields, field.Name)
+	elseif field.ColorGroup.Value == "White" then table.insert(whiteFields, field.Name)
+	end
+end
+
+for i,v in pairs(Accessories.GetTypes()) do
+	if v.Slot then
+		accessoriesTable[i] = v.Slot
+	end
+end
+
+for i,v in pairs(PlanterTypes.GetTypes()) do
+	if v.Description == "Test planter." or i == "Ticket" or i == "Festive" then continue end
+	local planterData = {
+		systemName = v.Name,
+		displayName = v.DisplayName,
+		nectarMultipliers = v.NectarMultipliers,
+		pollenMultipliers = v.PollenMultipliers
+	}
+	plantersTable[v.Name] = planterData
+	table.insert(plantersDropdownTable, v.DisplayName)
+end
+
+writefile("newPlanters.json", game.HttpService:JSONEncode(plantersTable))
+
+for i,v in pairs(NectarTypes.GetTypes()) do
+	nectarsTable[i] = v.Fields
+end
+
+for i,v in pairs(temptable.tokenpath:GetChildren()) do
+	table.insert(temptable.susTokenPositions, v.Position)
+end
+
+
+for i,v in pairs(Workspace.MonsterSpawners:GetChildren()) do
+	monstersTable[v.Name] = {RespawnCooldown = 0, MonsterType = nil}
+	monstersTable[v.Name].MonsterType = v.MonsterType.Value
+	monstersTable[v.Name].RespawnCooldown = MonsterTypes.Get(v.MonsterType.Value).Stats.RespawnCooldown
+	monstersTable[v.Name].Spawner = v
+	if v.Name == "WerewolfCave" then
+		monstersTable[v.Name].Territory = v.Territory.Value.w
+	elseif v.Name == "MushroomBush" then
+		monstersTable[v.Name].Territory = v.Territory.Value.Part
+	else
+		monstersTable[v.Name].Territory = v.Territory.Value
+	end
+end
+
+for i,v in pairs(Workspace.Toys:GetChildren()) do
+	if v.Name:find("Memory Match") then table.insert(AllToysTable["memoryMatchTable"], v.Name) end
+end
+
+for i,v in pairs(require(game:GetService("ReplicatedStorage").BeeTypes).GetTypes()) do
+	table.insert(beesTable.namesOnly, i.." Bee")
+	beesTable.fullData[i] = {Rarity = v.Rarity}
+end
+
+if _G.debugging then
+	warn("Tables init 2. Waiting 1 second")
+	task.wait(1)
+end
+
+--Functions
+
+function markAsCollected(object)
+	local collectedCache = Instance.new("Folder")
+	collectedCache.Name = "Collected"
+	collectedCache.Parent = object
+end
+
+local cachedFieldFlowers = {}
+
+function getAllFlowers(field)
+	local fieldId = field.ID.Value
+	local fieldFlowers
+	if cachedFieldFlowers[field.Name] then
+		fieldFlowers = cachedFieldFlowers[field.Name]
+	else
+		fieldFlowers = {}
+		for flowerIndex, flower in pairs(Workspace.Flowers:GetChildren()) do
+			local flowerInfo = getNumbers(flower.Name)
+			if #flowerInfo == 3 and flowerInfo[1] == fieldId then
+				table.insert(fieldFlowers, flower)
+			end
+		end
+		if not (#fieldFlowers <= 1) then 
+			cachedFieldFlowers[field.Name] = fieldFlowers 
+		else
+			return 
+		end
+	end
+	return fieldFlowers
+end
+
+function getRandomFlower(field)
+	local fieldId = field.ID.Value
+	local fieldFlowers
+	if cachedFieldFlowers[field.Name] then
+		fieldFlowers = cachedFieldFlowers[field.Name]
+	else
+		fieldFlowers = {}
+		for flowerIndex, flower in pairs(Workspace.Flowers:GetChildren()) do
+			local flowerInfo = getNumbers(flower.Name)
+			if #flowerInfo == 3 and flowerInfo[1] == fieldId then
+				table.insert(fieldFlowers, flower)
+			end
+		end
+		if not (#fieldFlowers <= 1) then 
+			cachedFieldFlowers[field.Name] = fieldFlowers 
+		else
+			return 
+		end
+	end
+	return fieldFlowers[math.random(1,#fieldFlowers)]
+end
+
+local cachedFieldCenters = {farm = {}, sprinkler = {}}
+
+function getNewFarmCenter(field, sprinkler)
+	if not (field:FindFirstChild("ColorGroup") and field.ColorGroup.Value == "Blue") then return end
+	if sprinkler and cachedFieldCenters["sprinkler"][field.Name] then 
+		return cachedFieldCenters["sprinkler"][field.Name] 
+	elseif not sprinkler and cachedFieldCenters["farm"][field.Name] then
+		return cachedFieldCenters["farm"][field.Name] 
+	end
+	local flowers = getAllFlowers(field)
+	local minX = math.huge
+	local minY = math.huge
+	local maxX = -math.huge
+	local maxY = -math.huge
+
+	for i, flower in ipairs(flowers) do
+		local flowerSettings = getNumbers(flower.Name)
+		minX = math.min(minX, flowerSettings[2])
+		minY = math.min(minY, flowerSettings[3])
+		maxX = math.max(maxX, flowerSettings[2])
+		maxY = math.max(maxY, flowerSettings[3])
+	end
+
+	local flowerCenter 
+	if maxX - minX >= maxY - minY then -- x is longer
+		local centerFlowerX = sprinkler and maxX - 5 or maxX
+		local centerFlowerY = sprinkler and maxY - 5 or maxY --math.floor((minY + maxY) / 2 + 0.5)
+		for i,v in pairs(flowers) do
+			if v.Name == "FP"..field.ID.Value.."-"..centerFlowerX.."-"..centerFlowerY then
+				flowerCenter = v
+				break
+			end
+		end
+	else -- y is longer
+		local centerFlowerX = sprinkler and maxX - 5 or maxX --math.floor((minX + maxX) / 2 + 0.5)
+		local centerFlowerY = sprinkler and maxY - 5 or maxY
+		for i,v in pairs(flowers) do
+			if v.Name == "FP"..field.ID.Value.."-"..centerFlowerX.."-"..centerFlowerY then
+				flowerCenter = v
+				break
+			end
+		end
+	end
+	if flowerCenter then
+		if sprinkler and not cachedFieldCenters["sprinkler"][field.Name] then 
+			cachedFieldCenters["sprinkler"][field.Name] = flowerCenter
+		elseif not sprinkler and not cachedFieldCenters["farm"][field.Name] then
+			cachedFieldCenters["farm"][field.Name] = flowerCenter
+		end
+	end
+	return flowerCenter
+end
+
+
+
+function jump()
+	if not player.Character.Humanoid.Jump then
+		player.Character.Humanoid.Jump = true
+	end
+end
+
+function getPlanterData(planterName)
+	local planterData
+	if plantersTable[planterName] then 
+		planterData = plantersTable[planterName] 
+	else
+		for i,v in pairs(plantersTable) do
+			if v.displayName == planterName then
+				planterData = v
+				break
+			end
+		end
+	end
+	return planterData
+end
+
+function gethiveballoon()
+	for _,balloon in pairs(Workspace.Balloons.HiveBalloons:GetChildren()) do
+		if balloon:FindFirstChild("BalloonRoot") then
+			if balloon.BalloonRoot.CFrame.p.X == player.SpawnPos.Value.p.X then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function getBuffTime(buffName, convertToHMS)
+	local buff = BuffTileModule.GetBuffTile(buffName)
+	if not buff or not buff.TimerDur or not buff.TimerStart then 
+		return 0 
+	end
+
+	local toReturn = buff.TimerDur - (math.floor(ServerTime()) - buff.TimerStart)
+	if convertToHMS then 
+		toReturn = timeToString(toReturn) 
+	end
+
+	return toReturn
+end
+
+function getBuffStack(buffName)
+	local buff = BuffTileModule.GetBuffTile(buffName)
+
+	return (buff and tostring(buff.Combo)) or 0
+end
+
+function getCurrentTime()
+	local CurrentTime = Lighting.ClockTime
+	return (CurrentTime > 10 and "Day") or "Night"
+end
+
+function disableall()
+	temptable.disableAll = true
+end
+
+function enableall()
+	temptable.disableAll = false
+end
+
+function isFieldSame(pos1, pos2)
+	return findField(pos1) == findField(pos2)
+end
+
+if _G.debugging then
+	warn("Functions init.")
+end
+
+function canTaskBeSpawned(taskName)
+	if taskName == "getToys" then
+		if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then return false end
+
+		return true
+	elseif taskName == "farmPlanters" then
+		if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then return false end
+
+		return true
+	elseif taskName == "killVicious" then
+
+		return true
+	elseif taskName == "trainBosses" then
+		if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then return false end
+
+		return true
+	end
+end
+
+function canCollectToken(token)
+	return 
+		token.Parent and 
+		((api.humanoidrootpart().Position * Vector3.new(0,1,0)) - (token.Position * Vector3.new(0,1,0))).magnitude < 6 and
+		token.CFrame.YVector.Y == 1
+end
+
+function canFarmTask(taskName) 
+	if taskName == "getNearestBubble" and vitaly.autoFarmSettings.farmBubbles  
+		or taskName == "getNearestFuzz" and vitaly.autoFarmSettings.farmFuzzyBombs  
+		or taskName == "getNearestCloud" and vitaly.autoFarmSettings.farmUnderClouds  
+		or taskName == "getNearestFlame" and vitaly.autoFarmSettings.farmFlames  
+		or taskName == "getNearestToken" and true
+	then return true else return false end
+end
+function dig()
+	std(2)
+	require(game.ReplicatedStorage.Collectors.LocalCollect).Run()
+	std(8)
+end
+local NearestTable = {}
+
+NearestTable.getNearestBubble = function(callback)
+	local nearest = {bubble = nil, distance = math.huge}
+	for _,bubble in pairs(Workspace.Particles:GetChildren()) do
+		if bubble.Name ~= "Bubble" then continue end
+		if callback and not callback(bubble) then continue end
+		local distance = api.magnitude(bubble.Position)
+		if distance < nearest.distance then
+			nearest = {bubble = bubble, distance = distance}
+		end
+	end
+	return nearest.bubble, nearest.distance
+end
+
+NearestTable.getNearestFuzz = function(callback)
+	local nearest = {fuzz = nil, distance = math.huge}
+	for _,fuzz in pairs(Workspace.Particles:GetChildren()) do
+		if fuzz.Name ~= "DustBunnyInstance" then continue end
+		if callback and not callback(fuzz.Plane) then continue end
+		local distance = api.magnitude(fuzz.Plane.Position)
+		if distance < nearest.distance then
+			nearest = {fuzz = fuzz.Plane, distance = distance}
+		end
+	end
+	return nearest.fuzz, nearest.distance
+end
+
+NearestTable.getNearestToken = function(blacklistedTokens, callback)
+	local nearest = {token = nil, distance = math.huge}
+	for _, token in ipairs(temptable.tokenpath:GetChildren()) do
+		if blacklistedTokens and table.find(blacklistedTokens, token) then warn("Token blacklisted") continue end
+		if callback and not callback(token) then continue end
+		if canCollectToken(token) then
+			local distance = api.magnitude(token.Position)
+			if distance < nearest.distance then
+				nearest = {token = token, distance = distance}
+			end
+		end
+	end
+	return nearest.token, nearest.distance
+end
+
+NearestTable.getNearestCloud = function(callback)
+	local nearest = {cloud = nil, distance = math.huge}
+	for _, cloud in ipairs(Workspace.Clouds:GetChildren()) do
+		if not cloud:FindFirstChild("Plane") then continue end
+		if callback and not callback(cloud.Plane) then continue end
+		local distance = api.magnitude(cloud.Plane.Position)
+		if distance < nearest.distance then
+			nearest = {cloud = cloud.Plane, distance = distance}
+		end
+	end
+	return nearest.cloud, nearest.distance
+end
+
+NearestTable.getNearestFlame = function(callback)
+	local nearest = {flame = nil, distance = math.huge}
+	for _, flame in ipairs(Workspace.PlayerFlames:GetChildren()) do
+		if not flame:FindFirstChild("PF") or flame:FindFirstChild("PF") and flame.PF.Color.Keypoints[1].Value.G == 0 then continue end
+		if callback and not callback(flame) then continue end
+		local distance = api.magnitude(flame.Position)
+		if distance < nearest.distance then
+			nearest = {flame = flame, distance = distance}
+		end
+	end
+	return nearest.flame, nearest.distance
+end
+
+getNearestBalloon = function(callback) 
+	local nearest = {token = nil, distance = math.huge}
+	for _, balloon in pairs(temptable.balloonsTable) do
+		if callback and not callback(balloon.BalloonBody) then continue end
+		if not balloon:FindFirstChild("BalloonBody") then continue end
+		local distance = api.magnitude(balloon.BalloonBody.Position)
+		if distance < nearest.distance then
+			nearest = {balloon = balloon.BalloonBody, distance = distance}
+		end
+	end
+	return nearest.balloon, nearest.distance
+end
+
+function getNearestTask(callback)
+	local nearest = {taskName = "", distance = math.huge, object = nil}
+	local distanceTable = {}
+	for i, v in pairs(NearestTable) do
+		if not canFarmTask(i) then continue end
+
+		if i ~= "getNearestToken" then
+			local temp = string.gsub(i, "getNearest", "")
+			local Name = tostring(temp)
+			local values = {v(callback)}
+			local tableToAdd={Name, i, values[1], values[2]}
+			table.insert(distanceTable, tableToAdd)
+		else
+			local temp = string.gsub(i, "getNearest", "")
+			local Name = tostring(temp)
+			local values = {v(nil, callback)}
+			local tableToAdd={Name, i, values[1], values[2]}
+			table.insert(distanceTable, tableToAdd)
+		end
+	end
+	for i, v in pairs(distanceTable) do
+		if v[4] < nearest.distance then
+			nearest = {taskName = v[1], distance = v[4], object = v[2]}
+		end
+	end
+	return nearest.taskName, nearest.object
+end
+
+function farmNearest(callback)
+	local nearestName = getNearestTask(callback)
+	if nearestName == "Bubble" then
+		return farmBubble(callback)
+	elseif nearestName == "Token" then
+		return farmToken(callback)
+	elseif nearestName == "Fuzz" then
+		return farmFuzzy(callback)
+	end
+	return false
+end
+
+function getTokenLink()
+	local nearestTokenLink = {token = nil, distance = math.huge}
+	for _,token in ipairs(temptable.tokenpath:GetChildren()) do
+		if getTokenId(token) == 1629547638 and token.CFrame.YVector.Y == 1 and not token:FindFirstChild("Collected") then
+			local distance = (token.Position - player.Character.HumanoidRootPart.Position).magnitude
+			if distance < nearestTokenLink.distance then
+				nearestTokenLink = {token = token, distance = distance}
+			end
+		end
+	end
+	return nearestTokenLink.token
+end
+
+function collectToken(token)
+	if not token.Parent or token:FindFirstChild("Collected") then return false end
+	local startedCollecting = tick()
+	local moveToCalled = -1
+	local collected = false
+	while true do
+		if (api.humanoidrootpart().Position - token.Position).magnitude < 4 or
+			token.CFrame.YVector.Y ~= 1 or
+			not workspace:FindPartOnRay(Ray.new(api.humanoidrootpart().Position, token.Position - api.humanoidrootpart().Position)) or
+			(token.Position - api.humanoidrootpart().Position).magnitude < 4 or
+			(tick() - startedCollecting) >= 3
+		then
+			if (tick() - startedCollecting) >= 3 then break end
+			collected = true
+			break
+		elseif (api.humanoidrootpart().Position - token.Position).magnitude > 200 then break end
+
+		if tick() - moveToCalled > 0.25 then
+			if (tick() - temptable.lastTweenToRare) < 5 then break end
+			if not pcall(function()
+					api.humanoid():MoveTo(token.Position)
+				end) then break end
+			moveToCalled = tick()
+		end
+
+		task.wait()
+	end
+	if collected then
+		markAsCollected(token)
+		return true
+	else
+		return false
+	end
+end
+
+function farmToken(customCallback)
+	local nearestTokenLink = getTokenLink()
+	if nearestTokenLink then
+		collectToken(nearestTokenLink)
+		return true
+	else
+		local tokenToCollect = NearestTable.getNearestToken(nil, function(token)
+			if customCallback and not customCallback(token) then 
+				return false
+			end
+			if token.CFrame.YVector.Y == 1 and not token:FindFirstChild("Collected") and not table.find(temptable.susTokenPositions, token.Position) then 
+				return true 
+			end 
+		end)
+		if not tokenToCollect then return end
+		collectToken(tokenToCollect)
+		return true
+	end
+end
+
+function farmBubble(customCallback)
+	local nearestBubble = NearestTable.getNearestBubble(function(bubble)
+		if not bubble or customCallback and not customCallback(bubble) then 
+			return false
+		end    
+		if not bubble:FindFirstChild("Collected") then return true end
+	end)
+	if not nearestBubble then return false end
+
+	local startedCollecting = tick()
+	local moveToCalled = -1
+
+	while true do
+		if api.magnitude(nearestBubble.Position) < 8.5 or
+			not nearestBubble.Parent or
+			(tick() - startedCollecting) >= 8 then
+			break
+		end
+
+		if tick() - moveToCalled > 0.5 then
+			api.humanoid():MoveTo(nearestBubble.Position)
+			moveToCalled = tick()
+		end
+
+		RunService.Heartbeat:Wait()
+	end
+
+	markAsCollected(nearestBubble)
+	return true
+end
+
+function farmFuzzy(customCallback) --Sakata Jump Delete if you see this
+	local nearestFuzz = NearestTable.getNearestFuzz(function(fuzz)
+		if customCallback and not customCallback(fuzz) then 
+			return false
+		end    
+		if not fuzz:FindFirstChild("Collected") then return true end
+	end)
+	if not nearestFuzz then return false end
+
+	local startedCollecting = tick()
+	local moveToCalled = -1
+
+	while true do
+		if api.magnitude(nearestFuzz.Position) < 8.5 or
+			not nearestFuzz.Parent or
+			(tick() - startedCollecting) >= 8 then
+			break
+		end
+
+		if tick() - moveToCalled > 0.5 then
+			api.humanoid():MoveTo(nearestFuzz.Position)
+			moveToCalled = tick()
+		end
+
+		RunService.Heartbeat:Wait()
+	end
+
+	markAsCollected(nearestFuzz)
+	return true
+end
+
+function farmCoco() --will be added after priority system
+
+end
+
+function farmFire()  --will be added after priority system
+
+end
+
+function farmCloud()  --will be added after priority system
+
+end
+
+-- Sort items and tokens to make it easier to use
+local Items = EggTypes.GetTypes()
+
+local FormattedItems = {FullData = {}, NamesOnly = {}}
+
+EggItems = {}
+
+task.spawn(function()
+	for i,v in pairs(Items) do
+		if not v.Hidden then
+			if v.DisplayName then
+				local succ = pcall(function() HttpService:JSONEncode(v) end)
+				if not succ then continue end
+				v["SystemName"] = i
+				FormattedItems["FullData"][v.DisplayName] = v
+				table.insert(FormattedItems["NamesOnly"], v.DisplayName)
+				table.insert(EggItems, v.DisplayName)
+			end
+		end
+	end
+	for i,v in pairs(ReplicatedStorage.Collectibles:GetChildren()) do
+		if v:IsA("ModuleScript") then
+			if v:FindFirstChild("Icon") then
+				FormattedItems["FullData"][v.Name] = {Icon = tostring(v.Icon.Texture)}
+				table.insert(FormattedItems["NamesOnly"], v.Name)
+				if v:FindFirstChild("IconPlus") then
+					FormattedItems["FullData"][v.Name.."Plus"] = {DisplayName = v.Name, Icon = tostring(v.IconPlus.Texture)}
+					table.insert(FormattedItems["NamesOnly"], v.Name.."Plus")
+				end
+			end
+		end
+	end
+	for i,v in pairs(ReplicatedStorage.Buffs:GetChildren()) do
+		if v.Name:find("Icon") then
+			local tokenName = v.Name:gsub(" Icon", "")
+			FormattedItems["FullData"][tokenName] = {DisplayName = tokenName, Icon = tostring(v.Texture)}
+			table.insert(FormattedItems["NamesOnly"], tokenName)
+		end
+	end
+end)
+
+function getItemByName(name)
+	if not table.find(FormattedItems["NamesOnly"],tostring(name)) then return nil, tostring(name).." not found in the NamesOnly list" end
+	for i,v in pairs(FormattedItems["FullData"]) do
+		if v.DisplayName == name then
+			return v
+		end
+	end
+	return nil, "Not found full data of "..name
+end
+
+function gotoNearestBalloon(waitForMoveFinish)
+	local semiFarmed = false
+	local balloon = getNearestBalloon(function(balloon) 
+		if balloon and balloon.Parent and balloon:FindFirstChild("BalloonBody") and isFieldSame((temptable.fieldSelected and temptable.fieldSelected.Position or api.humanoidrootpart().Position), balloon.BalloonBody.Position - Vector3.new(0,15,0)) then return true end
+	end)
+	if balloon and balloon:FindFirstChild("BalloonBody") and api.magnitude(balloon.BalloonBody.Position) > 10 then
+		api.humanoid():MoveTo(balloon.BalloonBody.Position)
+		if waitForMoveFinish then
+			local startMove = tick()
+			repeat task.wait() until api.magnitude(balloon.BalloonBody.Position) < 6 or (tick() - startMove) > 1
+			semiFarmed = true
+		else
+			task.wait()
+		end
+	end
+	return semiFarmed
+end
+
+local puffsRarityList = {
+	Common = 1,
+	Rare = 2,
+	Epic = 3,
+	Legendary = 4,
+	Mythic = 5
+}
+
+function checkPuffshrooms()
+	local puffFound = false
+	if #Workspace.Happenings.Puffshrooms:GetChildren() > 0 then
+		puffFound = true
+	else
+		for i,v in pairs(Workspace.Particles:GetChildren()) do
+			if v.Name == "SporeCloud" then
+				puffFound = true
+				break
+			end
+		end
+	end
+	temptable.puffsDetected = puffFound
+	return puffFound
+end
+
+function checkPopStar()
+	if not Workspace.Particles:FindFirstChild("PopStars") then return false end
+	local popStarFound = false
+	for i,v in pairs(Workspace.Particles.PopStars:GetChildren()) do
+		if (player.Character.HumanoidRootPart.Position - v.Position).magnitude < 13
+			and getBuffTime("Pop Star Aura") > 0 then
+			popStarFound = true
+			break 
+		end
+	end
+	temptable.popStarActive = popStarFound
+	return popStarFound
+end
+
+-- function checkLeafsAndSparkles()
+--     local leafTable = {}
+--     for _, flower in ipairs(Flowers:GetChildren()) do
+--         if flower:FindFirstChild("LeafBurst") then
+--             table.insert(leafTable, flower)
+--         elseif flower:FindFirstChild("Sparkles")then
+--             table.insert(sparklesTable, flower)
+--         end
+--     end
+--     temptable.leafTable = leafTable
+--     return leafTable
+-- end
+
+function getBestFieldBalloon()
+	if not api.humanoidrootpart() then return warn(1) end
+	local humanoidRootPart = api.humanoidrootpart()
+
+	local bestFieldBalloon = {instance = nil, mostBalloonsInRow = -1}
+
+	for _,balloon in pairs(temptable.balloonsTable) do
+		if not balloon:FindFirstChild("BalloonBody") then continue end
+		local playerPos = humanoidRootPart.Position + Vector3.new(0,16,0)
+		local balloonPos = balloon.BalloonBody.Position
+
+		if not isFieldSame(playerPos - Vector3.new(0,16,0), balloonPos - Vector3.new(0,16,0)) then continue end
+
+		local __, res = pcall(function()  
+			if balloon.BalloonBody.GuiAttach.Gui.Bar.BackgroundTransparency ~= 1 then return true end
+		end)
+		if res ~= true then warn(isOK, res) continue end
+
+		local ray = Ray.new(playerPos, (Vector3.new(balloonPos.X, playerPos.Y, balloonPos.Z) - playerPos))
+
+		local intersection = getPartsFromRay(ray, temptable.FieldBalloons)
+
+		if intersection and #intersection >= bestFieldBalloon.mostBalloonsInRow then
+			bestFieldBalloon.mostBalloonsInRow = #intersection
+			bestFieldBalloon.instance = balloon
+		end
+	end
+
+	return bestFieldBalloon.instance
+end
+
+function getPuffsOnField(field)
+	local puffsOnField = {}
+	for i,v in pairs(Workspace.Happenings.Puffshrooms:GetChildren()) do
+		if findField(v.PrimaryPart.Position) == field then
+			table.insert(puffsOnField, v)
+		end
+	end
+	return puffsOnField
+end
+
+function getBestPuffshroom()
+	local puffs = Workspace.Happenings.Puffshrooms:GetChildren()
+	if #puffs == 0 then return nil end
+	local bestPuffs = {}
+
+	local maxRarity = vitaly.autoPuffshroomSettings.rarityPriority == "Mythic > Common" and 0 or 6
+
+	for i, puff in ipairs(puffs) do
+		local puffName
+		pcall(function()
+			puffName = puff["Puffball Top"].Attachment.Gui.NameRow.TextLabel.Text
+		end)
+		if not puffName then warn("No puff name") return {} end
+		local puffRarity = string.match(puffName, "(%a*)%s+Puffshroom") or "Common"
+		local puffLevel = tonumber(string.match(puffName, "Lvl (%d+)"))
+		if not tonumber(puffLevel)
+			or not puffLevel 
+			or tonumber(puffLevel) < vitaly.autoPuffshroomSettings.minimumLevel
+			or tonumber(puffLevel) > vitaly.autoPuffshroomSettings.maximumLevel 
+			or not puff:FindFirstChild("Puffball Stem")
+			or not findField(puff["Puffball Stem"].Position)
+		then continue end
+		local rarityValue = puffsRarityList[puffRarity] or 1
+
+		if (vitaly.autoPuffshroomSettings.rarityPriority == "Mythic > Common" and rarityValue > maxRarity) or
+			(vitaly.autoPuffshroomSettings.rarityPriority == "Common > Mythic" and rarityValue < maxRarity) then
+			maxRarity = rarityValue
+			bestPuffs = { puff }
+		elseif rarityValue == maxRarity then
+			table.insert(bestPuffs, puff)
+		end
+	end
+
+	table.sort(bestPuffs, function(a, b)
+		local aName = a["Puffball Top"].Attachment.Gui.NameRow.TextLabel.Text
+		local aRarity, aLevel = string.match(aName, "(%a*)%s+Puffshroom") or "Common", tonumber(string.match(aName, "Lvl (%d+)"))
+
+		local bName = b["Puffball Top"].Attachment.Gui.NameRow.TextLabel.Text
+		local bRarity, bLevel = string.match(bName, "(%a*)%s+Puffshroom") or "Common", tonumber(string.match(bName, "Lvl (%d+)"))
+		-- local aRarity, aLevel = a.Name:match("(%a*)%s+Puffshroom%s+%(%a*%s*(%d+)%)")
+		-- local bRarity, bLevel = b.Name:match("(%a*)%s+Puffshroom%s+%(%a*%s*(%d+)%)")
+		aLevel, bLevel = tonumber(aLevel), tonumber(bLevel)
+		local aRarityValue, bRarityValue = puffsRarityList[aRarity] or 1, puffsRarityList[bRarity] or 1
+		if aRarityValue == bRarityValue then
+			if vitaly.autoPuffshroomSettings.levelPriority == "High > Low" then
+				return aLevel > bLevel
+			else
+				return aLevel < bLevel
+			end
+		else
+			if vitaly.autoPuffshroomSettings.rarityPriority == "Mythic > Common" then
+				return aRarityValue > bRarityValue
+			else
+				return aRarityValue < bRarityValue
+			end
+		end
+	end)
+
+	local bestPuff = bestPuffs[1]
+	-- print(bestPuff["Puffball Top"].Attachment.Gui.NameRow.TextLabel.Text)
+	if bestPuff then
+		local puffName = bestPuff["Puffball Top"].Attachment.Gui.NameRow.TextLabel.Text
+		local puffRarity = string.match(puffName, "(%a*)%s+Puffshroom") or "Common"
+		local puffLevel = tonumber(string.match(puffName, "Lvl (%d+)"))
+		return { Rarity = puffRarity, Level = tonumber(puffLevel), Model = bestPuff }
+	end
+
+	return nil
+end
+
+function farmPuffshroom(puffToFarm)
+	local farmed = false
+	local stem = puffToFarm.PrimaryPart
+	if stem and puffToFarm.Parent == Workspace.Happenings.Puffshrooms then
+		local stemPos = stem.Position
+		if not isFieldSame(api.humanoidrootpart().Position, stemPos) then
+			moveTo(stemPos)
+		end
+		placeSprinkler(stemPos, true, true)
+		while task.wait() and puffToFarm.Parent == Workspace.Happenings.Puffshrooms and vitaly.autoPuffshroomSettings.farmPuffshrooms and vitaly.toggles.autofarm do
+			if getBagPercentage() >= 99 then return false, "Bag is full" end
+			if not isFieldSame(api.humanoidrootpart().Position, stemPos) then
+				moveTo(stemPos)
+			elseif api.magnitude(stemPos) >= 20 then
+				task.wait()
+				local temp1 = nil
+				task.spawn(function() temp1 = walkTo(stemPos, 0.5) end)
+				repeat task.wait() until temp1 ~= nil
+			elseif api.magnitude(stemPos) < 20 then
+				collectNearestTokens(stemPos, 30)
+				task.wait()
+			else
+				moveTo(stemPos)
+			end
+			farmed = true
+		end
+		if farmed and puffToFarm.Parent ~= Workspace.Happenings.Puffshrooms and vitaly.toggles.autofarm and vitaly.autoPuffshroomSettings.farmPuffshrooms then
+			task.wait(0.5)
+			for i=1,2 do
+				collectNearestTokens()
+				task.wait()
+			end
+			return true
+		end
+	end
+	return false
+end
+
+function farmPuffshrooms()
+	local firstPuff = getBestPuffshroom()
+	if not firstPuff or not firstPuff.Model then return end
+	local puffsOnField = {}
+
+	local puffSelected = firstPuff.Model
+	local fieldSelected = findField(firstPuff.Model.PrimaryPart.Position)
+
+	while puffSelected and puffSelected.Parent do
+		task.wait()
+		local done, msg = farmPuffshroom(puffSelected)
+		if msg == "Bag is full" then return false end
+		task.wait()
+		if vitaly.autoPuffshroomSettings.farmRemaining then
+			puffsOnField = getPuffsOnField(fieldSelected)
+			if #puffsOnField > 0 then
+				for i,v in pairs(puffsOnField) do
+					if v.Parent then
+						puffSelected = v
+						break
+					end
+				end
+			end
+			task.wait()
+		end
+	end
+end
+
+function avoidWarningDisks()
+	local playerPos = api.humanoidrootpart().Position
+	local warningDisks = getWarningDisks()
+
+	local ray = Ray.new(playerPos + Vector3.new(0, 100, 0), Vector3.new(1, -735, 1))
+	local touchedWarningDisk = Workspace:FindPartOnRayWithWhitelist(ray, warningDisks)
+
+	if touchedWarningDisk then
+		local diskRadius = touchedWarningDisk.Size.X / 2
+		local dirToPlayer = (playerPos - touchedWarningDisk.Position).Unit
+
+		-- Calculate the safe position to move to
+		local diskCenter = touchedWarningDisk.Position
+		local playerToCenter = (playerPos - diskCenter).Magnitude
+		local playerToDisk = playerToCenter - diskRadius
+		local safePos = diskCenter + dirToPlayer * (diskRadius + 4 + playerToDisk + 5)
+		if (safePos - api.humanoidrootpart().Position).magnitude < 0.5 then safePos = api.humanoidrootpart().Position + Vector3.new(1,0,0) end
+		api.humanoid():MoveTo(safePos + Vector3.new(1,0,1))
+		task.wait()
+		return true
+	end
+	task.wait()
+	return false
+end
+
+function shouldIConvert(converting, check1)
+	check1 = check1 or true
+	local timeSinceLastFullBag = tick() - temptable.lastFullBag -- Calculate the time elapsed since the last conversion
+
+	if timeSinceLastFullBag < vitaly.convertSettings.secondsBeforeConvert then -- Check if the user wants to wait before converting, and if enough time has elapsed
+		return false
+	elseif converting and getBagPercentage() > 0 or getBagPercentage() >= vitaly.convertSettings.convertat then -- Check if the bag is full or if the user wants to convert manually
+		if vitaly.convertSettings.instantToggle and check1 then
+			instaConvFunc()
+			task.wait(1.5)
+			return shouldIConvert()
+		end
+		return true
+	else
+		if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then return false end
+
+		if vitaly.toggles.converthiveballoon and gethiveballoon() then
+			if vitaly.convertSettings.convertballoonat == 0 and converting then
+				return true
+			elseif vitaly.convertSettings.convertballoonat ~= 0 and (tonumber(getBuffTime("Balloon Blessing"))/60) <= vitaly.convertSettings.convertballoonat then
+				return true
+			else
+				return false
+			end
+		else
+			return false
+		end
+	end
+end
+
+function getBagPercentage()
+	local pollencount = player.CoreStats:FindFirstChild("Pollen") and player.CoreStats.Pollen.Value or 0
+	local maxpollen = player.CoreStats:FindFirstChild("Capacity") and player.CoreStats.Capacity.Value or 0
+	-- print(pollencount, maxpollen)
+
+	local percentage = (pollencount / maxpollen * 100) or 0
+
+	if temptable.lastFullBag == 0 and percentage >= vitaly.convertSettings.convertat then
+		temptable.lastFullBag = tick()
+	elseif not (percentage >= vitaly.convertSettings.convertat) then
+		temptable.lastFullBag = 0
+	end
+
+	return percentage
+end
+
+function canToyBeUsed(toyName)
+	local toy = Workspace.Toys[toyName]
+	if toy then
+		local _, buttonColor = secureCall(ActivatablesToys.ButtonText, Activatables, nil, toy)
+		if not buttonColor then
+			return true
+		elseif buttonColor == "Red" then
+			return false    
+		end
+	end
+end
+
+function useToy(toyName, collectTokens)
+	if not canToyBeUsed(toyName) then return end
+	local used = false
+	local patformPosition = Workspace.Toys[toyName].Platform.Position + Vector3.new(0,3,0)
+	task.wait()
+	while 
+		not temptable.convertingHoney
+		and canToyBeUsed(toyName) 
+	do
+		if api.magnitude(patformPosition) > 20 then
+			moveTo(patformPosition)
+			task.wait(0.25)
+		end
+		if api.magnitude(patformPosition) < 20 then
+			secureCall(ActivatablesToys.ButtonEffect, Activatables, player, workspace.Toys[toyName])
+			-- setIdentity(2)
+			-- ActivatablesToys.ButtonEffect(player, workspace.Toys[toyName])
+			-- setIdentity(7)
+		end
+		task.wait(2)
+	end
+	if collectTokens then 
+		task.wait(1.5)
+		local tokensNear = {}
+		for _, token in pairs(temptable.tokenpath:GetChildren()) do
+			if api.magnitude(token.Position, patformPos) < 25
+				and token.CFrame.YVector.Y == 1
+				and getTokenId(token) ~= 65867881 then
+				table.insert(tokensNear, token)
+			end
+		end
+		while #tokensNear > 0 do
+			for _, token in pairs(tokensNear) do
+				if api.magnitude(patformPosition) > 25 then
+					moveTo(patformPosition)
+				end
+				if not token.Parent then table.remove(tokensNear, _) continue end
+				collectToken(token)
+			end
+			task.wait()
+		end 
+	end
+end
+
+local InstantConverterNames = {"Instant Converter","Instant Converter B","Instant Converter C"}
+
+local instantConvList = {"All", "Ticket/Instant Converter", "Micro-Converter"}
+
+function instaConvFunc()
+	local isConverted = false
+	for i,v in pairs(vitaly.convertSettings.selectedInstant) do
+		--sakata jump
+		if v:find("Ticket") and getClientStatCache("Eggs", "Ticket") ~= 0 and (tick() - temptable.IConverterUsedAt) > 15  then
+			for _,c in pairs(InstantConverterNames) do
+				if canToyBeUsed(c) then
+					useToy(c)
+					task.wait(1)
+					temptable.IConverterUsedAt = tick()
+					if not canToyBeUsed(c) then isConverted = true break end
+				end
+			end
+			--  elseif v:find("Coconuts") and getClientStatCache("Eggs", "Coconut") ~= 0 then
+			--     Events.ClientCall("PlayerActivesCommand", {Name = "Coconut"})
+			--     isConverted = true 
+			--     break
+		elseif v:find("Micro") and getClientStatCache("Eggs", "Micro-Converter") ~= 0 and (tick() - temptable.MConverterUsedAt) > 15 then
+			Events.ClientCall("PlayerActivesCommand", {Name = "Micro-Converter"})
+			temptable.MConverterUsedAt = tick()
+			isConverted = true 
+			break
+		elseif v == "All" then
+			for _,c in pairs(InstantConverterNames) do
+				if getClientStatCache("Eggs", "Ticket") == 0 then continue end
+				if canToyBeUsed(c) then
+					useToy(c)
+					task.wait(1)
+					if not canToyBeUsed(c) then isConverted = true break end
+				end
+			end
+			-- if getClientStatCache("Eggs", "Coconut") ~= 0 then
+			--     Events.ClientCall("PlayerActivesCommand", {Name = "Coconut"})
+			--     isConverted = true 
+			--     break
+			-- end
+			if getClientStatCache("Eggs", "Micro-Converter") ~= 0 then
+				Events.ClientCall("PlayerActivesCommand", {Name = "Micro-Converter"})
+				isConverted = true 
+				break
+			end
+		end
+	end
+	return isConverted
+end
+
+function convertHoney(defaultMask)
+	-- print("Convert Honey Called")
+	local hivePos = (player.SpawnPos.Value * CFrame.fromEulerAnglesXYZ(0, 110, 0) + Vector3.new(0, 0, 9)).p
+	while shouldIConvert(true) and vitaly.toggles.convertHoney do
+		if vitaly.toggles.AutoHoneyM then requestAccessoryEquip("Honey Mask") end
+		temptable.convertingHoney = true
+		if api.magnitude(player.SpawnPos.Value.p) > 10 then
+			moveTo(hivePos)
+		end
+		setIdentity(2)
+		local hiveInfo = ActivatablesHives.ButtonText(player)
+		setIdentity(origThreadIdentity)
+		-- print(hiveInfo)
+		if hiveInfo == "Make Honey" then
+			secureCall(ActivatablesHives.ButtonEffect, Activatables, player, plrHive.Platform.Value)
+			-- setIdentity(2)
+			-- ActivatablesHives.ButtonEffect(player, plrHive.Platform.Value)
+			-- setIdentity(7)
+			task.wait(3)
+		elseif hiveInfo == "To Make Honey, Collect Pollen From Flower Fields." then
+			break
+		end
+		task.wait(1)
+	end
+	task.wait(5)
+	temptable.convertingHoney = false
+	if defaultMask == nil or defaultMask == true then
+		if vitaly.toggles.AutoHoneyM then requestAccessoryEquip(vitaly.vars.defaultmask) end
+	end
+	temptable.lastConvertAtHive = tick()
+end
+
+function useMemoryMatch(memoryMatch, isQuest)
+	if canToyBeUsed(memoryMatch) and not temptable.convertingHoney then disableall() else return "first" end
+	local patformPos = Workspace.Toys[memoryMatch].Platform.Position
+	local used = false
+	while canToyBeUsed(memoryMatch) 
+		and (not isQuest and vitaly.toggles.automemorymatch or isQuest and vitaly.autoQuestSettings.useMemoryMatch)
+		and not temptable.activeMemoryMatch
+	do
+		moveTo(patformPos)
+		task.wait(0.5)
+		if (patformPos - api.humanoidrootpart().Position).Magnitude < 15 then
+			secureCall(ActivatablesToys.ButtonEffect, Activatables, player, workspace.Toys[memoryMatch])
+			used = true
+		end
+		task.wait(1)
+	end
+	if not used then return end
+	warn("MM step 1")
+	repeat task.wait() until temptable.activeMemoryMatch
+	warn("MM step 2")
+	repeat task.wait() until not temptable.activeMemoryMatch
+	warn("MM step 3: Done.")
+	enableall()
+end
+function getAllNectar(bool)
+	if bool then
+		local tablereturn = {}
+		for i, v in pairs(nectarsDropdownTable) do
+			table.insert(tablereturn, {name = v, time = getBuffTime(v, true)})
+		end
+		return tablereturn
+	end
+end
+
+function useGlueDispenser()
+	local gumdropsCount = getClientStatCache("Eggs", "Gumdrops")
+	local used = false
+	while canToyBeUsed("Glue Dispenser") and gumdropsCount and gumdropsCount > 0 do
+		moveTo(Vector3.new(4, 87, 487))
+		task.wait(0.5)
+		if api.magnitude(Vector3.new(4, 87, 487)) > 0.75 then continue end
+		gumdropsCount = getClientStatCache("Eggs", "Gumdrops")
+		task.wait()
+		PlayerActivesCommand:FireServer({["Name"] = "Gumdrops"})
+		task.wait(0.5)
+		while getClientStatCache("Eggs", "Gumdrops") == gumdropsCount do task.wait() end
+		if api.magnitude(Vector3.new(272, 25260, -744)) > 30 then continue end
+		api.humanoid():MoveTo(Vector3.new(270.8, 25257, -722.5))
+		api.humanoid().MoveToFinished:Wait(2)
+		task.wait(0.5)
+		useToy("Glue Dispenser")
+		used = true
+	end
+	if used then 
+		player.Character:BreakJoints()
+		player.CharacterAdded:Wait(10)
+		task.wait(5)
+	end
+end
+
+function getToys()
+	for toysTableName, toysTable in pairs(AllToysTable) do
+		for configToyName, toyName in pairs(toysTable) do 
+			if toysTableName == "toysTable" and vitaly.toggles[configToyName]
+				or toysTableName == "boostersTable" and vitaly.autoboostersettings[configToyName] and vitaly.toggles.autoboosters
+				or toysTableName == "dispensersTable" and vitaly.autodispensersettings[configToyName] and vitaly.toggles.autodispensers
+			then
+				if toyName ~= "Glue Dispenser" then
+					useToy(toyName)
+				else
+					useGlueDispenser()
+				end
+			elseif toysTableName == "beesmasToysTable" and vitaly.toggles[configToyName] and scriptType == LPH_STRENC("Paid") then
+				useToy(toyName, true)
+			elseif toysTableName == "memoryMatchTable" and vitaly.toggles.automemorymatch then
+				useMemoryMatch(toyName)
+			end
+		end
+	end
+end
+
+function lockMovement(bool)
+	if bool then
+		setIdentity(origThreadIdentity)
+		player.DevComputerMovementMode = Enum.DevComputerMovementMode.Scriptable
+	else
+		setIdentity(origThreadIdentity)
+		player.DevComputerMovementMode = Enum.DevComputerMovementMode.UserChoice
+	end
+end
+
+function getCrosshairs()
+	local crosshairs = {all = {}, purple = {}}
+	for i,v in pairs(Workspace.Particles:GetChildren()) do
+		if v.Name == "Crosshair" and findField(v.Position) == findField(api.humanoidrootpart().Position) then
+			if not v:FindFirstChild("Collected") then
+				if v.BrickColor == BrickColor.new("Red flip/flop") then
+					table.insert(crosshairs.all, v)
+				elseif v.BrickColor == BrickColor.new("Alder") then
+					table.insert(crosshairs.all, v)
+					table.insert(crosshairs.purple, v)
+				end
+			end
+		end
+	end
+	return {all = crosshairs.all, purple = crosshairs.purple}
+end
+
+function updateCrosshairs(shouldLock,exception) 
+	for i,v in pairs(getCrosshairs().all) do
+		if shouldLock and v ~= exception and v.BrickColor == BrickColor.new("Red flip/flop") then
+			v.CanCollide = true
+		elseif not shouldLock then
+			v.CanCollide = false
+		end
+	end
+end
+
+function farmCrosshair(crosshair, save_height)
+	local Path = PathfindingService:CreatePath({
+		AgentRadius = 5,
+		WaypointSpacing = 6,
+		Costs = {
+			Crosshair = math.huge
+		}
+	})
+	updateCrosshairs(true, crosshair)
+	Path:ComputeAsync(api.humanoidrootpart().Position, crosshair.Position)
+	if Path then
+		local points = Path:GetWaypoints()
+		lockMovement(true)
+		for _,v in pairs(points) do
+			if (crosshair.Position - api.humanoidrootpart().Position).magnitude < 4 then break end
+			if not crosshair.Parent or save_height ~= crosshair.Position.y then return lockMovement(false) end
+			local moveComplete = false
+			local startTime = tick()
+			api.humanoid():MoveTo(v.Position)
+			local signal
+			signal = api.humanoid().MoveToFinished:Connect(function() moveComplete = true signal:Disconnect() end)
+			repeat task.wait() until moveComplete or (tick() - startTime) > 0.85 or not crosshair.Parent or save_height ~= crosshair.Position.y or api.magnitude(crosshair.Position) < 5
+		end
+		lockMovement(false)
+	end
+	markAsCollected(crosshair)
+	repeat task.wait() api.humanoid():MoveTo(crosshair.Position) until not crosshair.Parent or save_height ~= crosshair.Position.y
+	updateCrosshairs(false)
+end
+
+function smartFarmCrosshairs()
+	local buffStack = tonumber(getBuffStack("Precision"))
+	local buffTime = tonumber(getBuffTime("Precision"))
+	local isFarmed = false
+
+	if (buffStack < 10 or buffTime <= 30) then
+		for _,crosshair in pairs(getCrosshairs().all) do
+			if not crosshair.Parent then continue end
+			local MoveToFinished, started = false, tick()
+			local save_height = crosshair.Position.y
+			if crosshair.BrickColor == BrickColor.new("Forest green") or crosshair.BrickColor == BrickColor.new("Royal purple") then continue end
+			lockMovement(true)
+			api.humanoid():MoveTo(crosshair.Position)
+			local signal
+			signal = api.humanoid().MoveToFinished:Connect(function() MoveToFinished = true signal:Disconnect() end)
+			repeat task.wait() until MoveToFinished or save_height ~= crosshair.Position.y or (tick() - started) > 5 or api.magnitude(crosshair.Position) < 4 or not crosshair.Parent
+			lockMovement(false)
+			markAsCollected(crosshair)
+			isFarmed = true
+		end
+	elseif (buffStack == 10 and buffTime > 30) then
+		for _,crosshair in pairs(getCrosshairs().purple) do
+			if not crosshair.Parent then continue end
+			local save_height = crosshair.Position.y
+			if vitaly.autoFarmSettings.smartPreciseMethod == "Walk" then
+				isFarmed = true
+				farmCrosshair(crosshair, save_height)
+			else
+				repeat task.wait() 
+					if api.magnitude(crosshair.Position) > 5 then
+						startTween(crosshair.Position - Vector3.new(0,1.8,0), 350)
+					end
+				until not crosshair.Parent or save_height ~= crosshair.Position.y or (#getCrosshairs().purple > 1)
+				markAsCollected(crosshair)
+				isFarmed = true
+			end
+			break
+		end
+	end
+	return isFarmed
+end
+
+function getSpawnerTime(spawner, extraSeconds)
+	local spawnerInfo = monstersTable[spawner.Name]
+	if not spawnerInfo then return math.huge end
+
+	local lastKillTime = getClientStatCache("MonsterTimes", spawner.Name) or 0
+	local spawnerCooldown = ClientMonsterTools.GetSpawnerCooldown(spawner.Name)
+	local currentTime = ServerTime()
+
+	if not spawnerCooldown then return math.huge end
+
+
+	local timeLeft = (lastKillTime + spawnerCooldown - currentTime) + (tonumber(extraSeconds) or 0)
+	if timeLeft < 0 then
+		timeLeft = 0
+	end
+
+	return timeLeft
+end
+
+function getSpawnerCooldownText(spawnerName)
+	local spawner = ClientMonsterTools.GetSpawner(spawnerName)
+	if not spawner then return "???", -1 end
+
+	local timeLeft = math.round(getSpawnerTime(spawner))
+	if timeLeft == math.huge then 
+		return "???", -1 
+	end
+
+	local cooldownText
+	if timeLeft == 0 then
+		cooldownText = "✅"
+	else
+		cooldownText = truncatetime(timeLeft)
+	end
+
+	return cooldownText, timeLeft
+end
+
+function getAliveMonsters(monsterName)
+	local aliveMonsters = {}
+	for i,v in pairs(Workspace.Monsters:GetChildren()) do
+		if v.Name:find(monsterName) and v.Target.Value == player.Character then
+			table.insert(aliveMonsters, v)
+		end
+	end
+	return aliveMonsters
+end
+
+function getSpawnedMonsters(mob)
+	local respawnedMonsters = {}
+	for spawnerName,spawnerConfig in pairs(monstersTable) do
+		if spawnerConfig.MonsterType == mob then
+			local timeLeft = getSpawnerTime(spawnerConfig.Spawner, 30)
+			if timeLeft == 0 then
+				table.insert(respawnedMonsters, spawnerConfig)
+			end
+		end
+	end
+	return respawnedMonsters
+end
+
+function isMonsterKilled(mobSpawner)
+	local spawner = ClientMonsterTools.GetSpawner(mobSpawner)
+	if not mobSpawner or not spawner then --[[warn(1)]] return true end
+
+	local timeLeft = getSpawnerTime(spawner)
+	if timeLeft > 0 then
+		return true
+	else 
+		return false
+	end
+end
+
+function killMonster(territory, spawner)
+	local startTimeStamp = tick()
+	temptable.doingMonster = true
+	while not isMonsterKilled(spawner.Name) do
+		if (tick() - startTimeStamp) > 60 then break end
+		if api.magnitude(territory.Position) > 60 then
+			moveTo(territory.Position)
+			task.wait(0.25)
+		end
+		if spawner.Name:find("ForestMantis") then 
+			if api.magnitude(territory.Position + Vector3.new(0,0,15)) < 6 then
+				api.humanoid():MoveTo(territory.Position - Vector3.new(0,0,15))
+			else
+				api.humanoid():MoveTo(territory.Position + Vector3.new(0,0,15))
+			end
+		end
+		task.wait(0.5)
+		jump()
+		task.wait(1)
+	end
+	temptable.doingMonster = false
+	return isMonsterKilled(spawner)
+end
+
+function killVicious()
+	if vitaly.combatSettings.killVicious and temptable.detected.vicious then
+		local viciousModel
+		for i, v in pairs(Workspace.Particles:GetChildren()) do
+			if v.Name:find("Vicious") then
+				for i2, v2 in pairs(Workspace.Monsters:GetChildren()) do 
+					if v2.Name:find("Vicious") and v2:FindFirstChild("HumanoidRootPart") then
+						local level = tonumber(string.gmatch(v2.Name, "%d+")())
+						if level and level >= vitaly.combatSettings.viciousMinLevel and level <= vitaly.combatSettings.viciousMaxLevel then
+							viciousModel = v2
+							moveTo(v.Position)
+							task.wait(0.5)
+						end
+					end
+				end
+			end
+		end
+		if viciousModel then
+			local viciousOnField = findField(viciousModel.HumanoidRootPart.Position)
+			-- warn(viciousOnField)
+			local level = tonumber(string.gmatch(viciousModel.Name, "%d+")())
+			while viciousModel and viciousOnField and viciousModel.Parent and vitaly.combatSettings.killVicious and temptable.detected.vicious and level and level >= vitaly.combatSettings.viciousMinLevel and level <= vitaly.combatSettings.viciousMaxLevel do
+				if not viciousModel.Parent then viciousModel = nil break end
+				if viciousOnField then
+					-- warn(findField(api.humanoidrootpart().Position))
+					if findField(api.humanoidrootpart().Position) ~= viciousOnField then
+						moveTo(viciousOnField.Position)
+					end
+					if api.magnitude(viciousModel.HumanoidRootPart.Position) > 50 then
+						api.humanoid():MoveTo(viciousModel.HumanoidRootPart.Position)
+						task.wait(0.75)
+					end
+					collectNearestTokens(nil, 70)
+					avoidWarningDisks()
+				end
+				task.wait()
+			end
+		end
+	end
+end
+
+function getQuestInfo(questName)
+	setIdentity(2)
+	local toReturn = Quests.Get(nil, questName)
+	setIdentity(origThreadIdentity)
+	return toReturn
+end
+
+function getQuestProgress(questName)
+	setIdentity(2)
+	local toReturn = Quests.Progress(nil, questName, getClientStatCache())
+	setIdentity(origThreadIdentity)
+	return toReturn
+end
+
+function getQuestSetting(npc, Type)
+	return(npc == "Black Bear" and (Type == "prio" and vitaly.autoQuestSettings.BlackBearPriority or Type == "toggle" and vitaly.autoQuestSettings.BlackBearQuests))
+		or (npc == "Brown Bear" and (Type == "prio" and vitaly.autoQuestSettings.BrownBearPriority or Type == "toggle" and vitaly.autoQuestSettings.BrownBearQuests))
+		or (npc == "Panda Bear" and (Type == "prio" and vitaly.autoQuestSettings.PandaBearPriority or Type == "toggle" and vitaly.autoQuestSettings.PandaBearQuests))
+		or (npc == "Science Bear" and (Type == "prio" and vitaly.autoQuestSettings.ScienceBearPriority or Type == "toggle" and vitaly.autoQuestSettings.ScienceBearQuests))
+		or (npc == "Polar Bear" and (Type == "prio" and vitaly.autoQuestSettings.PolarBearPriority or Type == "toggle" and vitaly.autoQuestSettings.PolarBearQuests))
+		or (npc == "Spirit Bear" and (Type == "prio" and vitaly.autoQuestSettings.SpiritBearPriority or Type == "toggle" and vitaly.autoQuestSettings.SpiritsBearQuests))
+		or (npc == "Bucko Bee" and (Type == "prio" and vitaly.autoQuestSettings.BuckoBeePriority or Type == "toggle" and vitaly.autoQuestSettings.BuckoBeeQuests))
+		or (npc == "Riley Bee" and (Type == "prio" and vitaly.autoQuestSettings.RileyBeePriority or Type == "toggle" and vitaly.autoQuestSettings.RileyBeeQuests))
+		or (npc == "Honey Bee" and (Type == "prio" and vitaly.autoQuestSettings.HoneyBeePriority or Type == "toggle" and vitaly.autoQuestSettings.HoneyBeeQuests))
+		or (npc == "Onett" and (Type == "prio" and vitaly.autoQuestSettings.OnettQuests or Type == "toggle" and vitaly.autoQuestSettings.OnettQuests))
+		or (npc == "Bee Bear 5" and (Type == "prio" and vitaly.autoQuestSettings.BeeBearPriority or Type == "toggle" and vitaly.autoQuestSettings.BeeBearQuests))
+		or (Type == "prio" and 100 or Type == "toggle" and false)
+end
+
+function prioritizeQuests(quests)
+	local prioritizedQuests = {}
+	local tempQuestsTable = {}
+	for i,questData in pairs(quests) do
+		local prio = getQuestSetting(questData.npc, "prio") or 101
+		table.insert(tempQuestsTable, {prio, i, questData.Name})
+	end
+	table.sort(tempQuestsTable, function(a, b)
+		if a[1] == b[1] then
+			return a[2] < b[2]
+		else
+			return a[1] < b[1]
+		end
+	end)
+	for i,v in pairs(tempQuestsTable) do
+		table.insert(prioritizedQuests, v[3])
+	end
+	return prioritizedQuests
+end
+
+function getActiveQuests(NPC)
+	local quests = {}
+	for _, v in pairs(getClientStatCache("Quests", "Active")) do
+		local quest = getQuestInfo(v.Name)
+
+		if quest and not quest.Hidden then
+			local npc = quest.NPC
+			if (not NPC and getQuestSetting(npc, "toggle")) or (NPC and npc == NPC) then
+				table.insert(quests, {Name = v.Name, npc = npc})
+			end
+		end
+	end
+
+	local questNames = prioritizeQuests(quests)
+
+	return questNames
+end
+
+function collectNearestTokens(nearqui, magnitude)
+	if not nearqui or typeof(nearqui) ~= "Vector3" then
+		if (typeof(nearqui) == "Instance" and not nearqui.Position) then
+			nearqui = nearqui.Position
+		else
+			nearqui = api.humanoidrootpart().Position
+		end
+	end
+
+	for i,v in pairs(Workspace.Collectibles:GetChildren()) do
+		if not v.Parent or not v.Position or table.find(temptable.susTokenPositions, v.Position) then continue end
+		if api.magnitude(nearqui, v.Position) < (magnitude or 30)
+			and api.magnitude(nearqui * Vector3.new(0,1,0), v.Position * Vector3.new(0,1,0)) < 10 then
+			collectToken(v)
+			task.wait()
+		end
+	end
+end
+
+function farmBubbles()
+	local speedModified = false
+	local bubblesToCollect = {}
+	local bubbleRadius = vitaly.toggles
+	for i,v in pairs(Workspace.Particles:GetChildren()) do
+		if v.Name:find("Bubble") and findField(v.Position) == temptable.fieldSelected then
+			if #bubblesToCollect == 0 then 
+				if not vitaly.toggles.smartBlueAutofarm then
+					table.insert(bubblesToCollect, v)
+				else
+					if temptable.fieldPosition and api.magnitude(temptable.fieldPosition, v.Position) < 30 then
+						table.insert(bubblesToCollect, v)
+					end
+				end
+			else
+				-- print(#bubblesToCollect)
+				-- Check for nearest bubbles
+				if api.magnitude(v.Position, bubblesToCollect[#bubblesToCollect].Position) < 15 then
+					table.insert(bubblesToCollect, v)
+					-- print("bubble added,", #bubblesToCollect,"bubbles to collect")
+				end
+			end
+		end
+	end
+	if #bubblesToCollect >= 3 then
+		if temptable.speedMultiplier == 1 then speedModified = true temptable.speedMultiplier = 1.3 end
+		for i,bubble in ipairs(bubblesToCollect) do
+			repeat task.wait()
+				api.humanoid():MoveTo(bubble.Position)
+			until api.magnitude(api.humanoidrootpart().Position, bubble.Position) <= 14 or not vitaly.toggles.autofarm or not bubble.Parent
+		end
+	end
+	if speedModified then temptable.speedMultiplier = 1 end
+end
+
+function farmShowerAndCoco()
+	if #temptable.showersTable > 0 and vitaly.autoFarmSettings.farmShower then
+		while #temptable.showersTable > 0 do
+			local key, warningisk = next(temptable.showersTable)
+			if warningisk and warningisk.Parent and warningisk.Transparency > 0.09 then
+				startTween(warningisk.Position, 350)
+				-- tween(0.05, warningisk.Position, true)
+				repeat task.wait()
+				until not warningisk.Parent or warningisk.Transparency <= 0.08
+				temptable.showersTable[key] = nil
+			else
+				temptable.showersTable[key] = nil
+			end
+			task.wait()
+		end
+		collectNearestTokens()
+	elseif #temptable.coconutsTable > 0 and vitaly.autoFarmSettings.farmCoconuts then
+		while #temptable.showersTable <= 0 and #temptable.coconutsTable > 0 do
+			local key, warningisk = next(temptable.coconutsTable)
+			if warningisk and warningisk.Parent and warningisk.Transparency > 0.09 then
+				startTween(warningisk.Position, 350)
+				-- tween(150, warningisk.Position)
+				repeat task.wait()
+				until not warningisk.Parent or warningisk.Transparency <= 0.08
+				temptable.coconutsTable[key] = nil
+			else
+				temptable.coconutsTable[key] = nil
+			end
+			task.wait()
+		end
+		collectNearestTokens()
+	end
+end
+
+function farmSprout(sprout, field)
+	if not sprout or not sprout.Parent or not vitaly.autoFarmSettings.farmSprouts then return end
+
+	local farmed = false
+
+	while sprout and sprout.Parent and vitaly.autoFarmSettings.farmSprouts and vitaly.toggles.autofarm do
+		-- print(findField(api.humanoidrootpart().Position), field)
+		if getBagPercentage() >= 99 then
+			convertHoney()
+		end
+		if findField(api.humanoidrootpart().Position) ~= field then
+			moveTo(field.Position)
+			task.wait()
+		end
+		collectNearestTokens(field.Position, 60)
+		farmed = true
+		task.wait()
+	end
+
+	return vitaly.autoFarmSettings.farmSprouts and vitaly.toggles.autofarm and farmed 
+end
+
+function farmSprouts()
+	if next(temptable.sproutsTable) then
+		while next(temptable.sproutsTable) and vitaly.autoFarmSettings.farmSprouts and vitaly.toggles.autofarm do
+			local key, sprout = next(temptable.sproutsTable)
+			if sprout and sprout.Model.Parent then
+				if farmSprout(sprout.Model, sprout.Field) then
+					for i = 1, 30 do
+						collectNearestTokens(sprout.Field.Position, 100)
+						task.wait()
+					end
+				end
+			else
+				temptable.sproutsTable[key] = nil
+			end
+			task.wait()
+		end
+	end
+end
+
+function selectField(fieldName)
+	if fieldName == nil then
+		temptable.fieldSelected = nil
+		temptable.fieldPosition = nil
+		return "Unselected field"
+	end
+	if temptable.fieldSelected and temptable.fieldSelected.Name == fieldName then return "Field already selected" end
+	temptable.fieldSelected = Workspace.FlowerZones[fieldName] or "Dandelion Field"
+	temptable.fieldPosition = temptable.fieldSelected.Position
+	-- print("Selected field "..fieldName)
+end
+
+-- whitelistedTasks = {
+--     "Collect Pollen", 
+--     "Collect Goo",
+--     "Defeat Monsters",
+--     "Use Items",
+--     "Use Toy",
+--     "Match Pairs",
+--     "Complete Quests"
+-- }
+
+function getQuestTasks(NPC)
+	NPC = NPC or false
+	local quests = getActiveQuests(NPC)
+	local defeatMonstersTasks = {} -- table to hold the "Defeat Monsters" tasks
+	local tasksToDo = {}
+
+	for _, quest in pairs(quests) do
+		local questData = getQuestInfo(quest)
+		local questName = questData.Name
+		if not vitaly.autoQuestSettings.doRepeatables and questData.Repeatable then continue end
+
+		for index, questTask in pairs(getQuestProgress(questName)) do
+			local iscompleted = questTask[1]
+
+			if iscompleted >= 1 then continue end
+
+			local fullTask = questData.Tasks[index]
+			fullTask.Progress = questTask
+
+			local taskDescription = fullTask.Description
+			if typeof(taskDescription) ~= "string" then 
+				setIdentity(2)
+				taskDescription = taskDescription(getClientStatCache()) 
+				setIdentity(origThreadIdentity)
+			end
+
+			local add = false
+
+			if fullTask.Type == "Collect Pollen" and vitaly.autoQuestSettings.farmPollen
+				or fullTask.Type == "Collect Goo" and vitaly.autoQuestSettings.farmGoo
+				or fullTask.Type == "Defeat Monsters" and vitaly.autoQuestSettings.killMobs
+				or fullTask.Type == "Use Toy" and vitaly.autoQuestSettings.useToys
+				or fullTask.Type == "Match Pairs" and macvitalyrov2.autoQuestSettings.useMemoryMatch
+				or fullTask.Type == "Complete Quests" and vitaly.autoQuestSettings.doQuestQuests
+				or fullTask.Type == "Use Items" and taskDescription:find("Feed") and vitaly.autoQuestSettings.feedBees
+			then
+				add = true
+			end
+
+			if not add then continue end
+
+			if fullTask.Type == "Defeat Monsters" then
+				table.insert(defeatMonstersTasks, fullTask)
+			else
+				table.insert(tasksToDo, fullTask)
+			end
+		end
+	end
+
+	if vitaly.autoQuestSettings.prioritizeMobKill then
+		for _, task in ipairs(defeatMonstersTasks) do
+			table.insert(tasksToDo, 1, task)
+		end
+	else
+		for _, task in ipairs(defeatMonstersTasks) do
+			table.insert(tasksToDo, task)
+		end
+	end
+
+	return tasksToDo
+end
+
+function getQuestTaskField(questTask)
+	if questTask.Type == "Collect Pollen" or questTask.Type == "Collect Goo" then
+		if questTask.Zone then
+			return questTask.Zone
+		elseif questTask.Color then
+			return vitaly.autoQuestSettings["best"..questTask.Color.."Field"]
+		end
+	end
+end
+
+function claimQuests()
+	for i, v in next, Workspace.NPCs:GetChildren() do
+		if getQuestSetting(v.Name, "toggle") or 
+			(vitaly.autoQuestSettings.acceptAllQuests and v.Name ~= "Honey Bee" and v.Name ~= "Gummy Bear" and v.Name ~= "Bubble Bee Man 2" and v.Name ~= "Ant Challenge Info" and v.Name ~= "Wind Shrine")
+			and vitaly.autoQuestSettings.doQuests
+		then
+			local image = v.Platform.AlertPos.AlertGui.ImageLabel
+			if image.ImageTransparency == 0 then
+				if vitaly.toggles.tptonpc then
+					api.humanoidrootpart().CFrame = CFrame.new(v.Platform.Position + Vector3.new(0,3,0))
+				else
+					moveTo(v.Platform.Position)
+					task.wait(0.03)
+				end
+
+
+				local attempts = 0
+				while image.ImageTransparency == 0 and api.magnitude(v.Platform.Position) <= 25 and attempts < 5 do
+					if api.magnitude(v.Platform.Position) <= 25 and not ScreenGui.NPC.Visible then
+						while not ScreenGui.NPC.Visible do
+							if not (api.magnitude(v.Platform.Position) < 25) then break end
+							-- secureCall(ActivatablesNPC.ButtonEffect, Activatables, player, v)
+							setIdentity(2)
+							ActivatablesNPC.ButtonEffect(player, Workspace.NPCs[v.Name])
+							setIdentity(origThreadIdentity)
+							task.wait(1.5)
+						end
+					end
+
+					local tempTimestamp = tick()
+
+					repeat task.wait() until ScreenGui.NPC.Visible or tick() - tempTimestamp > 10
+
+					while ScreenGui.NPC.Visible do
+						if ScreenGui.NPC.OptionFrame.Visible 
+							and ScreenGui.NPC.OptionFrame.Option2.Visible 
+							and ScreenGui.NPC.OptionFrame.Option2.Text:find("Talk to") then
+							setIdentity(2)
+							firesignal(ScreenGui.NPC.OptionFrame.Option2.MouseButton1Click)
+							setIdentity(origThreadIdentity)
+						else
+							setIdentity(2)
+							firesignal(ScreenGui.NPC.ButtonOverlay.MouseButton1Click)
+							setIdentity(origThreadIdentity)
+						end
+						task.wait()
+					end
+
+					task.wait(2.5)
+					attempts = attempts + 1
+				end
+				task.wait(0.5)
+			end
+		end
+	end
+end
+
+function doQuests(NPC)
+	NPC = NPC or false
+	claimQuests()
+	local questTasks = getQuestTasks(NPC)
+	for taskIndex, questTask in pairs(questTasks) do
+		-- print(questTask.Type, questTask.MonsterType, questTask.Amount)
+		if questTask then
+			local taskDescription = questTask.Description
+			if typeof(taskDescription) ~= "string" then 
+				setIdentity(2)
+				-- print(1)
+				taskDescription = taskDescription(getClientStatCache())
+				-- print(2)
+				setIdentity(origThreadIdentity)
+			end
+
+			if questTask.Type == "Collect Pollen" or questTask.Type == "Collect Goo" then
+				local newField = getQuestTaskField(questTask)
+				if newField and Workspace.FlowerZones:FindFirstChild(newField) then
+					selectField(newField)
+					break
+				end
+			elseif questTask.Type == "Defeat Monsters" then
+				local monsterToKill = questTask.MonsterType
+				local numberOfMonsters = questTask.Amount
+				local monsterSpawners = getSpawnedMonsters(monsterToKill)
+				local remainingAmount = numberOfMonsters - questTask.Progress[2]
+				-- print("Alive",monsterToKill,":",#monsterSpawners)
+				if #monsterSpawners > 0 then
+					local monstersKilled = 0
+					for i,v in pairs(monsterSpawners) do
+						if remainingAmount <= 0 then print("brk!") break end
+						if not isMonsterKilled(v.Spawner.Name) then
+							local isKilled = killMonster(v.Territory, v.Spawner)
+							if isKilled then
+								monstersKilled += 1
+								task.wait(1)
+								for i=1,5 do
+									collectNearestTokens(nil, 20)
+								end
+								remainingAmount = remainingAmount - 1
+							end
+						end
+					end
+				end
+			elseif questTask.Type == "Use Items" then
+				if false and not string.find(taskDescription, "Feed") and not questTask.Item:find("Jelly") then
+					--UseItem
+					if not temptable.questUseItemCooldown then
+						game:GetService("ReplicatedStorage").Events.PlayerActivesCommand:FireServer({["Name"]=questTask.Item})
+						task.spawn(function()
+							temptable.questUseItemCooldown = true
+							task.wait(100)
+							temptable.questUseItemCooldown = false                        
+						end)
+					end
+				elseif string.find(taskDescription, "Feed") then
+					--Feed
+					if not temptable.questFeedCooldown then
+						Events.ClientCall("ConstructHiveCellFromEgg", math.random(1,5), 1, questTask.Item, questTask.Amount, false) 
+						temptable.questFeedCooldown = true
+						task.wait(5)
+						temptable.questFeedCooldown = false  
+					end
+				end
+			elseif questTask.Type == "Use Toy" then
+				if canToyBeUsed(questTask.Toy) and not temptable.questUseToyCooldown then
+					if not questTask.Toy:find("Glue") then
+						useToy(questTask.Toy)
+					else
+						useGlueDispenser()
+					end
+					temptable.questUseToyCooldown = true
+					task.wait(15)
+					temptable.questUseToyCooldown = false 
+					continue
+				end
+			elseif questTask.Type == "Match Pairs" then
+				for i,v in pairs(AllToysTable["memoryMatchTable"]) do
+					useMemoryMatch(v, true)
+				end
+			elseif questTask.Type == "Complete Quests" then
+				doQuests(questTask.Pool or "Polar Bear")
+			end
+		end
+	end
+end
+
+function handleMonsterKill(monsterName)
+	for _,monster in pairs(getSpawnedMonsters(monsterName)) do
+		if monster.Spawner and monster.Territory then
+			killMonster(monster.Territory, monster.Spawner)
+			task.wait(1)
+			for i=1,3 do
+				collectNearestTokens(nil, 20)
+			end
+		end
+	end
+end
+
+function tryKillMonsters()
+	if vitaly.combatSettings.killSpidor then
+		handleMonsterKill("Spider")
+	end
+	if vitaly.combatSettings.killMantis then
+		handleMonsterKill("Mantis")
+	end
+	if vitaly.combatSettings.killScorpion then
+		handleMonsterKill("Scorpion")
+	end
+	if vitaly.combatSettings.killWerewolf then
+		handleMonsterKill("Werewolf")
+	end
+end
+
+function trainTunnelBear()
+	if vitaly.combatSettings.trainTunnelBear then
+		if #getSpawnedMonsters("Tunnel Bear") == 1 then
+			tunnelPart.CanCollide = true
+			local spawner = getSpawnedMonsters("Tunnel Bear")[1].Spawner
+			while vitaly.combatSettings.trainTunnelBear and not isMonsterKilled(spawner.Name) do
+				if api.magnitude(tunnelPart.Position) > 10 then
+					moveTo(tunnelPart.Position)
+					task.wait()
+				end
+				task.wait(0.1)
+			end
+			tunnelPart.CanCollide = false
+			task.wait(1)
+			if #getSpawnedMonsters("Tunnel Bear") == 0 then
+				task.wait(0.5)
+				for i=1,10 do
+					if api.magnitude(tunnelPart.Position) > 250 then
+						moveTo(tunnelPart.Position - Vector3.new(0,16,0))
+					end
+					collectNearestTokens(nil, 250)
+				end
+				task.wait(0.5)
+			end
+		end
+	end
+end
+
+function trainCrab()
+	if vitaly.combatSettings.trainCrab then
+		if #getSpawnedMonsters("Coconut Crab") == 1 then
+			local coconutField = Workspace.FlowerZones["Coconut Field"]
+			local oldMask = getClientStatCache("EquippedAccessories", "Hat")
+			if oldMask ~= "Demon Mask" and oldMask ~= "Gummy Mask" then
+				requestAccessoryEquip("Demon Mask")
+			end
+			cocoPad.CanCollide = true
+			local spawner = getSpawnedMonsters("Coconut Crab")[1].Spawner
+			while vitaly.combatSettings.trainCrab and not isMonsterKilled(spawner.Name) do
+				if api.magnitude(Vector3.new(-258, 109, 483)) > 50 then
+					moveTo(Vector3.new(-441, 123, 498))
+					task.wait(6)
+					moveTo(Vector3.new(-258, 109, 483))
+					task.wait()
+				elseif api.magnitude(Vector3.new(-258, 109, 483)) > 15 then
+					api.humanoid():MoveTo(Vector3.new(-258, 109, 483))
+					api.humanoid().MoveToFinished:Wait(2)
+				end
+				if api.magnitude(Vector3.new(-258, 109, 483)) < 20 then
+					collectNearestTokens(Vector3.new(-258, 109, 483), 20)
+				end
+				task.wait()
+			end
+			cocoPad.CanCollide = false
+			if #getSpawnedMonsters("Coconut Crab") == 0 then
+				task.wait(1)
+				for i=1,25 do
+					if findField(player.Character.HumanoidRootPart.Position) ~= coconutField then
+						moveTo(coconutField.Position)
+					end
+					collectNearestTokens(coconutField.Position, 50)
+				end
+				task.wait(0.5)
+			end
+			if oldMask == "Diamond Mask" then
+				requestAccessoryEquip("Diamond Mask")
+			end
+		end
+	end
+end
+
+function trainStumpSnail()
+	if not vitaly.combatSettings.trainStumpSnail then return false end
+	if not (#getSpawnedMonsters("Stump Snail") >= 1) then return false end
+
+	if vitaly.combatSettings.snailConvertHoney and getBagPercentage() >= 99 then return convertHoney(false) end
+
+	if not isFieldSame(api.humanoidrootpart().Position, FlowerZones["Stump Field"].Position) then
+		moveTo(FlowerZones["Stump Field"].Position)
+		task.wait(2)
+		placeSprinkler(nil, true, true)
+	end
+
+	local importantCallback = function(token) 
+		if not (findField(token.Position) == FlowerZones["Stump Field"]) then return false end
+		local Snail = getAliveMonsters("Stump Snail")[1]
+		if not Snail then 
+			return true
+		else
+			if Snail:FindFirstChild("Head") and api.magnitude(token.Position, (Snail.Head.Position - Vector3.new(0,10,0))) < 21 then return false end
+			return true
+		end
+	end
+	local isFarmed = false
+	for i=1,5 do
+		local farmed = farmToken(importantCallback)
+		isFarmed = isFarmed or farmed
+	end
+	if not isFarmed and (tick() - temptable.lastWalkToNearest > 1.5) then
+		local randomFlower = getRandomFlower(FlowerZones["Stump Field"])
+		local Snail = getAliveMonsters("Stump Snail")[1]
+		if randomFlower and 
+			Snail and Snail:FindFirstChild("Head") and 
+			api.magnitude(randomFlower.Position, (Snail.Head.Position - Vector3.new(0,10,0))) > 40
+		then
+			temptable.lastWalkToNearest = tick()
+			api.humanoid():MoveTo(randomFlower.Position)
+			task.wait(0.1)
+		end
+	end
+	return true
+end
+
+function trainKingBeetle()
+	if vitaly.combatSettings.trainKingBeetle then
+		if #getSpawnedMonsters("King Beetle") == 1 then
+			local spawner = getSpawnedMonsters("King Beetle")[1].Spawner
+
+			temptable.customWalkSpeed.enabled = true
+			temptable.customWalkSpeed.speed = 18
+
+			while vitaly.combatSettings.trainKingBeetle and not isMonsterKilled(spawner.Name) do
+				if api.magnitude(Vector3.new(179, 4, 194)) > 100 then
+					moveTo(Vector3.new(172, 4, 144))
+					task.wait(1)
+					-- moveTo(Vector3.new(108, 4, 227))
+					-- task.wait()
+					api.humanoid():MoveTo(Vector3.new(109, 4, 253))
+				end
+				task.wait()
+			end
+			temptable.customWalkSpeed.speed = 50
+			task.wait(1)
+			if #getSpawnedMonsters("King Beetle") == 0 then
+				for i=1,10 do
+					collectNearestTokens(Vector3.new(179, 4, 194), 60)
+				end
+				task.wait(0.5)
+			end
+			temptable.customWalkSpeed.enabled = false
+		end
+	end
+end
+
+function isFieldOccupied(field)
+	local planters = getMinePlanters()
+	for _,planter in pairs(planters) do
+		if planter.PotModel and planter.PotModel.Parent and planter.PotModel.PrimaryPart then
+			if findField(planter.PotModel.PrimaryPart.Position).Name == field then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function isPlanterPlanted(planterName)
+	local planters = getMinePlanters()
+	local planterData = getPlanterData(planterName)
+	for _,planter in pairs(planters) do
+		-- warn(planter.Type, planterData.systemName)
+		if planter.Active and not planter.Collected and planter.Type == planterData.systemName then
+			return true
+		end
+	end
+	return false
+end
+
+function getBestPlanter(nectar, field, blacklisted)
+	local bestPlanter = ""
+	local bestZone = ""
+	local bestNectarMultiplier = 0
+	local bestZoneMultiplier = 0
+
+	for planterName, planter in pairs(plantersTable) do
+		if not table.find(vitaly.autoPlantersSettings.blacklistedPlanters, planter.systemName) 
+			and not isPlanterPlanted(planterName) 
+			and (planterName ~= "Plenty" and getClientStatCache("Eggs", planterName.."Planter") or getClientStatCache("Eggs", "The Planter Of Plenty")) then
+			local fieldColor = Workspace.FlowerZones[field].ColorGroup.Value
+			local nectarMultiplier = planter.nectarMultipliers[nectar] or 1
+			local zoneMultiplier = planter.pollenMultipliers.Zones[fieldColor] or 1
+			local colorMultiplier = planter.pollenMultipliers.Colors[fieldColor] or 1
+			local overallMultiplier = nectarMultiplier * zoneMultiplier * colorMultiplier
+
+			if overallMultiplier > bestNectarMultiplier * bestZoneMultiplier then
+				bestPlanter = planterName
+				bestZone = fieldColor
+				bestNectarMultiplier = nectarMultiplier
+				bestZoneMultiplier = zoneMultiplier * colorMultiplier
+			end
+		end
+	end
+
+	return bestPlanter, bestZone
+end
+
+function isNectarPending(nectartype)
+	local planters = getMinePlanters()
+	for i, v in pairs(planters) do
+		local location = findField(v.PotModel.PrimaryPart.Position)
+		if location then
+			local conftype = NectarTypes.PickForField(location.Name)
+			if conftype then
+				if conftype.." Nectar" == nectartype then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+function getBestNectarField(nectar)
+	nectar = tostring(nectar)
+	local nectar = nectar:gsub(" Nectar", "")
+	if not nectarsTable[nectar] then return --[[warn(nectar, "not found")]] end
+	local bestField = ""
+	for index, nectarField in pairs(nectarsTable[nectar]) do
+		if not isFieldOccupied(nectarField) and not (nectarField == "Ant Field") then
+			bestField = nectarField
+		end
+	end
+	return bestField
+end
+
+function calculateLeastNectar()
+	local blacklistedNectars = vitaly.autoPlantersSettings.blacklistedNectars
+	local leastNectar
+	local leastNectarTime = math.huge
+	for i,v in pairs(nectarsDropdownTable) do
+		if table.find(blacklistedNectars, v) or isNectarPending(v) then continue end
+		-- print(table.find(blacklistedNectars, v), isNectarPending(v))
+		local currentNectarTime = getBuffTime(v)
+		if currentNectarTime < leastNectarTime then
+			leastNectar = v
+			leastNectarTime = currentNectarTime
+		end
+	end
+	-- warn(leastNectar)
+	return leastNectar
+end
+
+function collectSpecificPlanter(planterPart, id)
+	if planterPart and api.humanoid() and api.humanoid().Health > 0 and api.humanoidrootpart() then
+		moveTo(planterPart.Position - Vector3.new(0,3,0))
+		task.wait(1)
+		if api.magnitude(api.humanoidrootpart().Position, planterPart.Position) < 20 then
+			setIdentity(2)
+			Events.ClientCall("PlanterModelCollect", id)
+			-- LocalPlanters.PromptCollect(id)
+			setIdentity(origThreadIdentity)
+			task.wait(3)
+			for i = 1, 5 do
+				collectNearestTokens(nil, 50)
+			end
+			task.wait()
+		end
+	end
+end
+
+if _G.debugging then
+	warn("Functions init done. Waiting 1 second")
+	task.wait(1)
+end
+
+if _G.debugging then
+	warn("Other Functions init.")
+end
+
+-- writefile("plantersData.json", jsonEncode(plantersTable))
+
+function isPlanterExists(pNum)
+	local exists = false
+	local stuffs = getMinePlanters()
+	if stuffs ~= {} then
+		for i, v in pairs(stuffs) do
+			if v["ActorID"] == pNum and v.Active and not v.Collected then
+				exists = true
+			end
+		end
+	end
+	return exists
+end
+
+function plantPlanter(planterName, fieldName)
+	if not planterName or not fieldName then return end
+	local planterData = getPlanterData(planterName)
+	-- print(planterName)
+	local fieldSelected = Workspace.FlowerZones:FindFirstChild(fieldName)
+	if not fieldSelected then return end
+	local stepTable = {field = fieldName, planter = planterName}
+	temptable.plantingPlanter = true
+	while api.humanoidrootpart() and api.humanoid().Health > 0 and not checkIfPlanted(stepTable) and not isFieldOccupied(fieldName) do
+		while not (api.magnitude(fieldSelected.Position) < 8) do
+			moveTo(fieldSelected.Position)
+			task.wait()
+		end
+		task.wait(0.5)
+		PlayerActivesCommand:FireServer({["Name"] = planterData.displayName})
+		task.wait(1)
+	end
+	plantingPlanter = false
+end
+
+function collectAllPlanters(collectPercentage)
+	local plantersToCollect = {}
+	for _,planter in pairs(getMinePlanters()) do
+		if planter.GrowthPercent ~= nil then
+
+			if planter.GrowthPercent >= ((collectPercentage or vitaly.autoPlantersSettings.planterHarvestAt) / 100) then
+				table.insert(plantersToCollect, {
+					["PM"] = planter["PotModel"].PrimaryPart,
+					["AID"] = planter["ActorID"]
+				})
+			end
+		end
+	end
+	if #plantersToCollect > 0 then
+		for _,planter in pairs(plantersToCollect) do
+			while isPlanterExists(planter.AID) do
+				collectSpecificPlanter(planter.PM, planter.AID)
+				task.wait(1)
+			end
+		end
+	end
+end
+
+function getPlantersCacheFromFile()
+	if not isfile(plantersCacheFilePath) then
+		local defaultPlantersCache = {
+			customPlanters1 = 1,
+			customPlanters2 = 1,
+			customPlanters3 = 1
+		}
+		writefile(plantersCacheFilePath, game.HttpService:JSONEncode(defaultPlantersCache))
+	end
+	return game.HttpService:JSONDecode(readfile(plantersCacheFilePath))
+end
+
+function getPlantersCache() 
+	local Cache = plantersCache
+	local isFromCache = true
+	if not Cache then 
+		isFromCache = false
+		Cache = getPlantersCacheFromFile()
+		plantersCache = Cache
+	end
+	-- print((isFromCache and "Loaded from Cache") or "Loaded from File")
+	return Cache
+end
+
+function updatePlantersCache(cycle, newValue)
+	local Cache = getPlantersCache()
+	Cache["customPlanters"..cycle] = newValue
+	plantersCache = Cache
+	writefile(plantersCacheFilePath, game.HttpService:JSONEncode(Cache))
+end
+
+function checkIfPlanted(stepTable)
+	local isPlanted,planter = false,nil
+	for i,v in pairs(getMinePlanters()) do
+		local planterName = getPlanterData(v.Type).displayName
+		local planterField = findField(v.Pos)
+		-- warn(stepTable.planter, planterName)
+
+		if (stepTable.field == (planterField and planterField.Name))
+			and(stepTable.planter == planterName) then
+			-- print("FOUND PLANTER!")
+			isPlanted = true
+			planter = v
+			break
+		end
+	end
+	-- warn(isPlanted,planter)
+	return isPlanted,planter
+end
+
+function isPlanterInConfig(planter)
+	for i=1,3 do
+		local cycleName = "customPlanters"..i
+		local stepsTable = vitaly.customPlanterSettings[cycleName]
+		for j=1,5 do
+			local stepTable = stepsTable[j]
+			if not (stepTable.planter and table.find(plantersDropdownTable, stepTable.planter))
+				or not (stepTable.field and table.find(fieldsTable, stepTable.field))
+			then
+				continue
+			else
+				local isInConfig = (getPlanterData(stepTable.planter).displayName == planter.Name and stepTable.field == planter.Field)
+				if isInConfig then return true end
+			end
+		end
+	end
+	return false
+end
+
+function autoPlanters()
+	local shouldReturn = false
+	if vitaly.autoPlantersSettings.doCustomPlanters then
+		local planterCycles = vitaly.customPlanterSettings
+
+		local steps = {
+			customPlanters1 = 5, 
+			customPlanters2 = 5, 
+			customPlanters3 = 5
+		}
+
+		for i=1,3 do
+			local cycleName = "customPlanters"..i
+			local stepsTable = planterCycles[cycleName]
+			for j=1,5 do
+				local stepTable = stepsTable[j]
+				if not (stepTable.planter and table.find(plantersDropdownTable, stepTable.planter))
+					or not (stepTable.field and table.find(fieldsTable, stepTable.field))
+				then
+					steps[cycleName] -= 1
+				else
+					local isPlanted = checkIfPlanted(stepTable)
+					-- warn("Is Planted: "..tostring(isPlanted))
+					if isPlanted then updatePlantersCache(i,j) break end
+				end
+			end
+		end
+
+		local currentSteps = getPlantersCache()
+
+		for i,planter in pairs(getMinePlanters()) do
+			local planterName = getPlanterData(planter.Type).displayName
+			local planterField = findField(planter.Pos) and findField(planter.Pos).Name
+
+			if not isPlanterInConfig({Name = planterName, Field = planterField}) then
+				-- print("NOT IN CONFIG")
+				collectSpecificPlanter(planter.PotModel.PrimaryPart, planter.ActorID)
+				shouldReturn = true
+			end
+		end
+
+		for i=1,3 do
+			local cycleName = "customPlanters"..i
+			local stepsTable = planterCycles[cycleName]
+
+			if steps[cycleName] == 0 then continue end
+			local currentStep = currentSteps[cycleName]
+			local config = stepsTable[currentStep]
+			if currentStep > steps[cycleName] then 
+				-- print("Step limit ",cycleName,currentStep,steps[cycleName])
+				currentStep = 1 
+				updatePlantersCache(i,1)
+				currentSteps = getPlantersCache()
+			end
+			local isPlanted,Planter = checkIfPlanted(config)
+			-- print(isPlanted, config)
+			if not isPlanted and #getMinePlanters() < 3 then
+				-- print("Not Planted")
+				local planter = config.planter
+				if planter:find("Plenty") then planter = "The Planter Of Plenty" elseif not table.find(plantersDropdownTable, planter) then continue end
+				local planterData = getPlanterData(planter)
+				local planterCount = getClientStatCache("Eggs", (planter:find("Plenty") and "Plenty" or planterData.systemName).."Planter") or 0
+				if isFieldOccupied(config.field) or planterCount <= 0 or isPlanterPlanted(planterData.systemName) then
+					warn("Skipped", cycleName, planter, config.field)
+					updatePlantersCache(i,currentStep + 1)
+					currentSteps = getPlantersCache()
+					warn(currentSteps[cycleName])
+				else
+					plantPlanter(planterData.systemName, config.field)
+					task.wait()
+					shouldReturn = true
+				end
+			else
+				if Planter.GrowthPercent >= (config.harvestAmount / 100) then
+					if Planter.PotModel.Name == config.planter and findField(Planter.PotModel.PrimaryPart.Position).Name == config.field then
+						collectSpecificPlanter(Planter.PotModel.PrimaryPart, Planter.ActorID)
+						updatePlantersCache(i,currentStep + 1)
+						currentSteps = getPlantersCache()
+						shouldReturn = true
+					end
+				end
+			end
+		end
+	end
+	return shouldReturn
+end
+
+function farmDupedTokens()
+	if #temptable.dupedTokensTable > 0 then
+		local dupedToken = next(temptable.dupedTokensTable)
+		if tonumber(dupedToken) then dupedToken = temptable.dupedTokensTable[dupedToken] end
+		local succ,err = pcall(function()
+			while dupedToken.Attachment.BillboardGuiFront.Smile.ImageColor3 ~= Color3.fromRGB(255, 0, 255) do
+				local pos = dupedToken.Position - Vector3.new(0,10,0)
+
+				player.Character.Humanoid:MoveTo(pos)
+
+				task.wait(.05)
+			end
+			local index = table.find(temptable.dupedTokensTable, dupedToken)
+			table.remove(temptable.dupedTokensTable, index)
+		end)
+		if not succ then warn(err) end
+		if succ then return true end
+	end
+	return false
+end
+
+function mainAutofarmFunction()
+	local function importantFarmTaskCallback(token)
+		return findField(token.Position) == temptable.fieldSelected
+	end
+
+	while task.wait() do
+		xpcall(function() 
+			if temptable.stopEverything then return task.wait(.03) end
+
+			if temptable.autoRBC.isActive then return task.wait(.03) end
+			if canTaskBeSpawned("getToys") then
+				getToys()
+			end
+			if vitaly.autoPlantersSettings.doCustomPlanters and canTaskBeSpawned("farmPlanters") then
+				if autoPlanters() then return end
+			end
+
+			if vitaly.combatSettings.killVicious and temptable.detected.vicious and canTaskBeSpawned("killVicious") then
+				killVicious()
+			end
+
+			tryKillMonsters()
+			if canTaskBeSpawned("trainBosses") then
+				if vitaly.combatSettings.trainKingBeetle then
+					trainKingBeetle()
+				end
+
+				if vitaly.combatSettings.trainTunnelBear then
+					trainTunnelBear()
+				end
+
+				if vitaly.combatSettings.trainCrab then
+					trainCrab()
+				end
+
+				if vitaly.combatSettings.trainStumpSnail then
+					if trainStumpSnail() then return end
+				end
+			end
+			if not vitaly.toggles.convertHoney or not shouldIConvert() then
+
+				if temptable.shouldEquipDefaultMask then
+					temptable.shouldEquipDefaultMask = false
+					requestAccessoryEquip(vitaly.vars.defaultmask)
+					return
+				end
+
+				if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then
+					farmPuffshrooms()
+					return
+				end
+
+				if vitaly.autoFarmSettings.farmSprouts then
+					farmSprouts()
+				end
+
+				selectField(vitaly.autoFarmSettings.field)
+
+				if vitaly.autoQuestSettings.doQuests then
+					doQuests()
+				end
+
+				if not isFieldSame(api.humanoidrootpart().Position, temptable.fieldPosition) then
+					moveTo(temptable.fieldPosition + Vector3.new(0,3,0))
+					if vitaly.autoFarmSettings.autoSprinkler then
+						task.wait()
+						placeSprinklers(temptable.fieldPosition)
+					end
+				end
+
+				if vitaly.autoFarmSettings.smartPreciseCrosshair and #getCrosshairs().all > 0 then
+					if smartFarmCrosshairs() then return end 
+				end
+
+				if vitaly.autoFarmSettings.farmDupedTokens then
+					farmDupedTokens()
+				end
+
+				if vitaly.autoFarmSettings.farmShower or vitaly.autoFarmSettings.farmCoconuts then
+					farmShowerAndCoco()
+				end
+
+				local isFarmed = false
+				isFarmed = farmNearest(importantFarmTaskCallback)
+				-- for i=1,3 do
+				-- isFarmed = isFarmed or farmed
+				-- end
+
+				if vitaly.autoFarmSettings.farmUnderBalloons and math.random(68,70) == 69 then
+					local farmed = gotoNearestBalloon()
+					isFarmed = isFarmed or farmed
+				end
+
+				if not isFarmed and (tick() - temptable.lastWalkToNearest > 1.5) then
+					local randomFlower = getRandomFlower(temptable.fieldSelected)
+					if randomFlower then
+						temptable.lastWalkToNearest = tick()
+						api.humanoid():MoveTo(randomFlower.Position)
+					end
+				end
+			elseif vitaly.toggles.convertHoney and shouldIConvert(false, false) then
+				convertHoney(vitaly.toggles.converthiveballoon)
+			end
+		end, function(err) warn(("[Macro V3] (%s) | An error has occurred: %s"):format(temptable.version, err)) end)
+	end
+end
+
+local autoDig
