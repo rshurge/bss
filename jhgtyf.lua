@@ -1,5 +1,17 @@
+repeat 
+	task.wait() 
+until game:IsLoaded() 
+	and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") 
+	and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
+
+for i,v in pairs(workspace.Decorations["Diamond Mask Hall"]:GetChildren()) do
+	if v:FindFirstChild("GateScript") and v.Name == "Part" then
+		v.CanTouch = false
+	end
+end
+
 local getcustomasset = getcustomasset or function() end
-local requestfunc = or http and http.request or http_request or fluxus and fluxus.request or request or function() end 
+local requestfunc = http and http.request or http_request or fluxus and fluxus.request or request or function() end 
 local isfile = isfile or function(file)
 	local suc, res = pcall(function() return readfile(file) end)
 	return suc and res ~= nil
