@@ -113,8 +113,8 @@ do
 
 	local ver = 0
 
-	local vitaly = {}
-	vitaly['generaterandomstring'] = function(a)
+	local perfect = {}
+	perfect['generaterandomstring'] = function(a)
 		local let = ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'):split('')
 		local string = '' 
 		for i = 1, a do 
@@ -122,26 +122,26 @@ do
 		end 
 		return string 
 	end
-	vitaly["humanoidrootpart"] = function()
+	perfect["humanoidrootpart"] = function()
 		return game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 	end
-	vitaly["humanoid"] = function() 
+	perfect["humanoid"] = function() 
 		return game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid")
 	end
-	vitaly["tween"] = function(speed, pos)
-		if vitaly.humanoidrootpart() then
+	perfect["tween"] = function(speed, pos)
+		if perfect.humanoidrootpart() then
 			if typeof(pos) == "CFrame" then pos = pos.p end
-			local speed = (vitaly.humanoidrootpart().Position - pos).Magnitude / speed
-			game:GetService("TweenService"):Create(vitaly.humanoidrootpart(), TweenInfo.new(speed, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)}):Play() task.wait(speed)
+			local speed = (perfect.humanoidrootpart().Position - pos).Magnitude / speed
+			game:GetService("TweenService"):Create(perfect.humanoidrootpart(), TweenInfo.new(speed, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)}):Play() task.wait(speed)
 		end
 	end
-	vitaly["walkTo"] = function(Pos)
+	perfect["walkTo"] = function(Pos)
 		if mv2.humanoid() then
 			mv2.humanoid():MoveTo(Pos)
 		end
 	end
-	vitaly["isExist"] = function(obj)
-		NewObjName = vitaly.generaterandomstring(10)
+	perfect["isExist"] = function(obj)
+		NewObjName = perfect.generaterandomstring(10)
 		oldObjName = obj and obj.Name
 		obj.Name = NewObjName
 		if obj ~= nil or obj.Parent:FindFirstChild(NewObjName) then
@@ -151,8 +151,8 @@ do
 			return false
 		end
 	end
-	vitaly["player"] = game.Players.LocalPlayer
-	vitaly["notify"] = function(title, description, duration)
+	perfect["player"] = game.Players.LocalPlayer
+	perfect["notify"] = function(title, description, duration)
 		pcall(function()
 			game.StarterGui:SetCore("SendNotification", {
 				Title = title;
@@ -161,55 +161,55 @@ do
 			})
 		end)
 	end
-	vitaly["isSynapse"] = function()
+	perfect["isSynapse"] = function()
 		if syn then
 			return true
 		else
 			return false
 		end
 	end
-	vitaly["isSynV3"] = function()
+	perfect["isSynV3"] = function()
 		local exploit = identifyexecutor and table.concat({ identifyexecutor() }, " ") or "Unknown"
 		if exploit:gmatch("/") then
 			exploit = exploit:split("/")[1]
 		end
-		if vitaly.isSynapse() and exploit:lower():match("v3") then
+		if perfect.isSynapse() and exploit:lower():match("v3") then
 			return true
 		end
 		return false
 	end
-	vitaly['isKrnl'] = function()
+	perfect['isKrnl'] = function()
 		if Krnl then
 			return true
 		else
 			return false
 		end
 	end
-	vitaly['isScriptWare'] = function()
+	perfect['isScriptWare'] = function()
 		if identifyexecutor and tostring(identifyexecutor()):match("ScriptWare") then return true end
 	end
-	vitaly['isFluxus'] = function()
+	perfect['isFluxus'] = function()
 		if identifyexecutor and tostring(identifyexecutor()):match("Fluxus") then return true end
 	end
-	vitaly['isElectron'] = function()
+	perfect['isElectron'] = function()
 		if identifyexecutor and tostring(identifyexecutor()):match("Electron") then return true end
 	end
-	vitaly["isValyse"] = function()
+	perfect["isValyse"] = function()
 		return Valyse and true or false
 	end
-	vitaly['ver'] = ver
-	vitaly['magnitude'] = function(v1, v2)
-		return ((v2 or vitaly.humanoidrootpart().Position) - v1).magnitude
+	perfect['ver'] = ver
+	perfect['magnitude'] = function(v1, v2)
+		return ((v2 or perfect.humanoidrootpart().Position) - v1).magnitude
 	end
-	vitaly['afunc'] = function(f)
+	perfect['afunc'] = function(f)
 		local wa = coroutine.create(
 			function()
 				f()
 			end)
 		coroutine.resume(wa)
 	end
-	vitaly["getField"] = function(part)
-		part = part or vitaly.humanoidrootpart()
+	perfect["getField"] = function(part)
+		part = part or perfect.humanoidrootpart()
 		local ray = Ray.new(part.Position+Vector3.new(0, -35, 0), Vector3.new(0,100, 0))
 		local hit, hitPos = workspace:FindPartOnRayWithWhitelist(ray, {game.Workspace.FlowerZones})
 		if hit and hit.Parent.Name == "FlowerZones" then
@@ -219,7 +219,7 @@ do
 		end
 	end
 
-	vitaly['tableFind'] = function(tt, va)
+	perfect['tableFind'] = function(tt, va)
 		for i,v in pairs(tt) do
 			if v == va then
 				return i
@@ -227,7 +227,7 @@ do
 		end
 	end
 
-	vitaly['findValue'] = function(Table, Value)
+	perfect['findValue'] = function(Table, Value)
 		if type(Table) == "table" then
 			for index, value in pairs(Table) do
 				if value == Value then
@@ -239,7 +239,7 @@ do
 		end
 		return false
 	end
-	vitaly['returnValue'] = function(tab, val)
+	perfect['returnValue'] = function(tab, val)
 		ok = false
 		for i,v in pairs(tab) do
 			if string.match(val, v) then
@@ -272,7 +272,7 @@ do
 		assert(Function ~= nil or typeof(Function) == "function", string.format("invalid argument #2 to '%s' (table expected, got %s)", "secureCall", typeof(Function)))
 		assert(Script.ClassName == "LocalScript" or Script.ClassName == "ModuleScript", string.format("bad argument to #3 to '%s' (LocalScript or ModuleScript expected, got %s)", "secureCall", Script.ClassName))
 
-		if vitaly.isSynV3() then
+		if perfect.isSynV3() then
 			local Info = debug.getinfo(Function)
 			local Options = {
 				script = Script,
@@ -283,16 +283,16 @@ do
 			local Callstack = {Info}
 
 			return syn.trampoline_call(Function, Callstack, Options, ...)
-		elseif vitaly.isSynapse() then
+		elseif perfect.isSynapse() then
 			return syn.secure_call(Function, Script, ...)
-		elseif vitaly.isKrnl() then
+		elseif perfect.isKrnl() then
 			return coroutine.wrap(function(...)
 				setthreadcontext(2)
 				setfenv(0, getsenv(Script))
 				setfenv(1, getsenv(Script))
 				return Function(...)
 			end)(...)
-		elseif vitaly.isScriptWare() then
+		elseif perfect.isScriptWare() then
 			local func, env = Function, Script
 			local functype, envtype = typeof(func), typeof(env)
 			assert(functype == "function", string.format("bad argument #1 to 'secure_call' (function expected, got %s)", functype))
@@ -310,7 +310,7 @@ do
 				setfenv(1, fenv)
 				return func(...)
 			end)(...)
-		elseif vitaly.isElectron() or vitaly.isFluxus() or vitaly.isValyse() then
+		elseif perfect.isElectron() or perfect.isFluxus() or perfect.isValyse() then
 			return coroutine.wrap(function(...)
 				setthreadcontext(2)
 				setfenv(0, getsenv(Script))
@@ -327,18 +327,18 @@ do
 
 	setreadonly(table, false)
 
-	api = vitaly
+	api = perfect
 end
 
 local player = Players.LocalPlayer
 
-local plantersCacheFilePath = "vitaly/plantercache/"..player.Name.."_customPlantersCache.json"
-if not isfolder("vitaly") then makefolder("vitaly") end
-if not isfolder("vitaly/plantercache") then makefolder("vitaly/plantercache") end
+local plantersCacheFilePath = "perfect/plantercache/"..player.Name.."_customPlantersCache.json"
+if not isfolder("perfect") then makefolder("perfect") end
+if not isfolder("perfect/plantercache") then makefolder("perfect/plantercache") end
 if gethui then
 	for i, v in pairs(gethui():GetDescendants()) do
 		if v:IsA("TextLabel") then
-			if v.Name:find("vitaly") then
+			if v.Name:find("perfect") then
 				v.Parent.Parent.Parent.Parent.Parent:Destroy()
 			end
 		end
@@ -346,15 +346,15 @@ if gethui then
 else
 	for i, v in pairs(CoreGui:GetDescendants()) do
 		if v:IsA("TextLabel") then
-			if v.Name:find("vitaly") then
+			if v.Name:find("perfect") then
 				v.Parent.Parent.Parent.Parent.Parent:Destroy()
 			end
 		end
 	end    
 end
 
-local currentvitalyLoadedAt = tick()
-getgenv().vitalyLoadedAt = currentvitalyLoadedAt
+local currentperfectLoadedAt = tick()
+getgenv().perfectLoadedAt = currentperfectLoadedAt
 
 plrHive = nil
 httpreq = (syn and syn.request) or http_request or (http and http.request) or request
@@ -398,7 +398,7 @@ function Tasks:CancelAll()
 	end
 end
 
-getgenv().vitaly = {
+getgenv().perfect = {
 	toggles = {
 		autodispensers = false,
 		autoboosters = false,
@@ -753,7 +753,7 @@ function removeFromTable(Table, element)
 end
 
 function getTweenSpeed()
-	return (vitaly.localPlayerSettings.tweenSpeed * 10) or 70
+	return (perfect.localPlayerSettings.tweenSpeed * 10) or 70
 end
 
 function bssAlert(style, text)
@@ -1078,14 +1078,14 @@ function requestAccessoryEquip(accessory)
 		return false, "Already equipped " .. accessory
 	end
 
-	if vitaly.vars.equipAccessoryMethod == "Tween" then
+	if perfect.vars.equipAccessoryMethod == "Tween" then
 		moveTo(shopPosition)
-	elseif vitaly.vars.equipAccessoryMethod == "Teleport" then
+	elseif perfect.vars.equipAccessoryMethod == "Teleport" then
 		api.humanoidrootpart().CFrame = CFrame.new(shopPosition)
 	end
 
 	task.wait(0.1)
-	if (api.magnitude(shopPosition) < 25) or vitaly.vars.equipAccessoryMethod == "Remote" then
+	if (api.magnitude(shopPosition) < 25) or perfect.vars.equipAccessoryMethod == "Remote" then
 		remoteEquipAccessory(accessory)
 		return true
 	else
@@ -1099,7 +1099,7 @@ function getRandomRareToken()
 		if not token or not token.Parent then continue end
 
 		local tokenId = tostring(getTokenId(token))
-		if table.find(vitaly.vars.raresList, tokenId) then
+		if table.find(perfect.vars.raresList, tokenId) then
 			return token
 		end
 	end
@@ -1508,18 +1508,18 @@ end
 
 function canTaskBeSpawned(taskName)
 	if taskName == "getToys" then
-		if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then return false end
+		if temptable.puffsDetected and perfect.autoPuffshroomSettings.farmPuffshrooms then return false end
 
 		return true
 	elseif taskName == "farmPlanters" then
-		if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then return false end
+		if temptable.puffsDetected and perfect.autoPuffshroomSettings.farmPuffshrooms then return false end
 
 		return true
 	elseif taskName == "killVicious" then
 
 		return true
 	elseif taskName == "trainBosses" then
-		if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then return false end
+		if temptable.puffsDetected and perfect.autoPuffshroomSettings.farmPuffshrooms then return false end
 
 		return true
 	end
@@ -1533,10 +1533,10 @@ function canCollectToken(token)
 end
 
 function canFarmTask(taskName) 
-	if taskName == "getNearestBubble" and vitaly.autoFarmSettings.farmBubbles  
-		or taskName == "getNearestFuzz" and vitaly.autoFarmSettings.farmFuzzyBombs  
-		or taskName == "getNearestCloud" and vitaly.autoFarmSettings.farmUnderClouds  
-		or taskName == "getNearestFlame" and vitaly.autoFarmSettings.farmFlames  
+	if taskName == "getNearestBubble" and perfect.autoFarmSettings.farmBubbles  
+		or taskName == "getNearestFuzz" and perfect.autoFarmSettings.farmFuzzyBombs  
+		or taskName == "getNearestCloud" and perfect.autoFarmSettings.farmUnderClouds  
+		or taskName == "getNearestFlame" and perfect.autoFarmSettings.farmFlames  
 		or taskName == "getNearestToken" and true
 	then return true else return false end
 end
@@ -1975,7 +1975,7 @@ function getBestPuffshroom()
 	if #puffs == 0 then return nil end
 	local bestPuffs = {}
 
-	local maxRarity = vitaly.autoPuffshroomSettings.rarityPriority == "Mythic > Common" and 0 or 6
+	local maxRarity = perfect.autoPuffshroomSettings.rarityPriority == "Mythic > Common" and 0 or 6
 
 	for i, puff in ipairs(puffs) do
 		local puffName
@@ -1987,15 +1987,15 @@ function getBestPuffshroom()
 		local puffLevel = tonumber(string.match(puffName, "Lvl (%d+)"))
 		if not tonumber(puffLevel)
 			or not puffLevel 
-			or tonumber(puffLevel) < vitaly.autoPuffshroomSettings.minimumLevel
-			or tonumber(puffLevel) > vitaly.autoPuffshroomSettings.maximumLevel 
+			or tonumber(puffLevel) < perfect.autoPuffshroomSettings.minimumLevel
+			or tonumber(puffLevel) > perfect.autoPuffshroomSettings.maximumLevel 
 			or not puff:FindFirstChild("Puffball Stem")
 			or not findField(puff["Puffball Stem"].Position)
 		then continue end
 		local rarityValue = puffsRarityList[puffRarity] or 1
 
-		if (vitaly.autoPuffshroomSettings.rarityPriority == "Mythic > Common" and rarityValue > maxRarity) or
-			(vitaly.autoPuffshroomSettings.rarityPriority == "Common > Mythic" and rarityValue < maxRarity) then
+		if (perfect.autoPuffshroomSettings.rarityPriority == "Mythic > Common" and rarityValue > maxRarity) or
+			(perfect.autoPuffshroomSettings.rarityPriority == "Common > Mythic" and rarityValue < maxRarity) then
 			maxRarity = rarityValue
 			bestPuffs = { puff }
 		elseif rarityValue == maxRarity then
@@ -2014,13 +2014,13 @@ function getBestPuffshroom()
 		aLevel, bLevel = tonumber(aLevel), tonumber(bLevel)
 		local aRarityValue, bRarityValue = puffsRarityList[aRarity] or 1, puffsRarityList[bRarity] or 1
 		if aRarityValue == bRarityValue then
-			if vitaly.autoPuffshroomSettings.levelPriority == "High > Low" then
+			if perfect.autoPuffshroomSettings.levelPriority == "High > Low" then
 				return aLevel > bLevel
 			else
 				return aLevel < bLevel
 			end
 		else
-			if vitaly.autoPuffshroomSettings.rarityPriority == "Mythic > Common" then
+			if perfect.autoPuffshroomSettings.rarityPriority == "Mythic > Common" then
 				return aRarityValue > bRarityValue
 			else
 				return aRarityValue < bRarityValue
@@ -2049,7 +2049,7 @@ function farmPuffshroom(puffToFarm)
 			moveTo(stemPos)
 		end
 		placeSprinkler(stemPos, true, true)
-		while task.wait() and puffToFarm.Parent == Workspace.Happenings.Puffshrooms and vitaly.autoPuffshroomSettings.farmPuffshrooms and vitaly.toggles.autofarm do
+		while task.wait() and puffToFarm.Parent == Workspace.Happenings.Puffshrooms and perfect.autoPuffshroomSettings.farmPuffshrooms and perfect.toggles.autofarm do
 			if getBagPercentage() >= 99 then return false, "Bag is full" end
 			if not isFieldSame(api.humanoidrootpart().Position, stemPos) then
 				moveTo(stemPos)
@@ -2066,7 +2066,7 @@ function farmPuffshroom(puffToFarm)
 			end
 			farmed = true
 		end
-		if farmed and puffToFarm.Parent ~= Workspace.Happenings.Puffshrooms and vitaly.toggles.autofarm and vitaly.autoPuffshroomSettings.farmPuffshrooms then
+		if farmed and puffToFarm.Parent ~= Workspace.Happenings.Puffshrooms and perfect.toggles.autofarm and perfect.autoPuffshroomSettings.farmPuffshrooms then
 			task.wait(0.5)
 			for i=1,2 do
 				collectNearestTokens()
@@ -2091,7 +2091,7 @@ function farmPuffshrooms()
 		local done, msg = farmPuffshroom(puffSelected)
 		if msg == "Bag is full" then return false end
 		task.wait()
-		if vitaly.autoPuffshroomSettings.farmRemaining then
+		if perfect.autoPuffshroomSettings.farmRemaining then
 			puffsOnField = getPuffsOnField(fieldSelected)
 			if #puffsOnField > 0 then
 				for i,v in pairs(puffsOnField) do
@@ -2135,22 +2135,22 @@ function shouldIConvert(converting, check1)
 	check1 = check1 or true
 	local timeSinceLastFullBag = tick() - temptable.lastFullBag -- Calculate the time elapsed since the last conversion
 
-	if timeSinceLastFullBag < vitaly.convertSettings.secondsBeforeConvert then -- Check if the user wants to wait before converting, and if enough time has elapsed
+	if timeSinceLastFullBag < perfect.convertSettings.secondsBeforeConvert then -- Check if the user wants to wait before converting, and if enough time has elapsed
 		return false
-	elseif converting and getBagPercentage() > 0 or getBagPercentage() >= vitaly.convertSettings.convertat then -- Check if the bag is full or if the user wants to convert manually
-		if vitaly.convertSettings.instantToggle and check1 then
+	elseif converting and getBagPercentage() > 0 or getBagPercentage() >= perfect.convertSettings.convertat then -- Check if the bag is full or if the user wants to convert manually
+		if perfect.convertSettings.instantToggle and check1 then
 			instaConvFunc()
 			task.wait(1.5)
 			return shouldIConvert()
 		end
 		return true
 	else
-		if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then return false end
+		if temptable.puffsDetected and perfect.autoPuffshroomSettings.farmPuffshrooms then return false end
 
-		if vitaly.toggles.converthiveballoon and gethiveballoon() then
-			if vitaly.convertSettings.convertballoonat == 0 and converting then
+		if perfect.toggles.converthiveballoon and gethiveballoon() then
+			if perfect.convertSettings.convertballoonat == 0 and converting then
 				return true
-			elseif vitaly.convertSettings.convertballoonat ~= 0 and (tonumber(getBuffTime("Balloon Blessing"))/60) <= vitaly.convertSettings.convertballoonat then
+			elseif perfect.convertSettings.convertballoonat ~= 0 and (tonumber(getBuffTime("Balloon Blessing"))/60) <= perfect.convertSettings.convertballoonat then
 				return true
 			else
 				return false
@@ -2168,9 +2168,9 @@ function getBagPercentage()
 
 	local percentage = (pollencount / maxpollen * 100) or 0
 
-	if temptable.lastFullBag == 0 and percentage >= vitaly.convertSettings.convertat then
+	if temptable.lastFullBag == 0 and percentage >= perfect.convertSettings.convertat then
 		temptable.lastFullBag = tick()
-	elseif not (percentage >= vitaly.convertSettings.convertat) then
+	elseif not (percentage >= perfect.convertSettings.convertat) then
 		temptable.lastFullBag = 0
 	end
 
@@ -2239,7 +2239,7 @@ local instantConvList = {"All", "Ticket/Instant Converter", "Micro-Converter"}
 
 function instaConvFunc()
 	local isConverted = false
-	for i,v in pairs(vitaly.convertSettings.selectedInstant) do
+	for i,v in pairs(perfect.convertSettings.selectedInstant) do
 		--sakata jump
 		if v:find("Ticket") and getClientStatCache("Eggs", "Ticket") ~= 0 and (tick() - temptable.IConverterUsedAt) > 15  then
 			for _,c in pairs(InstantConverterNames) do
@@ -2286,8 +2286,8 @@ end
 function convertHoney(defaultMask)
 	-- print("Convert Honey Called")
 	local hivePos = (player.SpawnPos.Value * CFrame.fromEulerAnglesXYZ(0, 110, 0) + Vector3.new(0, 0, 9)).p
-	while shouldIConvert(true) and vitaly.toggles.convertHoney do
-		if vitaly.toggles.AutoHoneyM then requestAccessoryEquip("Honey Mask") end
+	while shouldIConvert(true) and perfect.toggles.convertHoney do
+		if perfect.toggles.AutoHoneyM then requestAccessoryEquip("Honey Mask") end
 		temptable.convertingHoney = true
 		if api.magnitude(player.SpawnPos.Value.p) > 10 then
 			moveTo(hivePos)
@@ -2310,7 +2310,7 @@ function convertHoney(defaultMask)
 	task.wait(5)
 	temptable.convertingHoney = false
 	if defaultMask == nil or defaultMask == true then
-		if vitaly.toggles.AutoHoneyM then requestAccessoryEquip(vitaly.vars.defaultmask) end
+		if perfect.toggles.AutoHoneyM then requestAccessoryEquip(perfect.vars.defaultmask) end
 	end
 	temptable.lastConvertAtHive = tick()
 end
@@ -2320,7 +2320,7 @@ function useMemoryMatch(memoryMatch, isQuest)
 	local patformPos = Workspace.Toys[memoryMatch].Platform.Position
 	local used = false
 	while canToyBeUsed(memoryMatch) 
-		and (not isQuest and vitaly.toggles.automemorymatch or isQuest and vitaly.autoQuestSettings.useMemoryMatch)
+		and (not isQuest and perfect.toggles.automemorymatch or isQuest and perfect.autoQuestSettings.useMemoryMatch)
 		and not temptable.activeMemoryMatch
 	do
 		moveTo(patformPos)
@@ -2378,18 +2378,18 @@ end
 function getToys()
 	for toysTableName, toysTable in pairs(AllToysTable) do
 		for configToyName, toyName in pairs(toysTable) do 
-			if toysTableName == "toysTable" and vitaly.toggles[configToyName]
-				or toysTableName == "boostersTable" and vitaly.autoboostersettings[configToyName] and vitaly.toggles.autoboosters
-				or toysTableName == "dispensersTable" and vitaly.autodispensersettings[configToyName] and vitaly.toggles.autodispensers
+			if toysTableName == "toysTable" and perfect.toggles[configToyName]
+				or toysTableName == "boostersTable" and perfect.autoboostersettings[configToyName] and perfect.toggles.autoboosters
+				or toysTableName == "dispensersTable" and perfect.autodispensersettings[configToyName] and perfect.toggles.autodispensers
 			then
 				if toyName ~= "Glue Dispenser" then
 					useToy(toyName)
 				else
 					useGlueDispenser()
 				end
-			elseif toysTableName == "beesmasToysTable" and vitaly.toggles[configToyName] and scriptType == LPH_STRENC("Paid") then
+			elseif toysTableName == "beesmasToysTable" and perfect.toggles[configToyName] and scriptType == LPH_STRENC("Paid") then
 				useToy(toyName, true)
-			elseif toysTableName == "memoryMatchTable" and vitaly.toggles.automemorymatch then
+			elseif toysTableName == "memoryMatchTable" and perfect.toggles.automemorymatch then
 				useMemoryMatch(toyName)
 			end
 		end
@@ -2487,7 +2487,7 @@ function smartFarmCrosshairs()
 		for _,crosshair in pairs(getCrosshairs().purple) do
 			if not crosshair.Parent then continue end
 			local save_height = crosshair.Position.y
-			if vitaly.autoFarmSettings.smartPreciseMethod == "Walk" then
+			if perfect.autoFarmSettings.smartPreciseMethod == "Walk" then
 				isFarmed = true
 				farmCrosshair(crosshair, save_height)
 			else
@@ -2603,14 +2603,14 @@ function killMonster(territory, spawner)
 end
 
 function killVicious()
-	if vitaly.combatSettings.killVicious and temptable.detected.vicious then
+	if perfect.combatSettings.killVicious and temptable.detected.vicious then
 		local viciousModel
 		for i, v in pairs(Workspace.Particles:GetChildren()) do
 			if v.Name:find("Vicious") then
 				for i2, v2 in pairs(Workspace.Monsters:GetChildren()) do 
 					if v2.Name:find("Vicious") and v2:FindFirstChild("HumanoidRootPart") then
 						local level = tonumber(string.gmatch(v2.Name, "%d+")())
-						if level and level >= vitaly.combatSettings.viciousMinLevel and level <= vitaly.combatSettings.viciousMaxLevel then
+						if level and level >= perfect.combatSettings.viciousMinLevel and level <= perfect.combatSettings.viciousMaxLevel then
 							viciousModel = v2
 							moveTo(v.Position)
 							task.wait(0.5)
@@ -2623,7 +2623,7 @@ function killVicious()
 			local viciousOnField = findField(viciousModel.HumanoidRootPart.Position)
 			-- warn(viciousOnField)
 			local level = tonumber(string.gmatch(viciousModel.Name, "%d+")())
-			while viciousModel and viciousOnField and viciousModel.Parent and vitaly.combatSettings.killVicious and temptable.detected.vicious and level and level >= vitaly.combatSettings.viciousMinLevel and level <= vitaly.combatSettings.viciousMaxLevel do
+			while viciousModel and viciousOnField and viciousModel.Parent and perfect.combatSettings.killVicious and temptable.detected.vicious and level and level >= perfect.combatSettings.viciousMinLevel and level <= perfect.combatSettings.viciousMaxLevel do
 				if not viciousModel.Parent then viciousModel = nil break end
 				if viciousOnField then
 					-- warn(findField(api.humanoidrootpart().Position))
@@ -2658,17 +2658,17 @@ function getQuestProgress(questName)
 end
 
 function getQuestSetting(npc, Type)
-	return(npc == "Black Bear" and (Type == "prio" and vitaly.autoQuestSettings.BlackBearPriority or Type == "toggle" and vitaly.autoQuestSettings.BlackBearQuests))
-		or (npc == "Brown Bear" and (Type == "prio" and vitaly.autoQuestSettings.BrownBearPriority or Type == "toggle" and vitaly.autoQuestSettings.BrownBearQuests))
-		or (npc == "Panda Bear" and (Type == "prio" and vitaly.autoQuestSettings.PandaBearPriority or Type == "toggle" and vitaly.autoQuestSettings.PandaBearQuests))
-		or (npc == "Science Bear" and (Type == "prio" and vitaly.autoQuestSettings.ScienceBearPriority or Type == "toggle" and vitaly.autoQuestSettings.ScienceBearQuests))
-		or (npc == "Polar Bear" and (Type == "prio" and vitaly.autoQuestSettings.PolarBearPriority or Type == "toggle" and vitaly.autoQuestSettings.PolarBearQuests))
-		or (npc == "Spirit Bear" and (Type == "prio" and vitaly.autoQuestSettings.SpiritBearPriority or Type == "toggle" and vitaly.autoQuestSettings.SpiritsBearQuests))
-		or (npc == "Bucko Bee" and (Type == "prio" and vitaly.autoQuestSettings.BuckoBeePriority or Type == "toggle" and vitaly.autoQuestSettings.BuckoBeeQuests))
-		or (npc == "Riley Bee" and (Type == "prio" and vitaly.autoQuestSettings.RileyBeePriority or Type == "toggle" and vitaly.autoQuestSettings.RileyBeeQuests))
-		or (npc == "Honey Bee" and (Type == "prio" and vitaly.autoQuestSettings.HoneyBeePriority or Type == "toggle" and vitaly.autoQuestSettings.HoneyBeeQuests))
-		or (npc == "Onett" and (Type == "prio" and vitaly.autoQuestSettings.OnettQuests or Type == "toggle" and vitaly.autoQuestSettings.OnettQuests))
-		or (npc == "Bee Bear 5" and (Type == "prio" and vitaly.autoQuestSettings.BeeBearPriority or Type == "toggle" and vitaly.autoQuestSettings.BeeBearQuests))
+	return(npc == "Black Bear" and (Type == "prio" and perfect.autoQuestSettings.BlackBearPriority or Type == "toggle" and perfect.autoQuestSettings.BlackBearQuests))
+		or (npc == "Brown Bear" and (Type == "prio" and perfect.autoQuestSettings.BrownBearPriority or Type == "toggle" and perfect.autoQuestSettings.BrownBearQuests))
+		or (npc == "Panda Bear" and (Type == "prio" and perfect.autoQuestSettings.PandaBearPriority or Type == "toggle" and perfect.autoQuestSettings.PandaBearQuests))
+		or (npc == "Science Bear" and (Type == "prio" and perfect.autoQuestSettings.ScienceBearPriority or Type == "toggle" and perfect.autoQuestSettings.ScienceBearQuests))
+		or (npc == "Polar Bear" and (Type == "prio" and perfect.autoQuestSettings.PolarBearPriority or Type == "toggle" and perfect.autoQuestSettings.PolarBearQuests))
+		or (npc == "Spirit Bear" and (Type == "prio" and perfect.autoQuestSettings.SpiritBearPriority or Type == "toggle" and perfect.autoQuestSettings.SpiritsBearQuests))
+		or (npc == "Bucko Bee" and (Type == "prio" and perfect.autoQuestSettings.BuckoBeePriority or Type == "toggle" and perfect.autoQuestSettings.BuckoBeeQuests))
+		or (npc == "Riley Bee" and (Type == "prio" and perfect.autoQuestSettings.RileyBeePriority or Type == "toggle" and perfect.autoQuestSettings.RileyBeeQuests))
+		or (npc == "Honey Bee" and (Type == "prio" and perfect.autoQuestSettings.HoneyBeePriority or Type == "toggle" and perfect.autoQuestSettings.HoneyBeeQuests))
+		or (npc == "Onett" and (Type == "prio" and perfect.autoQuestSettings.OnettQuests or Type == "toggle" and perfect.autoQuestSettings.OnettQuests))
+		or (npc == "Bee Bear 5" and (Type == "prio" and perfect.autoQuestSettings.BeeBearPriority or Type == "toggle" and perfect.autoQuestSettings.BeeBearQuests))
 		or (Type == "prio" and 100 or Type == "toggle" and false)
 end
 
@@ -2732,11 +2732,11 @@ end
 function farmBubbles()
 	local speedModified = false
 	local bubblesToCollect = {}
-	local bubbleRadius = vitaly.toggles
+	local bubbleRadius = perfect.toggles
 	for i,v in pairs(Workspace.Particles:GetChildren()) do
 		if v.Name:find("Bubble") and findField(v.Position) == temptable.fieldSelected then
 			if #bubblesToCollect == 0 then 
-				if not vitaly.toggles.smartBlueAutofarm then
+				if not perfect.toggles.smartBlueAutofarm then
 					table.insert(bubblesToCollect, v)
 				else
 					if temptable.fieldPosition and api.magnitude(temptable.fieldPosition, v.Position) < 30 then
@@ -2758,14 +2758,14 @@ function farmBubbles()
 		for i,bubble in ipairs(bubblesToCollect) do
 			repeat task.wait()
 				api.humanoid():MoveTo(bubble.Position)
-			until api.magnitude(api.humanoidrootpart().Position, bubble.Position) <= 14 or not vitaly.toggles.autofarm or not bubble.Parent
+			until api.magnitude(api.humanoidrootpart().Position, bubble.Position) <= 14 or not perfect.toggles.autofarm or not bubble.Parent
 		end
 	end
 	if speedModified then temptable.speedMultiplier = 1 end
 end
 
 function farmShowerAndCoco()
-	if #temptable.showersTable > 0 and vitaly.autoFarmSettings.farmShower then
+	if #temptable.showersTable > 0 and perfect.autoFarmSettings.farmShower then
 		while #temptable.showersTable > 0 do
 			local key, warningisk = next(temptable.showersTable)
 			if warningisk and warningisk.Parent and warningisk.Transparency > 0.09 then
@@ -2780,7 +2780,7 @@ function farmShowerAndCoco()
 			task.wait()
 		end
 		collectNearestTokens()
-	elseif #temptable.coconutsTable > 0 and vitaly.autoFarmSettings.farmCoconuts then
+	elseif #temptable.coconutsTable > 0 and perfect.autoFarmSettings.farmCoconuts then
 		while #temptable.showersTable <= 0 and #temptable.coconutsTable > 0 do
 			local key, warningisk = next(temptable.coconutsTable)
 			if warningisk and warningisk.Parent and warningisk.Transparency > 0.09 then
@@ -2799,11 +2799,11 @@ function farmShowerAndCoco()
 end
 
 function farmSprout(sprout, field)
-	if not sprout or not sprout.Parent or not vitaly.autoFarmSettings.farmSprouts then return end
+	if not sprout or not sprout.Parent or not perfect.autoFarmSettings.farmSprouts then return end
 
 	local farmed = false
 
-	while sprout and sprout.Parent and vitaly.autoFarmSettings.farmSprouts and vitaly.toggles.autofarm do
+	while sprout and sprout.Parent and perfect.autoFarmSettings.farmSprouts and perfect.toggles.autofarm do
 		-- print(findField(api.humanoidrootpart().Position), field)
 		if getBagPercentage() >= 99 then
 			convertHoney()
@@ -2817,12 +2817,12 @@ function farmSprout(sprout, field)
 		task.wait()
 	end
 
-	return vitaly.autoFarmSettings.farmSprouts and vitaly.toggles.autofarm and farmed 
+	return perfect.autoFarmSettings.farmSprouts and perfect.toggles.autofarm and farmed 
 end
 
 function farmSprouts()
 	if next(temptable.sproutsTable) then
-		while next(temptable.sproutsTable) and vitaly.autoFarmSettings.farmSprouts and vitaly.toggles.autofarm do
+		while next(temptable.sproutsTable) and perfect.autoFarmSettings.farmSprouts and perfect.toggles.autofarm do
 			local key, sprout = next(temptable.sproutsTable)
 			if sprout and sprout.Model.Parent then
 				if farmSprout(sprout.Model, sprout.Field) then
@@ -2870,7 +2870,7 @@ function getQuestTasks(NPC)
 	for _, quest in pairs(quests) do
 		local questData = getQuestInfo(quest)
 		local questName = questData.Name
-		if not vitaly.autoQuestSettings.doRepeatables and questData.Repeatable then continue end
+		if not perfect.autoQuestSettings.doRepeatables and questData.Repeatable then continue end
 
 		for index, questTask in pairs(getQuestProgress(questName)) do
 			local iscompleted = questTask[1]
@@ -2889,13 +2889,13 @@ function getQuestTasks(NPC)
 
 			local add = false
 
-			if fullTask.Type == "Collect Pollen" and vitaly.autoQuestSettings.farmPollen
-				or fullTask.Type == "Collect Goo" and vitaly.autoQuestSettings.farmGoo
-				or fullTask.Type == "Defeat Monsters" and vitaly.autoQuestSettings.killMobs
-				or fullTask.Type == "Use Toy" and vitaly.autoQuestSettings.useToys
-				or fullTask.Type == "Match Pairs" and macvitalyrov2.autoQuestSettings.useMemoryMatch
-				or fullTask.Type == "Complete Quests" and vitaly.autoQuestSettings.doQuestQuests
-				or fullTask.Type == "Use Items" and taskDescription:find("Feed") and vitaly.autoQuestSettings.feedBees
+			if fullTask.Type == "Collect Pollen" and perfect.autoQuestSettings.farmPollen
+				or fullTask.Type == "Collect Goo" and perfect.autoQuestSettings.farmGoo
+				or fullTask.Type == "Defeat Monsters" and perfect.autoQuestSettings.killMobs
+				or fullTask.Type == "Use Toy" and perfect.autoQuestSettings.useToys
+				or fullTask.Type == "Match Pairs" and macperfectrov2.autoQuestSettings.useMemoryMatch
+				or fullTask.Type == "Complete Quests" and perfect.autoQuestSettings.doQuestQuests
+				or fullTask.Type == "Use Items" and taskDescription:find("Feed") and perfect.autoQuestSettings.feedBees
 			then
 				add = true
 			end
@@ -2910,7 +2910,7 @@ function getQuestTasks(NPC)
 		end
 	end
 
-	if vitaly.autoQuestSettings.prioritizeMobKill then
+	if perfect.autoQuestSettings.prioritizeMobKill then
 		for _, task in ipairs(defeatMonstersTasks) do
 			table.insert(tasksToDo, 1, task)
 		end
@@ -2928,7 +2928,7 @@ function getQuestTaskField(questTask)
 		if questTask.Zone then
 			return questTask.Zone
 		elseif questTask.Color then
-			return vitaly.autoQuestSettings["best"..questTask.Color.."Field"]
+			return perfect.autoQuestSettings["best"..questTask.Color.."Field"]
 		end
 	end
 end
@@ -2936,12 +2936,12 @@ end
 function claimQuests()
 	for i, v in next, Workspace.NPCs:GetChildren() do
 		if getQuestSetting(v.Name, "toggle") or 
-			(vitaly.autoQuestSettings.acceptAllQuests and v.Name ~= "Honey Bee" and v.Name ~= "Gummy Bear" and v.Name ~= "Bubble Bee Man 2" and v.Name ~= "Ant Challenge Info" and v.Name ~= "Wind Shrine")
-			and vitaly.autoQuestSettings.doQuests
+			(perfect.autoQuestSettings.acceptAllQuests and v.Name ~= "Honey Bee" and v.Name ~= "Gummy Bear" and v.Name ~= "Bubble Bee Man 2" and v.Name ~= "Ant Challenge Info" and v.Name ~= "Wind Shrine")
+			and perfect.autoQuestSettings.doQuests
 		then
 			local image = v.Platform.AlertPos.AlertGui.ImageLabel
 			if image.ImageTransparency == 0 then
-				if vitaly.toggles.tptonpc then
+				if perfect.toggles.tptonpc then
 					api.humanoidrootpart().CFrame = CFrame.new(v.Platform.Position + Vector3.new(0,3,0))
 				else
 					moveTo(v.Platform.Position)
@@ -3091,26 +3091,26 @@ function handleMonsterKill(monsterName)
 end
 
 function tryKillMonsters()
-	if vitaly.combatSettings.killSpidor then
+	if perfect.combatSettings.killSpidor then
 		handleMonsterKill("Spider")
 	end
-	if vitaly.combatSettings.killMantis then
+	if perfect.combatSettings.killMantis then
 		handleMonsterKill("Mantis")
 	end
-	if vitaly.combatSettings.killScorpion then
+	if perfect.combatSettings.killScorpion then
 		handleMonsterKill("Scorpion")
 	end
-	if vitaly.combatSettings.killWerewolf then
+	if perfect.combatSettings.killWerewolf then
 		handleMonsterKill("Werewolf")
 	end
 end
 
 function trainTunnelBear()
-	if vitaly.combatSettings.trainTunnelBear then
+	if perfect.combatSettings.trainTunnelBear then
 		if #getSpawnedMonsters("Tunnel Bear") == 1 then
 			tunnelPart.CanCollide = true
 			local spawner = getSpawnedMonsters("Tunnel Bear")[1].Spawner
-			while vitaly.combatSettings.trainTunnelBear and not isMonsterKilled(spawner.Name) do
+			while perfect.combatSettings.trainTunnelBear and not isMonsterKilled(spawner.Name) do
 				if api.magnitude(tunnelPart.Position) > 10 then
 					moveTo(tunnelPart.Position)
 					task.wait()
@@ -3134,7 +3134,7 @@ function trainTunnelBear()
 end
 
 function trainCrab()
-	if vitaly.combatSettings.trainCrab then
+	if perfect.combatSettings.trainCrab then
 		if #getSpawnedMonsters("Coconut Crab") == 1 then
 			local coconutField = Workspace.FlowerZones["Coconut Field"]
 			local oldMask = getClientStatCache("EquippedAccessories", "Hat")
@@ -3143,7 +3143,7 @@ function trainCrab()
 			end
 			cocoPad.CanCollide = true
 			local spawner = getSpawnedMonsters("Coconut Crab")[1].Spawner
-			while vitaly.combatSettings.trainCrab and not isMonsterKilled(spawner.Name) do
+			while perfect.combatSettings.trainCrab and not isMonsterKilled(spawner.Name) do
 				if api.magnitude(Vector3.new(-258, 109, 483)) > 50 then
 					moveTo(Vector3.new(-441, 123, 498))
 					task.wait(6)
@@ -3177,10 +3177,10 @@ function trainCrab()
 end
 
 function trainStumpSnail()
-	if not vitaly.combatSettings.trainStumpSnail then return false end
+	if not perfect.combatSettings.trainStumpSnail then return false end
 	if not (#getSpawnedMonsters("Stump Snail") >= 1) then return false end
 
-	if vitaly.combatSettings.snailConvertHoney and getBagPercentage() >= 99 then return convertHoney(false) end
+	if perfect.combatSettings.snailConvertHoney and getBagPercentage() >= 99 then return convertHoney(false) end
 
 	if not isFieldSame(api.humanoidrootpart().Position, FlowerZones["Stump Field"].Position) then
 		moveTo(FlowerZones["Stump Field"].Position)
@@ -3219,14 +3219,14 @@ function trainStumpSnail()
 end
 
 function trainKingBeetle()
-	if vitaly.combatSettings.trainKingBeetle then
+	if perfect.combatSettings.trainKingBeetle then
 		if #getSpawnedMonsters("King Beetle") == 1 then
 			local spawner = getSpawnedMonsters("King Beetle")[1].Spawner
 
 			temptable.customWalkSpeed.enabled = true
 			temptable.customWalkSpeed.speed = 18
 
-			while vitaly.combatSettings.trainKingBeetle and not isMonsterKilled(spawner.Name) do
+			while perfect.combatSettings.trainKingBeetle and not isMonsterKilled(spawner.Name) do
 				if api.magnitude(Vector3.new(179, 4, 194)) > 100 then
 					moveTo(Vector3.new(172, 4, 144))
 					task.wait(1)
@@ -3280,7 +3280,7 @@ function getBestPlanter(nectar, field, blacklisted)
 	local bestZoneMultiplier = 0
 
 	for planterName, planter in pairs(plantersTable) do
-		if not table.find(vitaly.autoPlantersSettings.blacklistedPlanters, planter.systemName) 
+		if not table.find(perfect.autoPlantersSettings.blacklistedPlanters, planter.systemName) 
 			and not isPlanterPlanted(planterName) 
 			and (planterName ~= "Plenty" and getClientStatCache("Eggs", planterName.."Planter") or getClientStatCache("Eggs", "The Planter Of Plenty")) then
 			local fieldColor = Workspace.FlowerZones[field].ColorGroup.Value
@@ -3331,7 +3331,7 @@ function getBestNectarField(nectar)
 end
 
 function calculateLeastNectar()
-	local blacklistedNectars = vitaly.autoPlantersSettings.blacklistedNectars
+	local blacklistedNectars = perfect.autoPlantersSettings.blacklistedNectars
 	local leastNectar
 	local leastNectarTime = math.huge
 	for i,v in pairs(nectarsDropdownTable) do
@@ -3414,7 +3414,7 @@ function collectAllPlanters(collectPercentage)
 	for _,planter in pairs(getMinePlanters()) do
 		if planter.GrowthPercent ~= nil then
 
-			if planter.GrowthPercent >= ((collectPercentage or vitaly.autoPlantersSettings.planterHarvestAt) / 100) then
+			if planter.GrowthPercent >= ((collectPercentage or perfect.autoPlantersSettings.planterHarvestAt) / 100) then
 				table.insert(plantersToCollect, {
 					["PM"] = planter["PotModel"].PrimaryPart,
 					["AID"] = planter["ActorID"]
@@ -3485,7 +3485,7 @@ end
 function isPlanterInConfig(planter)
 	for i=1,3 do
 		local cycleName = "customPlanters"..i
-		local stepsTable = vitaly.customPlanterSettings[cycleName]
+		local stepsTable = perfect.customPlanterSettings[cycleName]
 		for j=1,5 do
 			local stepTable = stepsTable[j]
 			if not (stepTable.planter and table.find(plantersDropdownTable, stepTable.planter))
@@ -3503,8 +3503,8 @@ end
 
 function autoPlanters()
 	local shouldReturn = false
-	if vitaly.autoPlantersSettings.doCustomPlanters then
-		local planterCycles = vitaly.customPlanterSettings
+	if perfect.autoPlantersSettings.doCustomPlanters then
+		local planterCycles = perfect.customPlanterSettings
 
 		local steps = {
 			customPlanters1 = 5, 
@@ -3622,72 +3622,72 @@ function mainAutofarmFunction()
 			if canTaskBeSpawned("getToys") then
 				getToys()
 			end
-			if vitaly.autoPlantersSettings.doCustomPlanters and canTaskBeSpawned("farmPlanters") then
+			if perfect.autoPlantersSettings.doCustomPlanters and canTaskBeSpawned("farmPlanters") then
 				if autoPlanters() then return end
 			end
 
-			if vitaly.combatSettings.killVicious and temptable.detected.vicious and canTaskBeSpawned("killVicious") then
+			if perfect.combatSettings.killVicious and temptable.detected.vicious and canTaskBeSpawned("killVicious") then
 				killVicious()
 			end
 
 			tryKillMonsters()
 			if canTaskBeSpawned("trainBosses") then
-				if vitaly.combatSettings.trainKingBeetle then
+				if perfect.combatSettings.trainKingBeetle then
 					trainKingBeetle()
 				end
 
-				if vitaly.combatSettings.trainTunnelBear then
+				if perfect.combatSettings.trainTunnelBear then
 					trainTunnelBear()
 				end
 
-				if vitaly.combatSettings.trainCrab then
+				if perfect.combatSettings.trainCrab then
 					trainCrab()
 				end
 
-				if vitaly.combatSettings.trainStumpSnail then
+				if perfect.combatSettings.trainStumpSnail then
 					if trainStumpSnail() then return end
 				end
 			end
-			if not vitaly.toggles.convertHoney or not shouldIConvert() then
+			if not perfect.toggles.convertHoney or not shouldIConvert() then
 
 				if temptable.shouldEquipDefaultMask then
 					temptable.shouldEquipDefaultMask = false
-					requestAccessoryEquip(vitaly.vars.defaultmask)
+					requestAccessoryEquip(perfect.vars.defaultmask)
 					return
 				end
 
-				if temptable.puffsDetected and vitaly.autoPuffshroomSettings.farmPuffshrooms then
+				if temptable.puffsDetected and perfect.autoPuffshroomSettings.farmPuffshrooms then
 					farmPuffshrooms()
 					return
 				end
 
-				if vitaly.autoFarmSettings.farmSprouts then
+				if perfect.autoFarmSettings.farmSprouts then
 					farmSprouts()
 				end
 
-				selectField(vitaly.autoFarmSettings.field)
+				selectField(perfect.autoFarmSettings.field)
 
-				if vitaly.autoQuestSettings.doQuests then
+				if perfect.autoQuestSettings.doQuests then
 					doQuests()
 				end
 
 				if not isFieldSame(api.humanoidrootpart().Position, temptable.fieldPosition) then
 					moveTo(temptable.fieldPosition + Vector3.new(0,3,0))
-					if vitaly.autoFarmSettings.autoSprinkler then
+					if perfect.autoFarmSettings.autoSprinkler then
 						task.wait()
 						placeSprinklers(temptable.fieldPosition)
 					end
 				end
 
-				if vitaly.autoFarmSettings.smartPreciseCrosshair and #getCrosshairs().all > 0 then
+				if perfect.autoFarmSettings.smartPreciseCrosshair and #getCrosshairs().all > 0 then
 					if smartFarmCrosshairs() then return end 
 				end
 
-				if vitaly.autoFarmSettings.farmDupedTokens then
+				if perfect.autoFarmSettings.farmDupedTokens then
 					farmDupedTokens()
 				end
 
-				if vitaly.autoFarmSettings.farmShower or vitaly.autoFarmSettings.farmCoconuts then
+				if perfect.autoFarmSettings.farmShower or perfect.autoFarmSettings.farmCoconuts then
 					farmShowerAndCoco()
 				end
 
@@ -3697,7 +3697,7 @@ function mainAutofarmFunction()
 				-- isFarmed = isFarmed or farmed
 				-- end
 
-				if vitaly.autoFarmSettings.farmUnderBalloons and math.random(68,70) == 69 then
+				if perfect.autoFarmSettings.farmUnderBalloons and math.random(68,70) == 69 then
 					local farmed = gotoNearestBalloon()
 					isFarmed = isFarmed or farmed
 				end
@@ -3709,8 +3709,8 @@ function mainAutofarmFunction()
 						api.humanoid():MoveTo(randomFlower.Position)
 					end
 				end
-			elseif vitaly.toggles.convertHoney and shouldIConvert(false, false) then
-				convertHoney(vitaly.toggles.converthiveballoon)
+			elseif perfect.toggles.convertHoney and shouldIConvert(false, false) then
+				convertHoney(perfect.toggles.converthiveballoon)
 			end
 		end, function(err) warn(("[Macro V3] (%s) | An error has occurred: %s"):format(temptable.version, err)) end)
 	end
@@ -3730,7 +3730,7 @@ local autoRBC = {
 			task.wait()
 		end
 
-		if not macvitalyrov2.toggles.autodig then
+		if not macperfectrov2.toggles.autodig then
 			autoDig.Set(true)
 		end
 
@@ -3752,9 +3752,9 @@ local autoRBC = {
 		if questTask.Zone then
 			return questTask.Zone
 		elseif questTask.Color then
-			return vitaly.autoQuestSettings["best"..questTask.Color.."Field"]
+			return perfect.autoQuestSettings["best"..questTask.Color.."Field"]
 		else
-			return vitaly.autoQuestSettings["bestRedField"]
+			return perfect.autoQuestSettings["bestRedField"]
 		end
 	end
 }
@@ -3942,7 +3942,7 @@ end
 
 function webhookFieldsList()
 	local currentHoney = getClientStatCache("Totals","Honey")
-	local timePassed = math.round(tick() - currentvitalyLoadedAt)
+	local timePassed = math.round(tick() - currentperfectLoadedAt)
 	-- print(currentHoney, temptable.honeyAtStart)
 	local honeyGained = currentHoney - temptable.honeyAtStart
 	-- print(currentHoney, timePassed, honeyGained)
@@ -3955,7 +3955,7 @@ function webhookFieldsList()
 	local honeyPerHourString = truncate(honeyPerHour)
 	local honeyPerDayString = truncate(dailyHoney)
 
-	if not vitaly.webhookSettings.onlyTruncated then
+	if not perfect.webhookSettings.onlyTruncated then
 		totalHoneyString = addcommas(currentHoney).." ("..totalHoneyString..")"
 		honeyGainedString = addcommas(honeyGained).." ("..honeyGainedString..")"
 		honeyPerHourString = addcommas(honeyPerHour).." ("..honeyPerHourString..")"
@@ -3965,7 +3965,7 @@ function webhookFieldsList()
 	local uptimeString = truncatetime(timePassed)
 	local fields = {}
 
-	if vitaly.webhookSettings.showTotalHoney then
+	if perfect.webhookSettings.showTotalHoney then
 		table.insert(fields, {
 			["name"] = "Total Honey:",
 			["value"] = totalHoneyString,
@@ -3982,21 +3982,21 @@ function webhookFieldsList()
 		["value"] = uptimeString,
 		["inline"] =  true
 	})
-	if vitaly.webhookSettings.showHoneyPerHour then
+	if perfect.webhookSettings.showHoneyPerHour then
 		table.insert(fields, {
 			["name"] = "Honey Per Hour:       ",
 			["value"] = honeyPerHourString,
 			["inline"] = false
 		})
 	end
-	if vitaly.webhookSettings.showDailyHoney then
+	if perfect.webhookSettings.showDailyHoney then
 		table.insert(fields, {
 			["name"] = "Honey Per Day:     ", -- 
 			["value"] = honeyPerDayString,
 			["inline"] = false
 		})
 	end
-	if vitaly.webhookSettings.showNectars then
+	if perfect.webhookSettings.showNectars then
 		local nectars = getAllNectar(true)
 		local nectarsString = ""
 		for index, nectar in pairs(nectars) do
@@ -4012,7 +4012,7 @@ function webhookFieldsList()
 			})
 		end
 	end
-	if vitaly.webhookSettings.showPlanters then
+	if perfect.webhookSettings.showPlanters then
 		local plantersString = ""
 		pcall(function()
 			local minePlanters = getMinePlanters()
@@ -4028,9 +4028,9 @@ function webhookFieldsList()
 			})
 		end
 	end
-	if vitaly.webhookSettings.showItems then
+	if perfect.webhookSettings.showItems then
 		local itemsString = ""
-		for index, item in pairs(vitaly.webhookSettings.itemsList) do
+		for index, item in pairs(perfect.webhookSettings.itemsList) do
 			local systemItem = getItemByName(item)
 			if systemItem and systemItem.SystemName then 
 				local systemName = systemItem.SystemName
@@ -4057,7 +4057,7 @@ function generateWebhookBody(settings)
 			["title"] = "**"..settings.embedTitle.."**",
 			["description"] = settings.embedDescription or "",
 			["type"] = "rich",
-			["color"] = tonumber(settings.color) or tonumber(vitaly.webhookSettings.webhookColor),
+			["color"] = tonumber(settings.color) or tonumber(perfect.webhookSettings.webhookColor),
 			["fields"] = settings.fields or {},
 			["footer"] = {
 				["text"] = os.date("%x").." • "..os.date("%I")..":"..os.date("%M")..--[[":"..os.date("%S")..]]" "..os.date("%p")
@@ -4073,7 +4073,7 @@ function sendWebhook(body)
 	}
 	xpcall(function()
 		httpreq({
-			Url = vitaly.webhookSettings.webhookUrl, 
+			Url = perfect.webhookSettings.webhookUrl, 
 			Body = HttpService:JSONEncode(body), 
 			Method = "POST", 
 			Headers = headers
@@ -4094,7 +4094,7 @@ function questWebhook(npc,fields)
 end
 
 function sendHourlyWebhook(isTest)
-	local ping = vitaly.webhookSettings.pingUser and "<@"..vitaly.webhookSettings.discordId..">" or ""
+	local ping = perfect.webhookSettings.pingUser and "<@"..perfect.webhookSettings.discordId..">" or ""
 	local data = generateWebhookBody({
 		content = (isTest and ping ~= "" and ping..", your webhook is working!") or (isTest and ping == "" and "Your webhook is working!") or ping,
 		embedTitle = isTest and "Webhook Test" or "Honey Update",
@@ -4106,7 +4106,7 @@ end
 function sendTestWebhook()
 	local data = generateWebhookBody({
 		embedTitle = "Test Webhook",
-		embedDescription = "Hey from vitaly"
+		embedDescription = "Hey from perfect"
 	})
 	sendWebhook(data)
 end
@@ -4141,7 +4141,7 @@ if not getgenv().autoMMConfigured then
 		end
 
 		newMemoryMatchStartGame = function(a)
-			if not vitaly.toggles.automemorymatch and not vitaly.autoQuestSettings then return end
+			if not perfect.toggles.automemorymatch and not perfect.autoQuestSettings then return end
 			repeat task.wait() until a and a.Game and a.Game.Grid and a.Game.Grid.InputActive
 			temptable.activeMemoryMatch = a
 			for Index = 1, a.Game.NumTiles do
@@ -4207,7 +4207,7 @@ end
 
 function hiddenQuestWebhookListener(isPoolQuest, arg1)
 	task.wait(3)
-	if not vitaly.webhookSettings.sendQuests then return end
+	if not perfect.webhookSettings.sendQuests then return end
 
 	local fullQuest = (not isPoolQuest and getQuestInfo(arg1)) or nil
 	local originalNPC = (not isPoolQuest and fullQuest and fullQuest.NPC) or arg1
@@ -4271,7 +4271,7 @@ if false then
 							setIdentity(8)
 							questWebhookListener.HiddenListener((event == "CompleteQuest" and false) or true, arg1)
 						end)(event, arg1)
-					end, function(err) if vitaly.webhookSettings.sendQuests then warn("Cannot send ") end end)
+					end, function(err) if perfect.webhookSettings.sendQuests then warn("Cannot send ") end end)
 				end
 				return oldClientCall(...)
 			end)
@@ -4375,7 +4375,7 @@ end
 
 
 local Window = Fluent:CreateWindow({
-	Title = "vitaly",
+	Title = "perfect",
 	SubTitle = "",
 	TabWidth = 140,
 	TabHeight = 80,
@@ -4441,17 +4441,17 @@ farmingTab:AddDropdown("Farming Field", {
 	Title = "Select Farming Field",
 	Values = fieldsTable,
 	Multi = false,
-	Default = vitaly.autoFarmSettings.field,
+	Default = perfect.autoFarmSettings.field,
 	Callback = function(selected)
-		vitaly.autoFarmSettings.field = selected
+		perfect.autoFarmSettings.field = selected
 	end
 })
 
 farmingTab:AddToggle("Autofarm [⚙]", {
 	Title = "Toggle Autofarm",
-	Default = vitaly.toggles.autofarm,
+	Default = perfect.toggles.autofarm,
 	Callback = function(State)
-		vitaly.toggles.autofarm = State
+		perfect.toggles.autofarm = State
 		if State then
 			Tasks:Add("Autofarm", mainAutofarmFunction, true)
 		else
@@ -4463,17 +4463,17 @@ farmingTab:AddToggle("Autofarm [⚙]", {
 
 farmingTab:AddToggle("Auto Sprinkler", {
 	Title = "Toggle Auto Sprinkler",
-	Default = vitaly.autoFarmSettings.autoSprinkler or true,
+	Default = perfect.autoFarmSettings.autoSprinkler or true,
 	Callback = function(State)
-		vitaly.autoFarmSettings.autoSprinkler = State
+		perfect.autoFarmSettings.autoSprinkler = State
 	end
 })
 
 farmingTab:AddToggle("Auto Dig", {
 	Title = "Toggle Auto Dig",
-	Default = vitaly.toggles.autodig,
+	Default = perfect.toggles.autodig,
 	Callback = function(State)
-		vitaly.toggles.autodig = State
+		perfect.toggles.autodig = State
 		if State then
 			Tasks:Add("Auto Dig", function()
 				while task.wait(0.03) do
@@ -4499,107 +4499,107 @@ local farmingTab = Tabs.Farming
 
 farmingTab:AddToggle("ignoreHoneyTokens", {
 	Title = "Ignore Honey Tokens",
-	Default = vitaly.autoFarmSettings.ignoreHoneyTokens,
+	Default = perfect.autoFarmSettings.ignoreHoneyTokens,
 	Callback = function(state)
-		vitaly.autoFarmSettings.ignoreHoneyTokens = state
+		perfect.autoFarmSettings.ignoreHoneyTokens = state
 	end
 })
 
 farmingTab:AddToggle("farmFlames", {
 	Title = "Farm Flames",
-	Default = vitaly.autoFarmSettings.farmFlames,
+	Default = perfect.autoFarmSettings.farmFlames,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmFlames = state
+		perfect.autoFarmSettings.farmFlames = state
 	end
 })
 
 -- Toggle: Farm Bubbles
 farmingTab:AddToggle("farmBubbles", {
 	Title = "Farm Bubbles",
-	Default = vitaly.autoFarmSettings.farmBubbles,
+	Default = perfect.autoFarmSettings.farmBubbles,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmBubbles = state
+		perfect.autoFarmSettings.farmBubbles = state
 	end
 })
 
 -- Toggle: Farm Fuzzy Bombs
 farmingTab:AddToggle("farmFuzzyBombs", {
 	Title = "Farm Fuzzy Bombs",
-	Default = vitaly.autoFarmSettings.farmFuzzyBombs,
+	Default = perfect.autoFarmSettings.farmFuzzyBombs,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmFuzzyBombs = state
+		perfect.autoFarmSettings.farmFuzzyBombs = state
 	end
 })
 
 -- Toggle: Farm Under Clouds
 farmingTab:AddToggle("farmUnderClouds", {
 	Title = "Farm Under Clouds",
-	Default = vitaly.autoFarmSettings.farmUnderClouds,
+	Default = perfect.autoFarmSettings.farmUnderClouds,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmUnderClouds = state
+		perfect.autoFarmSettings.farmUnderClouds = state
 	end
 })
 
 -- Toggle: Farm Under Balloons
 farmingTab:AddToggle("farmUnderBalloons", {
 	Title = "Farm Under Balloons",
-	Default = vitaly.autoFarmSettings.farmUnderBalloons,
+	Default = perfect.autoFarmSettings.farmUnderBalloons,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmUnderBalloons = state
+		perfect.autoFarmSettings.farmUnderBalloons = state
 	end
 })
 
 -- Toggle: Farm Shower
 farmingTab:AddToggle("farmShower", {
 	Title = "Farm Shower",
-	Default = vitaly.autoFarmSettings.farmShower,
+	Default = perfect.autoFarmSettings.farmShower,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmShower = state
+		perfect.autoFarmSettings.farmShower = state
 	end
 })
 
 -- Toggle: Farm Coconuts
 farmingTab:AddToggle("farmCoconuts", {
 	Title = "Farm Coconuts",
-	Default = vitaly.autoFarmSettings.farmCoconuts,
+	Default = perfect.autoFarmSettings.farmCoconuts,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmCoconuts = state
+		perfect.autoFarmSettings.farmCoconuts = state
 	end
 })
 
 -- Toggle: Farm Glitched Tokens
 farmingTab:AddToggle("farmDupedTokens", {
 	Title = "Farm Glitched Tokens",
-	Default = vitaly.autoFarmSettings.farmDupedTokens,
+	Default = perfect.autoFarmSettings.farmDupedTokens,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmDupedTokens = state
+		perfect.autoFarmSettings.farmDupedTokens = state
 	end
 })
 
 -- Toggle: Farm Sprouts
 farmingTab:AddToggle("farmSprouts", {
 	Title = "Farm Sprouts",
-	Default = vitaly.autoFarmSettings.farmSprouts,
+	Default = perfect.autoFarmSettings.farmSprouts,
 	Callback = function(state)
-		vitaly.autoFarmSettings.farmSprouts = state
+		perfect.autoFarmSettings.farmSprouts = state
 	end
 })
 
 -- Toggle: Smart Bubble Bloat
 farmingTab:AddToggle("smartBubbleBloat", {
 	Title = "Smart Bubble Bloat"..Star,
-	Default = vitaly.autoFarmSettings.smartBubbleBloat,
+	Default = perfect.autoFarmSettings.smartBubbleBloat,
 	Callback = function(state)
-		vitaly.autoFarmSettings.smartBubbleBloat = state
+		perfect.autoFarmSettings.smartBubbleBloat = state
 	end
 })
 
 -- Toggle: Smart Precise Crosshair
 farmingTab:AddToggle("smartPreciseCrosshair", {
 	Title = "Smart Precise Crosshair"..Star,
-	Default = vitaly.autoFarmSettings.smartPreciseCrosshair,
+	Default = perfect.autoFarmSettings.smartPreciseCrosshair,
 	Callback = function(state)
-		vitaly.autoFarmSettings.smartPreciseCrosshair = state
+		perfect.autoFarmSettings.smartPreciseCrosshair = state
 	end
 })
 
@@ -4607,9 +4607,9 @@ farmingTab:AddToggle("smartPreciseCrosshair", {
 -- Toggle: Use Instant Conversion
 farmingTab:AddToggle("instantToggle", {
 	Title = "Use Instant Conversion",
-	Default = vitaly.convertSettings.instantToggle,
+	Default = perfect.convertSettings.instantToggle,
 	Callback = function(state)
-		vitaly.convertSettings.instantToggle = state
+		perfect.convertSettings.instantToggle = state
 	end
 })
 
@@ -4623,14 +4623,14 @@ farmingTab:AddParagraph({
 
 for _, option in ipairs(instantConvList) do
 	local toggleName = "toggle_" .. option
-	local defaultValue = vitaly.convertSettings.selectedInstant and vitaly.convertSettings.selectedInstant[option] or false
+	local defaultValue = perfect.convertSettings.selectedInstant and perfect.convertSettings.selectedInstant[option] or false
 
 	farmingTab:AddToggle(toggleName, {
 		Title = option,
 		Default = defaultValue,
 		Callback = function(state)
 			selectedInstantValues[option] = state
-			vitaly.convertSettings.selectedInstant = selectedInstantValues
+			perfect.convertSettings.selectedInstant = selectedInstantValues
 		end
 	})
 end
@@ -4646,9 +4646,9 @@ farmingTab:AddParagraph({
 -- Toggle: Auto Honey Mask
 farmingTab:AddToggle("AutoHoneyM", {
 	Title = "Auto Honey Mask",
-	Default = vitaly.toggles.AutoHoneyM,
+	Default = perfect.toggles.AutoHoneyM,
 	Callback = function(state)
-		vitaly.toggles.AutoHoneyM = state
+		perfect.toggles.AutoHoneyM = state
 	end
 })
 
@@ -4656,34 +4656,34 @@ farmingTab:AddToggle("AutoHoneyM", {
 -- Add toggles directly under Tabs.Farming for Automatisation section
 Tabs.Farming:AddToggle("autodispensers", {
 	Title = "Auto Dispensers",
-	Default = vitaly.toggles.autodispensers,
+	Default = perfect.toggles.autodispensers,
 	Callback = function(state)
-		vitaly.toggles.autodispensers = state
+		perfect.toggles.autodispensers = state
 	end
 })
 
 Tabs.Farming:AddToggle("autoboosters", {
 	Title = "Auto Boosters",
-	Default = vitaly.toggles.autoboosters,
+	Default = perfect.toggles.autoboosters,
 	Callback = function(state)
-		vitaly.toggles.autoboosters = state
+		perfect.toggles.autoboosters = state
 	end
 })
 
 Tabs.Farming:AddToggle("automemorymatch", {
 	Title = "Auto Memory Match",
-	Default = vitaly.toggles.automemorymatch,
+	Default = perfect.toggles.automemorymatch,
 	Callback = function(state)
-		vitaly.toggles.automemorymatch = state
+		perfect.toggles.automemorymatch = state
 	end
 })
 
 for i, v in pairs(AllToysTable.toysTable) do
 	Tabs.Farming:AddToggle(i, {
 		Title = "Auto " .. v,
-		Default = vitaly.toggles[i],
+		Default = perfect.toggles[i],
 		Callback = function(state)
-			vitaly.toggles[i] = state
+			perfect.toggles[i] = state
 		end
 	})
 end
@@ -4693,7 +4693,7 @@ local fCenter, fBalloon, fFlame
 
 fCenter = farmingTab:AddToggle("faceCenter", {
 	Title = "Face Field Center",
-	Default = vitaly.autoFarmSettings.faceCenter,
+	Default = perfect.autoFarmSettings.faceCenter,
 	Callback = function(state)
 		if not state then return end
 		fBalloon:SetValue(false)
@@ -4703,7 +4703,7 @@ fCenter = farmingTab:AddToggle("faceCenter", {
 
 fBalloon = farmingTab:AddToggle("faceBalloons", {
 	Title = "Face Balloons",
-	Default = vitaly.autoFarmSettings.faceBalloons,
+	Default = perfect.autoFarmSettings.faceBalloons,
 	Callback = function(state)
 		if not state then return end
 		fCenter:SetValue(false)
@@ -4713,7 +4713,7 @@ fBalloon = farmingTab:AddToggle("faceBalloons", {
 
 fFlame = farmingTab:AddToggle("faceFlames", {
 	Title = "Face Flames",
-	Default = vitaly.autoFarmSettings.faceFlames,
+	Default = perfect.autoFarmSettings.faceFlames,
 	Callback = function(state)
 		if not state then return end
 		fCenter:SetValue(false)
@@ -4725,82 +4725,82 @@ local combatTab = Tabs.Combat
 
 Tabs.Combat:AddToggle("trainCrab", {
 	Title = "Auto kill Crab",
-	Default = vitaly.combatSettings.trainCrab,
+	Default = perfect.combatSettings.trainCrab,
 	Callback = function(state)
-		vitaly.combatSettings.trainCrab = state
+		perfect.combatSettings.trainCrab = state
 	end
 })
 
 Tabs.Combat:AddToggle("trainKingBeetle", {
 	Title = "Auto kill King Beetle",
-	Default = vitaly.combatSettings.trainKingBeetle,
+	Default = perfect.combatSettings.trainKingBeetle,
 	Callback = function(state)
-		vitaly.combatSettings.trainKingBeetle = state
+		perfect.combatSettings.trainKingBeetle = state
 	end
 })
 
 Tabs.Combat:AddToggle("trainTunnelBear", {
 	Title = "Auto kill Tunnel Bear",
-	Default = vitaly.combatSettings.trainTunnelBear,
+	Default = perfect.combatSettings.trainTunnelBear,
 	Callback = function(state)
-		vitaly.combatSettings.trainTunnelBear = state
+		perfect.combatSettings.trainTunnelBear = state
 	end
 })
 
 Tabs.Combat:AddToggle("trainStumpSnail", {
 	Title = "Auto kill Stump Snail",
-	Default = vitaly.combatSettings.trainStumpSnail,
+	Default = perfect.combatSettings.trainStumpSnail,
 	Callback = function(state)
-		vitaly.combatSettings.trainStumpSnail = state
+		perfect.combatSettings.trainStumpSnail = state
 	end
 })
 
 Tabs.Combat:AddToggle("snailConvertHoney", {
 	Title = "Convert Honey (When killing Snail)",
-	Default = vitaly.combatSettings.snailConvertHoney,
+	Default = perfect.combatSettings.snailConvertHoney,
 	Callback = function(state)
-		vitaly.combatSettings.snailConvertHoney = state
+		perfect.combatSettings.snailConvertHoney = state
 	end
 })
 
 Tabs.Combat:AddToggle("killSpidor", {
 	Title = "Auto kill Spider",
-	Default = vitaly.combatSettings.killSpidor,
+	Default = perfect.combatSettings.killSpidor,
 	Callback = function(state)
-		vitaly.combatSettings.killSpidor = state
+		perfect.combatSettings.killSpidor = state
 	end
 })
 
 Tabs.Combat:AddToggle("killMantis", {
 	Title = "Auto kill Mantis",
-	Default = vitaly.combatSettings.killMantis,
+	Default = perfect.combatSettings.killMantis,
 	Callback = function(state)
-		vitaly.combatSettings.killMantis = state
+		perfect.combatSettings.killMantis = state
 	end
 })
 
 Tabs.Combat:AddToggle("killScorpion", {
 	Title = "Auto kill Scorpion",
-	Default = vitaly.combatSettings.killScorpion,
+	Default = perfect.combatSettings.killScorpion,
 	Callback = function(state)
-		vitaly.combatSettings.killScorpion = state
+		perfect.combatSettings.killScorpion = state
 	end
 })
 
 Tabs.Combat:AddToggle("killWerewolf", {
 	Title = "Auto kill Werewolf",
-	Default = vitaly.combatSettings.killWerewolf,
+	Default = perfect.combatSettings.killWerewolf,
 	Callback = function(state)
-		vitaly.combatSettings.killWerewolf = state
+		perfect.combatSettings.killWerewolf = state
 	end
 })
 
 
 Tabs.Combat:AddToggle("killVicious", {
 	Title = "Auto Vicious",
-	Default = vitaly.combatSettings.killVicious,
+	Default = perfect.combatSettings.killVicious,
 	Callback = function(state)
-		vitaly.combatSettings.killVicious = state
+		perfect.combatSettings.killVicious = state
 	end
 })
 
@@ -4809,9 +4809,9 @@ Tabs.Combat:AddSlider("viciousMinLevel", {
 	Min = 1,
 	Max = 12,
 	Rounding = 1,
-	Default = vitaly.combatSettings.viciousMinLevel,
+	Default = perfect.combatSettings.viciousMinLevel,
 	Callback = function(value)
-		vitaly.combatSettings.viciousMinLevel = value
+		perfect.combatSettings.viciousMinLevel = value
 	end
 })
 
@@ -4820,9 +4820,9 @@ Tabs.Combat:AddSlider("viciousMaxLevel", {
 	Min = 1,
 	Max = 12,
 	Rounding = 1,
-	Default = vitaly.combatSettings.viciousMaxLevel,
+	Default = perfect.combatSettings.viciousMaxLevel,
 	Callback = function(value)
-		vitaly.combatSettings.viciousMaxLevel = value
+		perfect.combatSettings.viciousMaxLevel = value
 	end
 })
 
@@ -4831,25 +4831,25 @@ local autoQuestTab = Tabs.AutoQuest
 
 autoQuestTab:AddToggle("doQuests", {
 	Title = "Auto Quests",
-	Default = vitaly.autoQuestSettings.doQuests,
+	Default = perfect.autoQuestSettings.doQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.doQuests = state
+		perfect.autoQuestSettings.doQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("doRepeatables", {
 	Title = "Auto Repeatable Quests",
-	Default = vitaly.autoQuestSettings.doRepeatables,
+	Default = perfect.autoQuestSettings.doRepeatables,
 	Callback = function(state)
-		vitaly.autoQuestSettings.doRepeatables = state
+		perfect.autoQuestSettings.doRepeatables = state
 	end
 }):SetValue(true)
 
 autoQuestTab:AddToggle("acceptAllQuests", {
 	Title = "Accept All Quests",
-	Default = vitaly.autoQuestSettings.acceptAllQuests,
+	Default = perfect.autoQuestSettings.acceptAllQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.acceptAllQuests = state
+		perfect.autoQuestSettings.acceptAllQuests = state
 	end
 })
 
@@ -4860,90 +4860,90 @@ autoQuestTab:AddParagraph({
 
 autoQuestTab:AddToggle("BlackBearQuests", {
 	Title = "Black Bear Quests",
-	Default = vitaly.autoQuestSettings.BlackBearQuests,
+	Default = perfect.autoQuestSettings.BlackBearQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.BlackBearQuests = state
+		perfect.autoQuestSettings.BlackBearQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("BrownBearQuests", {
 	Title = "Brown Bear Quests",
-	Default = vitaly.autoQuestSettings.BrownBearQuests,
+	Default = perfect.autoQuestSettings.BrownBearQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.BrownBearQuests = state
+		perfect.autoQuestSettings.BrownBearQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("PandaBearQuests", {
 	Title = "Panda Bear Quests",
-	Default = vitaly.autoQuestSettings.PandaBearQuests,
+	Default = perfect.autoQuestSettings.PandaBearQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.PandaBearQuests = state
+		perfect.autoQuestSettings.PandaBearQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("ScienceBearQuests", {
 	Title = "Science Bear Quests",
-	Default = vitaly.autoQuestSettings.ScienceBearQuests,
+	Default = perfect.autoQuestSettings.ScienceBearQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.ScienceBearQuests = state
+		perfect.autoQuestSettings.ScienceBearQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("PolarBearQuests", {
 	Title = "Polar Bear Quests",
-	Default = vitaly.autoQuestSettings.PolarBearQuests,
+	Default = perfect.autoQuestSettings.PolarBearQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.PolarBearQuests = state
+		perfect.autoQuestSettings.PolarBearQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("SpiritsBearQuests", {
 	Title = "Spirit Bear Quests",
-	Default = vitaly.autoQuestSettings.SpiritsBearQuests,
+	Default = perfect.autoQuestSettings.SpiritsBearQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.SpiritsBearQuests = state
+		perfect.autoQuestSettings.SpiritsBearQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("BuckoBeeQuests", {
 	Title = "Bucko Bee Quests",
-	Default = vitaly.autoQuestSettings.BuckoBeeQuests,
-	vitaly = function(state)
-		vitaly.autoQuestSettings.BuckoBeeQuests = state
+	Default = perfect.autoQuestSettings.BuckoBeeQuests,
+	perfect = function(state)
+		perfect.autoQuestSettings.BuckoBeeQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("RileyBeeQuests", {
 	Title = "Riley Bee Quests",
-	Default = vitaly.autoQuestSettings.RileyBeeQuests,
+	Default = perfect.autoQuestSettings.RileyBeeQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.RileyBeeQuests = state
+		perfect.autoQuestSettings.RileyBeeQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("HoneyBeeQuests", {
 	Title = "Honey Bee Quests",
-	Default = vitaly.autoQuestSettings.HoneyBeeQuests,
+	Default = perfect.autoQuestSettings.HoneyBeeQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.HoneyBeeQuests = state
+		perfect.autoQuestSettings.HoneyBeeQuests = state
 	end
 })
 
 autoQuestTab:AddToggle("OnettQuests", {
 	Title = "Onett Quests",
-	Default = vitaly.autoQuestSettings.OnettQuests,
+	Default = perfect.autoQuestSettings.OnettQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.OnettQuests = state
+		perfect.autoQuestSettings.OnettQuests = state
 	end
 })
 
 if scriptType == LPH_STRENC("Paid") then
 	autoQuestTab:AddToggle("BeeBearQuests", {
 		Title = "Bee Bear Quests "..Star,
-		Default = vitaly.autoQuestSettings.BeeBearQuests,
+		Default = perfect.autoQuestSettings.BeeBearQuests,
 		Callback = function(state)
-			vitaly.autoQuestSettings.BeeBearQuests = state
+			perfect.autoQuestSettings.BeeBearQuests = state
 		end
 	})
 end
@@ -4960,65 +4960,65 @@ autoQuestTab:AddParagraph({
 
 autoQuestTab:AddToggle("tpToNPC", {
 	Title = "Teleport to npc",
-	Default = vitaly.autoQuestSettings.tpToNPC,
+	Default = perfect.autoQuestSettings.tpToNPC,
 	Callback = function(state)
-		vitaly.autoQuestSettings.tpToNPC = state
+		perfect.autoQuestSettings.tpToNPC = state
 	end
 })
 
 autoQuestTab:AddToggle("farmPollen", {
 	Title = "Do Pollen Quests",
-	Default = vitaly.autoQuestSettings.farmPollen,
+	Default = perfect.autoQuestSettings.farmPollen,
 	Callback = function(state)
-		vitaly.autoQuestSettings.farmPollen = state
+		perfect.autoQuestSettings.farmPollen = state
 	end
 })
 
 autoQuestTab:AddToggle("farmGoo", {
 	Title = "Do Goo Quests",
-	Default = vitaly.autoQuestSettings.farmGoo,
+	Default = perfect.autoQuestSettings.farmGoo,
 	Callback = function(state)
-		vitaly.autoQuestSettings.farmGoo = state
+		perfect.autoQuestSettings.farmGoo = state
 	end
 })
 
 autoQuestTab:AddToggle("killMobs", {
 	Title = "Kill Mobs For Quests",
-	Default = vitaly.autoQuestSettings.killMobs,
+	Default = perfect.autoQuestSettings.killMobs,
 	Callback = function(state)
-		vitaly.autoQuestSettings.killMobs = state
+		perfect.autoQuestSettings.killMobs = state
 	end
 })
 
 autoQuestTab:AddToggle("feedBees", {
 	Title = "Feed Bees For Quests",
-	Default = vitaly.autoQuestSettings.feedBees,
+	Default = perfect.autoQuestSettings.feedBees,
 	Callback = function(state)
-		vitaly.autoQuestSettings.feedBees = state
+		perfect.autoQuestSettings.feedBees = state
 	end
 })
 
 autoQuestTab:AddToggle("useToys", {
 	Title = "Use Toys For Quests",
-	Default = vitaly.autoQuestSettings.useToys,
+	Default = perfect.autoQuestSettings.useToys,
 	Callback = function(state)
-		vitaly.autoQuestSettings.useToys = state
+		perfect.autoQuestSettings.useToys = state
 	end
 })
 
 autoQuestTab:AddToggle("useMemoryMatch", {
 	Title = "Do Memory Match Quests",
-	Default = vitaly.autoQuestSettings.useMemoryMatch,
+	Default = perfect.autoQuestSettings.useMemoryMatch,
 	Callback = function(state)
-		vitaly.autoQuestSettings.useMemoryMatch = state
+		perfect.autoQuestSettings.useMemoryMatch = state
 	end
 })
 
 autoQuestTab:AddToggle("doQuestQuests", {
 	Title = "Do Quests For Quests",
-	Default = vitaly.autoQuestSettings.doQuestQuests,
+	Default = perfect.autoQuestSettings.doQuestQuests,
 	Callback = function(state)
-		vitaly.autoQuestSettings.doQuestQuests = state
+		perfect.autoQuestSettings.doQuestQuests = state
 	end
 })
 
@@ -5035,27 +5035,27 @@ autoQuestTab:AddParagraph({
 autoQuestTab:AddDropdown("bestBlueField", {
 	Title = "Best Field for Blue Pollen",
 	Values = blueFields,
-	Default = vitaly.autoQuestSettings.bestBlueField,
+	Default = perfect.autoQuestSettings.bestBlueField,
 	Callback = function(selected)
-		vitaly.autoQuestSettings.bestBlueField = selected
+		perfect.autoQuestSettings.bestBlueField = selected
 	end
 })
 
 autoQuestTab:AddDropdown("bestRedField", {
 	Title = "Best Field for Red Pollen",
 	Values = redFields,
-	Default = vitaly.autoQuestSettings.bestRedField,
+	Default = perfect.autoQuestSettings.bestRedField,
 	Callback = function(selected)
-		vitaly.autoQuestSettings.bestRedField = selected
+		perfect.autoQuestSettings.bestRedField = selected
 	end
 })
 
 autoQuestTab:AddDropdown("bestWhiteField", {
 	Title = "Best Field for White Pollen",
 	Values = whiteFields,
-	Default = vitaly.autoQuestSettings.bestWhiteField,
+	Default = perfect.autoQuestSettings.bestWhiteField,
 	Callback = function(selected)
-		vitaly.autoQuestSettings.bestWhiteField = selected
+		perfect.autoQuestSettings.bestWhiteField = selected
 	end
 })
 
@@ -5071,17 +5071,17 @@ autoQuestTab:AddParagraph({
 
 autoQuestTab:AddToggle("prioritizeMobKill", {
 	Title = "Prioritize Mob Kill Quests",
-	Default = vitaly.autoQuestSettings.prioritizeMobKill,
+	Default = perfect.autoQuestSettings.prioritizeMobKill,
 	Callback = function(state)
-		vitaly.autoQuestSettings.prioritizeMobKill = state
+		perfect.autoQuestSettings.prioritizeMobKill = state
 	end
 }):SetValue(true)
 
 autoQuestTab:AddToggle("enablePriorities", {
 	Title = "Enable NPC Priorities",
-	Default = vitaly.autoQuestSettings.enablePriorities,
+	Default = perfect.autoQuestSettings.enablePriorities,
 	Callback = function(state)
-		vitaly.autoQuestSettings.enablePriorities = state
+		perfect.autoQuestSettings.enablePriorities = state
 	end
 })
 
@@ -5105,10 +5105,10 @@ autoQuestTab:AddSlider("npcPrioSlider", {
 	Rounding = 0,
 	Callback = function(newPrio)
 		if temptable.selectedPriorityNpc == "Bee Bear 5" then
-			vitaly.autoQuestSettings.BeeBearPriority = newPrio
+			perfect.autoQuestSettings.BeeBearPriority = newPrio
 		else
 			pcall(function()
-				vitaly.autoQuestSettings[temptable.selectedPriorityNpc:gsub(" ","").."Priority"] = newPrio
+				perfect.autoQuestSettings[temptable.selectedPriorityNpc:gsub(" ","").."Priority"] = newPrio
 			end)
 		end
 	end
@@ -5123,9 +5123,9 @@ local autoPlantersNectarsSection = plantersTab:AddParagraph({
 
 plantersTab:AddToggle("doCustomPlanters", {
 	Title = "Do Custom Planters",
-	Default = vitaly.autoPlantersSettings.doCustomPlanters,
+	Default = perfect.autoPlantersSettings.doCustomPlanters,
 	Callback = function(state)
-		vitaly.autoPlantersSettings.doCustomPlanters = state
+		perfect.autoPlantersSettings.doCustomPlanters = state
 	end
 })
 
@@ -5141,7 +5141,7 @@ local customPlanterSections = {
 
 for i = 1, 3 do
 	local cycleName = "customPlanters" .. i
-	local cycleTable = vitaly.customPlanterSettings[cycleName]
+	local cycleTable = perfect.customPlanterSettings[cycleName]
 
 	plantersTab:AddParagraph({
 		Title = "Custom Planters " .. tostring(i),
@@ -5163,7 +5163,7 @@ for i = 1, 3 do
 			Values = customPlanterDropdown,
 			Default = "None",
 			Callback = function(newPlanter) 
-				vitaly["customPlanterSettings"][cycleName][cycleStep].planter = newPlanter
+				perfect["customPlanterSettings"][cycleName][cycleStep].planter = newPlanter
 			end
 		})
 
@@ -5172,7 +5172,7 @@ for i = 1, 3 do
 			Values = customFieldDropdown,
 			Default = "None",
 			Callback = function(newField) 
-				vitaly["customPlanterSettings"][cycleName][cycleStep].field = newField
+				perfect["customPlanterSettings"][cycleName][cycleStep].field = newField
 			end
 		})
 
@@ -5183,7 +5183,7 @@ for i = 1, 3 do
 			Default = 75,
 			Rounding = 0,
 			Callback = function(newPercentage) 
-				vitaly["customPlanterSettings"][cycleName][cycleStep].harvestAmount = newPercentage 
+				perfect["customPlanterSettings"][cycleName][cycleStep].harvestAmount = newPercentage 
 			end
 		})
 
@@ -5207,9 +5207,9 @@ if scriptType == LPH_STRENC("Paid") then
 
 	puffshroomsTab:AddToggle("farmPuffshrooms", {
 		Title = "Farm Puffshrooms",
-		Default = vitaly.autoPuffshroomSettings.farmPuffshrooms,
+		Default = perfect.autoPuffshroomSettings.farmPuffshrooms,
 		Callback = function(state)
-			vitaly.autoPuffshroomSettings.farmPuffshrooms = state
+			perfect.autoPuffshroomSettings.farmPuffshrooms = state
 		end
 	})
 
@@ -5218,9 +5218,9 @@ if scriptType == LPH_STRENC("Paid") then
 		Min = 1,
 		Max = 15,
 		Rounding = 1,
-		Default = vitaly.autoPuffshroomSettings.minimumLevel,
+		Default = perfect.autoPuffshroomSettings.minimumLevel,
 		Callback = function(newValue)
-			vitaly.autoPuffshroomSettings.minimumLevel = newValue
+			perfect.autoPuffshroomSettings.minimumLevel = newValue
 		end
 	})
 
@@ -5229,17 +5229,17 @@ if scriptType == LPH_STRENC("Paid") then
 		Min = 1,
 		Max = 30,
 		Rounding = 1,
-		Default = vitaly.autoPuffshroomSettings.maximumLevel,
+		Default = perfect.autoPuffshroomSettings.maximumLevel,
 		Callback = function(newValue)
-			vitaly.autoPuffshroomSettings.maximumLevel = newValue
+			perfect.autoPuffshroomSettings.maximumLevel = newValue
 		end
 	})
 
 	puffshroomsTab:AddToggle("farmRemaining", {
 		Title = "Farm Remaining Puffs",
-		Default = vitaly.autoPuffshroomSettings.farmRemaining,
+		Default = perfect.autoPuffshroomSettings.farmRemaining,
 		Callback = function(state)
-			vitaly.autoPuffshroomSettings.farmRemaining = state
+			perfect.autoPuffshroomSettings.farmRemaining = state
 		end
 	})
 
@@ -5252,18 +5252,18 @@ if scriptType == LPH_STRENC("Paid") then
 	puffshroomsTab:AddDropdown("rarityPriority", {
 		Title = "Puffshroom Rarity",
 		Values = {"Mythic > Common", "Common > Mythic"},
-		Default = vitaly.autoPuffshroomSettings.rarityPriority,
+		Default = perfect.autoPuffshroomSettings.rarityPriority,
 		Callback = function(selected)
-			vitaly.autoPuffshroomSettings.rarityPriority = selected
+			perfect.autoPuffshroomSettings.rarityPriority = selected
 		end
 	})
 
 	puffshroomsTab:AddDropdown("levelPriority", {
 		Title = "Puffshroom Level",
 		Values = {"High > Low", "Low > High"},
-		Default = vitaly.autoPuffshroomSettings.levelPriority,
+		Default = perfect.autoPuffshroomSettings.levelPriority,
 		Callback = function(selected)
-			vitaly.autoPuffshroomSettings.levelPriority = selected
+			perfect.autoPuffshroomSettings.levelPriority = selected
 		end
 	})
 end
@@ -5337,9 +5337,9 @@ settingsTab:AddSlider("convertat", {
 	Max = 100,
 	Rounding = 0,
 
-	Default = vitaly.convertSettings.convertat,
+	Default = perfect.convertSettings.convertat,
 	Callback = function(newValue)
-		vitaly.convertSettings.convertat = newValue
+		perfect.convertSettings.convertat = newValue
 	end
 })
 
@@ -5347,7 +5347,7 @@ settingsTab:AddToggle("converthiveballoon", {
 	Title = "Convert Hive Balloon",
 	Default = true,
 	Callback = function(state)
-		vitaly.convertSettings.converthiveballoon = state
+		perfect.convertSettings.converthiveballoon = state
 	end
 })
 
@@ -5357,9 +5357,9 @@ settingsTab:AddSlider("convertballoonat", {
 	Max = 60,
 	Rounding = 0,
 
-	Default = vitaly.convertSettings.convertballoonat,
+	Default = perfect.convertSettings.convertballoonat,
 	Callback = function(newValue)
-		vitaly.convertSettings.convertballoonat = newValue
+		perfect.convertSettings.convertballoonat = newValue
 	end
 })
 
@@ -5369,9 +5369,9 @@ settingsTab:AddSlider("secondsBeforeConvert", {
 	Max = 60,
 	Rounding = 0,
 
-	Default = vitaly.convertSettings.secondsBeforeConvert,
+	Default = perfect.convertSettings.secondsBeforeConvert,
 	Callback = function(newValue)
-		vitaly.convertSettings.secondsBeforeConvert = newValue
+		perfect.convertSettings.secondsBeforeConvert = newValue
 	end
 })
 
@@ -5379,7 +5379,7 @@ settingsTab:AddToggle("convertHoney", {
 	Title = "Convert Honey",
 	Default = true,
 	Callback = function(state)
-		vitaly.convertSettings.convertHoney = state
+		perfect.convertSettings.convertHoney = state
 	end
 })
 
@@ -5390,9 +5390,9 @@ settingsTab:AddSlider("walkSpeed", {
 	Max = 90,
 	Rounding = 0,
 
-	Default = vitaly.localPlayerSettings.walkSpeed,
+	Default = perfect.localPlayerSettings.walkSpeed,
 	Callback = function(newValue)
-		vitaly.localPlayerSettings.walkSpeed = newValue
+		perfect.localPlayerSettings.walkSpeed = newValue
 	end
 })
 
@@ -5401,16 +5401,16 @@ settingsTab:AddSlider("tweenSpeed", {
 	Min = 1,
 	Max = 12,
 	Rounding = 0,
-	Default = vitaly.localPlayerSettings.tweenSpeed,
+	Default = perfect.localPlayerSettings.tweenSpeed,
 	Callback = function(newValue)
-		vitaly.localPlayerSettings.tweenSpeed = newValue
+		perfect.localPlayerSettings.tweenSpeed = newValue
 	end
 })
 
 settingsTab:AddToggle("speedhack", {
 	Title = "Speedhack",
 	Callback = function(state)
-		vitaly.toggles.speedhack = state
+		perfect.toggles.speedhack = state
 	end
 })
 
@@ -5419,8 +5419,8 @@ Tasks:Add("Walk Speed", function()
 		if temptable.customWalkSpeed.enabled then
 			api.humanoid().WalkSpeed = temptable.customWalkSpeed.speed
 		else
-			if vitaly.toggles.speedhack then
-				local newSpeed = vitaly.localPlayerSettings.walkSpeed
+			if perfect.toggles.speedhack then
+				local newSpeed = perfect.localPlayerSettings.walkSpeed
 				pcall(function()
 					local systemSpeed = getClientStatCache("ModifierCaches", "Value", "PlayerMovespeed", "_")
 					if tonumber(systemSpeed) and systemSpeed > newSpeed then
@@ -5452,11 +5452,11 @@ raresSettingsSection:AddToggle("BitterberryToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Bitterberry")
+			table.insert(perfect.vars.rares, "Bitterberry")
 		else
-			local index = table.find(vitaly.vars.rares, "Bitterberry")
+			local index = table.find(perfect.vars.rares, "Bitterberry")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5467,11 +5467,11 @@ raresSettingsSection:AddToggle("Blue ExtractToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Blue Extract")
+			table.insert(perfect.vars.rares, "Blue Extract")
 		else
-			local index = table.find(vitaly.vars.rares, "Blue Extract")
+			local index = table.find(perfect.vars.rares, "Blue Extract")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5483,11 +5483,11 @@ raresSettingsSection:AddToggle("BlueberryToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Blueberry")
+			table.insert(perfect.vars.rares, "Blueberry")
 		else
-			local index = table.find(vitaly.vars.rares, "Blueberry")
+			local index = table.find(perfect.vars.rares, "Blueberry")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5499,11 +5499,11 @@ raresSettingsSection:AddToggle("CoconutToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Coconut")
+			table.insert(perfect.vars.rares, "Coconut")
 		else
-			local index = table.find(vitaly.vars.rares, "Coconut")
+			local index = table.find(perfect.vars.rares, "Coconut")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5515,11 +5515,11 @@ raresSettingsSection:AddToggle("Diamond EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Diamond Egg")
+			table.insert(perfect.vars.rares, "Diamond Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Diamond Egg")
+			local index = table.find(perfect.vars.rares, "Diamond Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5531,11 +5531,11 @@ raresSettingsSection:AddToggle("Enzymes", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Diamond Egg")
+			table.insert(perfect.vars.rares, "Diamond Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Diamond Egg")
+			local index = table.find(perfect.vars.rares, "Diamond Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5545,11 +5545,11 @@ raresSettingsSection:AddToggle("Festive BeanToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Festive Bean")
+			table.insert(perfect.vars.rares, "Festive Bean")
 		else
-			local index = table.find(vitaly.vars.rares, "Festive Bean")
+			local index = table.find(perfect.vars.rares, "Festive Bean")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5559,11 +5559,11 @@ raresSettingsSection:AddToggle("Gifted Diamond EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Gifted Diamond Egg")
+			table.insert(perfect.vars.rares, "Gifted Diamond Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Gifted Diamond Egg")
+			local index = table.find(perfect.vars.rares, "Gifted Diamond Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5573,11 +5573,11 @@ raresSettingsSection:AddToggle("Gifted Gold EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Gifted Gold Egg")
+			table.insert(perfect.vars.rares, "Gifted Gold Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Gifted Gold Egg")
+			local index = table.find(perfect.vars.rares, "Gifted Gold Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5589,11 +5589,11 @@ raresSettingsSection:AddToggle("Gifted Mythic EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Gifted Mythic Egg")
+			table.insert(perfect.vars.rares, "Gifted Mythic Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Gifted Mythic Egg")
+			local index = table.find(perfect.vars.rares, "Gifted Mythic Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5605,11 +5605,11 @@ raresSettingsSection:AddToggle("Gifted Silver EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Gifted Silver Egg")
+			table.insert(perfect.vars.rares, "Gifted Silver Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Gifted Silver Egg")
+			local index = table.find(perfect.vars.rares, "Gifted Silver Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5621,11 +5621,11 @@ raresSettingsSection:AddToggle("Gingerbread BearToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Gingerbread Bear")
+			table.insert(perfect.vars.rares, "Gingerbread Bear")
 		else
-			local index = table.find(vitaly.vars.rares, "Gingerbread Bear")
+			local index = table.find(perfect.vars.rares, "Gingerbread Bear")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5637,11 +5637,11 @@ raresSettingsSection:AddToggle("GlitterToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Glitter")
+			table.insert(perfect.vars.rares, "Glitter")
 		else
-			local index = table.find(vitaly.vars.rares, "Glitter")
+			local index = table.find(perfect.vars.rares, "Glitter")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5653,11 +5653,11 @@ raresSettingsSection:AddToggle("GlueToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Glue")
+			table.insert(perfect.vars.rares, "Glue")
 		else
-			local index = table.find(vitaly.vars.rares, "Glue")
+			local index = table.find(perfect.vars.rares, "Glue")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5669,11 +5669,11 @@ raresSettingsSection:AddToggle("Gold EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Gold Egg")
+			table.insert(perfect.vars.rares, "Gold Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Gold Egg")
+			local index = table.find(perfect.vars.rares, "Gold Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5684,11 +5684,11 @@ raresSettingsSection:AddToggle("HoneysuckleToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Honeysuckle")
+			table.insert(perfect.vars.rares, "Honeysuckle")
 		else
-			local index = table.find(vitaly.vars.rares, "Honeysuckle")
+			local index = table.find(perfect.vars.rares, "Honeysuckle")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5700,11 +5700,11 @@ raresSettingsSection:AddToggle("Moon CharmToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Moon Charm")
+			table.insert(perfect.vars.rares, "Moon Charm")
 		else
-			local index = table.find(vitaly.vars.rares, "Moon Charm")
+			local index = table.find(perfect.vars.rares, "Moon Charm")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5716,11 +5716,11 @@ raresSettingsSection:AddToggle("Mythic EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Mythic Egg")
+			table.insert(perfect.vars.rares, "Mythic Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Mythic Egg")
+			local index = table.find(perfect.vars.rares, "Mythic Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5732,11 +5732,11 @@ raresSettingsSection:AddToggle("NeonberryToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Neonberry")
+			table.insert(perfect.vars.rares, "Neonberry")
 		else
-			local index = table.find(vitaly.vars.rares, "Neonberry")
+			local index = table.find(perfect.vars.rares, "Neonberry")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5748,11 +5748,11 @@ raresSettingsSection:AddToggle("Night BellToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Night Bell")
+			table.insert(perfect.vars.rares, "Night Bell")
 		else
-			local index = table.find(vitaly.vars.rares, "Night Bell")
+			local index = table.find(perfect.vars.rares, "Night Bell")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5764,11 +5764,11 @@ raresSettingsSection:AddToggle("OilToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Oil")
+			table.insert(perfect.vars.rares, "Oil")
 		else
-			local index = table.find(vitaly.vars.rares, "Oil")
+			local index = table.find(perfect.vars.rares, "Oil")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5780,11 +5780,11 @@ raresSettingsSection:AddToggle("PineappleToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Pineapple")
+			table.insert(perfect.vars.rares, "Pineapple")
 		else
-			local index = table.find(vitaly.vars.rares, "Pineapple")
+			local index = table.find(perfect.vars.rares, "Pineapple")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5796,11 +5796,11 @@ raresSettingsSection:AddToggle("Red ExtractToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Red Extract")
+			table.insert(perfect.vars.rares, "Red Extract")
 		else
-			local index = table.find(vitaly.vars.rares, "Red Extract")
+			local index = table.find(perfect.vars.rares, "Red Extract")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5812,11 +5812,11 @@ raresSettingsSection:AddToggle("Silver EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Silver Egg")
+			table.insert(perfect.vars.rares, "Silver Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Silver Egg")
+			local index = table.find(perfect.vars.rares, "Silver Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5828,11 +5828,11 @@ raresSettingsSection:AddToggle("Soft WaxToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Soft Wax")
+			table.insert(perfect.vars.rares, "Soft Wax")
 		else
-			local index = table.find(vitaly.vars.rares, "Soft Wax")
+			local index = table.find(perfect.vars.rares, "Soft Wax")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5844,11 +5844,11 @@ raresSettingsSection:AddToggle("Star EggToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Star Egg")
+			table.insert(perfect.vars.rares, "Star Egg")
 		else
-			local index = table.find(vitaly.vars.rares, "Star Egg")
+			local index = table.find(perfect.vars.rares, "Star Egg")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5860,11 +5860,11 @@ raresSettingsSection:AddToggle("Star JellyToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Star Jelly")
+			table.insert(perfect.vars.rares, "Star Jelly")
 		else
-			local index = table.find(vitaly.vars.rares, "Star Jelly")
+			local index = table.find(perfect.vars.rares, "Star Jelly")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5876,11 +5876,11 @@ raresSettingsSection:AddToggle("Star TreatToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Star Treat")
+			table.insert(perfect.vars.rares, "Star Treat")
 		else
-			local index = table.find(vitaly.vars.rares, "Star Treat")
+			local index = table.find(perfect.vars.rares, "Star Treat")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5892,11 +5892,11 @@ raresSettingsSection:AddToggle("StingerToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Stinger")
+			table.insert(perfect.vars.rares, "Stinger")
 		else
-			local index = table.find(vitaly.vars.rares, "Stinger")
+			local index = table.find(perfect.vars.rares, "Stinger")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5908,11 +5908,11 @@ raresSettingsSection:AddToggle("StrawberryToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Strawberry")
+			table.insert(perfect.vars.rares, "Strawberry")
 		else
-			local index = table.find(vitaly.vars.rares, "Strawberry")
+			local index = table.find(perfect.vars.rares, "Strawberry")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5924,11 +5924,11 @@ raresSettingsSection:AddToggle("Swirled WaxToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Swirled Wax")
+			table.insert(perfect.vars.rares, "Swirled Wax")
 		else
-			local index = table.find(vitaly.vars.rares, "Swirled Wax")
+			local index = table.find(perfect.vars.rares, "Swirled Wax")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5940,11 +5940,11 @@ raresSettingsSection:AddToggle("Sunflower SeedToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Sunflower Seed")
+			table.insert(perfect.vars.rares, "Sunflower Seed")
 		else
-			local index = table.find(vitaly.vars.rares, "Sunflower Seed")
+			local index = table.find(perfect.vars.rares, "Sunflower Seed")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5955,11 +5955,11 @@ raresSettingsSection:AddToggle("TicketToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Ticket")
+			table.insert(perfect.vars.rares, "Ticket")
 		else
-			local index = table.find(vitaly.vars.rares, "Ticket")
+			local index = table.find(perfect.vars.rares, "Ticket")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5971,11 +5971,11 @@ raresSettingsSection:AddToggle("TreatToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Treat")
+			table.insert(perfect.vars.rares, "Treat")
 		else
-			local index = table.find(vitaly.vars.rares, "Treat")
+			local index = table.find(perfect.vars.rares, "Treat")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -5987,11 +5987,11 @@ raresSettingsSection:AddToggle("WhirligigToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Whirligig")
+			table.insert(perfect.vars.rares, "Whirligig")
 		else
-			local index = table.find(vitaly.vars.rares, "Whirligig")
+			local index = table.find(perfect.vars.rares, "Whirligig")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -6003,11 +6003,11 @@ raresSettingsSection:AddToggle("Loaded DiceToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Loaded Dice")
+			table.insert(perfect.vars.rares, "Loaded Dice")
 		else
-			local index = table.find(vitaly.vars.rares, "Loaded Dice")
+			local index = table.find(perfect.vars.rares, "Loaded Dice")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -6019,11 +6019,11 @@ raresSettingsSection:AddToggle("Smooth DiceToggle", {
 	Default = false,
 	Callback = function(State)
 		if State then
-			table.insert(vitaly.vars.rares, "Smooth Dice")
+			table.insert(perfect.vars.rares, "Smooth Dice")
 		else
-			local index = table.find(vitaly.vars.rares, "Smooth Dice")
+			local index = table.find(perfect.vars.rares, "Smooth Dice")
 			if index then
-				table.remove(vitaly.vars.rares, index)
+				table.remove(perfect.vars.rares, index)
 			end
 		end
 	end
@@ -6059,7 +6059,7 @@ do
 		if State then
 			Tasks:Add("Webhook", function()
 				while task.wait(1) do
-					if tick() - temptable.lastWebhookSent > vitaly.webhookSettings.messageFrequency * 60 then
+					if tick() - temptable.lastWebhookSent > perfect.webhookSettings.messageFrequency * 60 then
 						sendHourlyWebhook()
 					end
 				end
@@ -6078,7 +6078,7 @@ do
 	})
 	messageFrequencySlider:OnChanged(function(Value)
 		print("Message frequency:", Value)
-		vitaly.webhookSettings.messageFrequency = Value
+		perfect.webhookSettings.messageFrequency = Value
 	end)
 
 	Webhook:AddInput("WebhookUrl", {
@@ -6089,7 +6089,7 @@ do
 		Finished = true,
 		Callback = function(Value)
 			print("Webhook Url:", Value)
-			vitaly.webhookSettings.webhookUrl = Value
+			perfect.webhookSettings.webhookUrl = Value
 		end
 	})
 
@@ -6101,7 +6101,7 @@ do
 		Finished = true,
 		Callback = function(Value)
 			print("Discord User Id:", Value)
-			vitaly.webhookSettings.discordId = Value
+			perfect.webhookSettings.discordId = Value
 		end
 	})
 
@@ -6116,12 +6116,12 @@ do
 			local done = false
 			if string.match(Color, "^".."0x") then 
 				done = true
-				vitaly.webhookSettings.webhookColor = Color
+				perfect.webhookSettings.webhookColor = Color
 			end
 			if not done then
 				local newColor,_ = string.gsub(Color, "#", "0x") 
 				if _ == 1 then
-					vitaly.webhookSettings.webhookColor = newColor
+					perfect.webhookSettings.webhookColor = newColor
 				else
 					api.notify("Macro V3 - v" .. temptable.version, "Invalid Color!", 2)
 					api.notify("Macro V3 - v" .. temptable.version, "Make sure you're using Hex color.", 5)
@@ -6133,7 +6133,7 @@ do
 	local pingUserToggle = Webhook:AddToggle("PingUser", {Title = "Ping discord id", Default = false })
 	pingUserToggle:OnChanged(function(State)
 		print("Ping discord id:", State)
-		vitaly.webhookSettings.pingUser = State
+		perfect.webhookSettings.pingUser = State
 	end)
 
 	Webhook:AddButton({
@@ -6154,7 +6154,7 @@ Webhook:AddToggle("showTotalHoney", {
 	Default = false,
 }):OnChanged(function(State)
 	print("Show Total Honey:", State)
-	vitaly.webhookSettings.showTotalHoney = State
+	perfect.webhookSettings.showTotalHoney = State
 end)
 
 Webhook:AddToggle("showHoneyPerHour", {
@@ -6162,7 +6162,7 @@ Webhook:AddToggle("showHoneyPerHour", {
 	Path = {"webhookSettings", "showHoneyPerHour"},
 	Default = false,
 }):OnChanged(function(State)
-	vitaly.webhookSettings.showHoneyPerHour = State
+	perfect.webhookSettings.showHoneyPerHour = State
 end)
 
 Webhook:AddToggle("showDailyHoney", {
@@ -6170,7 +6170,7 @@ Webhook:AddToggle("showDailyHoney", {
 	Path = {"webhookSettings", "showDailyHoney"},
 	Default = false,
 }):OnChanged(function(State)
-	vitaly.webhookSettings.showDailyHoney = State
+	perfect.webhookSettings.showDailyHoney = State
 end)
 
 Webhook:AddToggle("showNectars", {
@@ -6178,7 +6178,7 @@ Webhook:AddToggle("showNectars", {
 	Path = {"webhookSettings", "showNectars"},
 	Default = false,
 }):OnChanged(function(State)
-	vitaly.webhookSettings.showNectars = State
+	perfect.webhookSettings.showNectars = State
 end)
 
 Webhook:AddToggle("showPlanters", {
@@ -6186,7 +6186,7 @@ Webhook:AddToggle("showPlanters", {
 	Path = {"webhookSettings", "showPlanters"},
 	Default = false,
 }):OnChanged(function(State)
-	vitaly.webhookSettings.showPlanters = State
+	perfect.webhookSettings.showPlanters = State
 end)
 
 Webhook:AddToggle("onlyTruncated", {
@@ -6194,7 +6194,7 @@ Webhook:AddToggle("onlyTruncated", {
 	Path = {"webhookSettings", "onlyTruncated"},
 	Default = false,
 }):OnChanged(function(State)
-	vitaly.webhookSettings.onlyTruncated = State
+	perfect.webhookSettings.onlyTruncated = State
 end)
 
 
@@ -6210,7 +6210,7 @@ if scriptType == LPH_STRENC("Paid") then
 				Path = {"toggles", i},
 				Default = true,
 			}):OnChanged(function(State)
-				vitaly.toggles[i] = State
+				perfect.toggles[i] = State
 			end)
 		end
 	end
@@ -6221,19 +6221,19 @@ if scriptType == LPH_STRENC("Paid") then
 	premiumTab:AddToggle("farmrares", {
 		Title = "TP To Rare",
 		Path = {"toggles", "farmrares"},
-		Default = vitaly.toggles.farmrares,
+		Default = perfect.toggles.farmrares,
 	}):OnChanged(function(State)
-		vitaly.toggles.farmrares = State
+		perfect.toggles.farmrares = State
 		print("farmrares changed to", State)
 		if State then
 			Tasks:Add("FarmRares", function()
 				while task.wait() do
-					if vitaly.toggles.farmrares then
+					if perfect.toggles.farmrares then
 						for k, v in next, temptable.tokenpath:GetChildren() do
 							if v.CFrame.YVector.Y == 1 then
 								if v.Transparency < 0.5 then
 									local decal = v:FindFirstChildOfClass("Decal")
-									for e, r in next, vitaly.vars.rares do
+									for e, r in next, perfect.vars.rares do
 										local rare, rareError = getItemByName(tostring(r))
 										local rareTexture = rare and rare.Icon
 										if rareTexture and decal and v ~= nil and rareTexture == decal.Texture then
@@ -6258,12 +6258,12 @@ if scriptType == LPH_STRENC("Paid") then
 
 	premiumTab:AddToggle("auto fire fly",{
 		Title = 'Auto Farm Firefly',
-		Default = getgenv().vitaly.toggles.autoFireFly,
+		Default = getgenv().perfect.toggles.autoFireFly,
 		Callback = function(v)
-			getgenv().vitaly.toggles.autoFireFly = v
+			getgenv().perfect.toggles.autoFireFly = v
 			if v then
 				spawn(function()
-					while getgenv().vitaly.toggles.autoFireFly do
+					while getgenv().perfect.toggles.autoFireFly do
 						local nearestFirefly = GetNearestFirefly()
 						if nearestFirefly then
 							temptable.stopEverything = true
@@ -6568,7 +6568,7 @@ end
 
 Tasks:Add("Auto Face", function() 
 	while task.wait() do
-		if not true or not (vitaly.autoFarmSettings.faceCenter or vitaly.autoFarmSettings.faceBalloons or vitaly.autoFarmSettings.faceFlames)
+		if not true or not (perfect.autoFarmSettings.faceCenter or perfect.autoFarmSettings.faceBalloons or perfect.autoFarmSettings.faceFlames)
 		then destroyBodyGyro() task.wait(0.5) continue end
 
 		if not api.humanoidrootpart() or not player.Character then destroyBodyGyro() task.wait(1) continue end
@@ -6578,12 +6578,12 @@ Tasks:Add("Auto Face", function()
 		local playerStandsOn = findField(api.humanoidrootpart().Position)
 		if not playerStandsOn or not characterTorso then destroyBodyGyro() task.wait(0.1) continue end
 
-		if vitaly.autoFarmSettings.faceCenter then
+		if perfect.autoFarmSettings.faceCenter then
 			lookAt(playerStandsOn.Position)
 			continue
 		end
 
-		if vitaly.autoFarmSettings.faceBalloons then
+		if perfect.autoFarmSettings.faceBalloons then
 			local bestBalloon = getBestFieldBalloon()
 			if bestBalloon and bestBalloon:FindFirstChild("BalloonBody") then
 				lookAt(bestBalloon.BalloonBody.Position)
@@ -6594,7 +6594,7 @@ Tasks:Add("Auto Face", function()
 			continue
 		end
 
-		if vitaly.autoFarmSettings.faceFlames then
+		if perfect.autoFarmSettings.faceFlames then
 			local pos = nil
 			for i,v in pairs(game.Workspace.PlayerFlames:GetChildren()) do
 				pcall(function() 
@@ -6619,8 +6619,8 @@ InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({})
 
-InterfaceManager:SetFolder("vitaly")
-SaveManager:SetFolder("vitaly/bss")
+InterfaceManager:SetFolder("perfect")
+SaveManager:SetFolder("perfect/bss")
 
 InterfaceManager:BuildInterfaceSection(Tabs.Config)
 SaveManager:BuildConfigSection(Tabs.Config)
