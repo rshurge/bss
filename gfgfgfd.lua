@@ -11,14 +11,8 @@ local isfile = isfile or function(file)
 	return suc and res ~= nil
 end
 
-
 workspace.Decorations["30BeeZone"].Pit.CanTouch = false
 
-if not LPH_OBFUSCATED then
-	getgenv().LPH_NO_VIRTUALIZE = function(...) return ... end
-	getgenv().LPH_JIT = function(...) return ... end 
-	getgenv().LPH_STRENC = function(str) return str end
-end
 local std = setthreadcaps or setthreadidentity
 local scriptType = LPH_STRENC("Paid")
 
@@ -90,9 +84,6 @@ local RetrievePlayerStats = ReplicatedStorage.Events.RetrievePlayerStats
 
 local ScreenGui = ScreenInfo:GetScreenGui()
 
-
-
-
 local bssapi = loadstring(game:HttpGet("https://raw.githubusercontent.com/7BioHazard/mv3/main/bssapi.lua"))()
 local library
 local api
@@ -100,14 +91,10 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-do
-	if not setreadonly then game.Players.LocalPlayer:Kick("x.synapse.to") end
-
-	setreadonly(table, false)
-
 	local ver = 0
 
 	local perfect = {}
+
 	perfect['generaterandomstring'] = function(a)
 		local let = ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'):split('')
 		local string = '' 
@@ -116,12 +103,15 @@ do
 		end 
 		return string 
 	end
+
 	perfect["humanoidrootpart"] = function()
 		return game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 	end
+
 	perfect["humanoid"] = function() 
 		return game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid")
 	end
+
 	perfect["tween"] = function(speed, pos)
 		if perfect.humanoidrootpart() then
 			if typeof(pos) == "CFrame" then pos = pos.p end
@@ -129,11 +119,13 @@ do
 			game:GetService("TweenService"):Create(perfect.humanoidrootpart(), TweenInfo.new(speed, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)}):Play() task.wait(speed)
 		end
 	end
+
 	perfect["walkTo"] = function(Pos)
 		if mv2.humanoid() then
 			mv2.humanoid():MoveTo(Pos)
 		end
 	end
+
 	perfect["isExist"] = function(obj)
 		NewObjName = perfect.generaterandomstring(10)
 		oldObjName = obj and obj.Name
@@ -145,7 +137,9 @@ do
 			return false
 		end
 	end
+
 	perfect["player"] = game.Players.LocalPlayer
+
 	perfect["notify"] = function(title, description, duration)
 		pcall(function()
 			game.StarterGui:SetCore("SendNotification", {
@@ -155,46 +149,13 @@ do
 			})
 		end)
 	end
-	perfect["isSynapse"] = function()
-		if syn then
-			return true
-		else
-			return false
-		end
-	end
-	perfect["isSynV3"] = function()
-		local exploit = identifyexecutor and table.concat({ identifyexecutor() }, " ") or "Unknown"
-		if exploit:gmatch("/") then
-			exploit = exploit:split("/")[1]
-		end
-		if perfect.isSynapse() and exploit:lower():match("v3") then
-			return true
-		end
-		return false
-	end
-	perfect['isKrnl'] = function()
-		if Krnl then
-			return true
-		else
-			return false
-		end
-	end
-	perfect['isScriptWare'] = function()
-		if identifyexecutor and tostring(identifyexecutor()):match("ScriptWare") then return true end
-	end
-	perfect['isFluxus'] = function()
-		if identifyexecutor and tostring(identifyexecutor()):match("Fluxus") then return true end
-	end
-	perfect['isElectron'] = function()
-		if identifyexecutor and tostring(identifyexecutor()):match("Electron") then return true end
-	end
-	perfect["isValyse"] = function()
-		return Valyse and true or false
-	end
+
 	perfect['ver'] = ver
+
 	perfect['magnitude'] = function(v1, v2)
 		return ((v2 or perfect.humanoidrootpart().Position) - v1).magnitude
 	end
+
 	perfect['afunc'] = function(f)
 		local wa = coroutine.create(
 			function()
@@ -202,6 +163,7 @@ do
 			end)
 		coroutine.resume(wa)
 	end
+
 	perfect["getField"] = function(part)
 		part = part or perfect.humanoidrootpart()
 		local ray = Ray.new(part.Position+Vector3.new(0, -35, 0), Vector3.new(0,100, 0))
@@ -233,6 +195,7 @@ do
 		end
 		return false
 	end
+    
 	perfect['returnValue'] = function(tab, val)
 		ok = false
 		for i,v in pairs(tab) do
@@ -243,86 +206,6 @@ do
 		end
 		return ok
 	end
-
-	do -- secure_call things
-		local oldt;oldt = hookfunction(getrenv().debug.traceback, function(lol) -- prevent debug.traceback detection
-			local traceback = oldt(lol)
-			if checkcaller() then
-				local a = traceback:split("\n")
-				return string.format("%s\n%s\n", a[1], a[3])
-			end
-			return traceback
-		end)
-		local oldi;oldi = hookfunction(getrenv().debug.info, function(lvl, a) -- prevent debug.info detection
-			if checkcaller() then
-				return oldi(3, a)
-			end
-			return oldi(lvl, a)
-		end)
-	end
-
-	getgenv().secureCall = function(Function, Script, ...)
-		assert(Script ~= nil or typeof(Script) == "Instance", string.format("invalid argument #1 to '%s' (table expected, got %s)", "secureCall", typeof(Script)))
-		assert(Function ~= nil or typeof(Function) == "function", string.format("invalid argument #2 to '%s' (table expected, got %s)", "secureCall", typeof(Function)))
-		assert(Script.ClassName == "LocalScript" or Script.ClassName == "ModuleScript", string.format("bad argument to #3 to '%s' (LocalScript or ModuleScript expected, got %s)", "secureCall", Script.ClassName))
-
-		if perfect.isSynV3() then
-			local Info = debug.getinfo(Function)
-			local Options = {
-				script = Script,
-				identity = 2,
-				env = getsenv(Script),
-				thread = getscriptthread and getscriptthread(Script)
-			}
-			local Callstack = {Info}
-
-			return syn.trampoline_call(Function, Callstack, Options, ...)
-		elseif perfect.isSynapse() then
-			return syn.secure_call(Function, Script, ...)
-		elseif perfect.isKrnl() then
-			return coroutine.wrap(function(...)
-				setthreadcontext(2)
-				setfenv(0, getsenv(Script))
-				setfenv(1, getsenv(Script))
-				return Function(...)
-			end)(...)
-		elseif perfect.isScriptWare() then
-			local func, env = Function, Script
-			local functype, envtype = typeof(func), typeof(env)
-			assert(functype == "function", string.format("bad argument #1 to 'secure_call' (function expected, got %s)", functype))
-			assert(envtype == "Instance", string.format("bad argument #2 to 'secure_call' (Instance expected, got %s)", envtype))
-			local envclass = env.ClassName
-			assert(envclass == "LocalScript" or envclass == "ModuleScript", string.format("bad argument #2 to 'secure_call' (LocalScript or ModuleScript expected, got %s)", envclass))
-			local _, fenv = xpcall(function()
-				return getsenv(env)
-			end, function()
-				return getfenv(func)
-			end)
-			return coroutine.wrap(function(...)
-				setidentity(2)
-				setfenv(0, fenv)
-				setfenv(1, fenv)
-				return func(...)
-			end)(...)
-		elseif perfect.isElectron() or perfect.isFluxus() or perfect.isValyse() then
-			return coroutine.wrap(function(...)
-				setthreadcontext(2)
-				setfenv(0, getsenv(Script))
-				setfenv(1, getsenv(Script))
-				return Function(...)
-			end)(...)
-		else
-			return coroutine.wrap(function(...) 
-				(set_thread_identity or setthreadcontext)(2)
-				return Function(...)
-			end)(...)
-		end
-	end
-
-	setreadonly(table, false)
-
-	api = perfect
-end
 
 local player = Players.LocalPlayer
 
@@ -351,9 +234,9 @@ local currentperfectLoadedAt = tick()
 getgenv().perfectLoadedAt = currentperfectLoadedAt
 
 plrHive = nil
-httpreq = (syn and syn.request) or http_request or (http and http.request) or request
-setIdentity = (syn and syn.set_thread_identity) or setthreadcontodo or setidentity or setthreadidentity or set_thread_identity
-getIdentity = (syn and syn.get_thread_identity) or getidentity or getthreadidentity or get_thread_identity
+httpreq = http_request or (http and http.request) or request
+setIdentity = setthreadcontodo or setidentity or setthreadidentity or set_thread_identity
+getIdentity =  getidentity or getthreadidentity or get_thread_identity
 local origThreadIdentity = getIdentity and getIdentity() or 8
 
 local Tasks = {_LIST={}}
@@ -665,22 +548,6 @@ getgenv().temptable = {
 	balloonsTable = {},
 
 	FieldBalloons = nil,
-
-	codesTable = {
-		"Wax",
-		"Roof",
-		"Nectar",
-		"Crawlers",
-		"Connoisseur",
-		"Cog",
-		"Buzz",
-		"Bopmaster",
-		"38217",
-		"GumdropsForScience",
-		"ClubConverters",
-		"BeesBuzz123",
-		"PlushFriday",
-	}, codesActivated = false,
 
 	stopEverything = false,
 
@@ -1425,8 +1292,6 @@ function getNewFarmCenter(field, sprinkler)
 	return flowerCenter
 end
 
-
-
 function jump()
 	if not player.Character.Humanoid.Jump then
 		player.Character.Humanoid.Jump = true
@@ -1760,7 +1625,7 @@ function farmBubble(customCallback)
 	return true
 end
 
-function farmFuzzy(customCallback) --Sakata Jump Delete if you see this
+function farmFuzzy(customCallback) 
 	local nearestFuzz = NearestTable.getNearestFuzz(function(fuzz)
 		if customCallback and not customCallback(fuzz) then 
 			return false
@@ -1909,19 +1774,6 @@ function checkPopStar()
 	temptable.popStarActive = popStarFound
 	return popStarFound
 end
-
--- function checkLeafsAndSparkles()
---     local leafTable = {}
---     for _, flower in ipairs(Flowers:GetChildren()) do
---         if flower:FindFirstChild("LeafBurst") then
---             table.insert(leafTable, flower)
---         elseif flower:FindFirstChild("Sparkles")then
---             table.insert(sparklesTable, flower)
---         end
---     end
---     temptable.leafTable = leafTable
---     return leafTable
--- end
 
 function getBestFieldBalloon()
 	if not api.humanoidrootpart() then return warn(1) end
@@ -2198,9 +2050,6 @@ function useToy(toyName, collectTokens)
 		end
 		if api.magnitude(patformPosition) < 20 then
 			secureCall(ActivatablesToys.ButtonEffect, Activatables, player, workspace.Toys[toyName])
-			-- setIdentity(2)
-			-- ActivatablesToys.ButtonEffect(player, workspace.Toys[toyName])
-			-- setIdentity(7)
 		end
 		task.wait(2)
 	end
@@ -2234,7 +2083,6 @@ local instantConvList = {"All", "Ticket/Instant Converter", "Micro-Converter"}
 function instaConvFunc()
 	local isConverted = false
 	for i,v in pairs(perfect.convertSettings.selectedInstant) do
-		--sakata jump
 		if v:find("Ticket") and getClientStatCache("Eggs", "Ticket") ~= 0 and (tick() - temptable.IConverterUsedAt) > 15  then
 			for _,c in pairs(InstantConverterNames) do
 				if canToyBeUsed(c) then
@@ -2244,10 +2092,6 @@ function instaConvFunc()
 					if not canToyBeUsed(c) then isConverted = true break end
 				end
 			end
-			--  elseif v:find("Coconuts") and getClientStatCache("Eggs", "Coconut") ~= 0 then
-			--     Events.ClientCall("PlayerActivesCommand", {Name = "Coconut"})
-			--     isConverted = true 
-			--     break
 		elseif v:find("Micro") and getClientStatCache("Eggs", "Micro-Converter") ~= 0 and (tick() - temptable.MConverterUsedAt) > 15 then
 			Events.ClientCall("PlayerActivesCommand", {Name = "Micro-Converter"})
 			temptable.MConverterUsedAt = tick()
@@ -2262,11 +2106,6 @@ function instaConvFunc()
 					if not canToyBeUsed(c) then isConverted = true break end
 				end
 			end
-			-- if getClientStatCache("Eggs", "Coconut") ~= 0 then
-			--     Events.ClientCall("PlayerActivesCommand", {Name = "Coconut"})
-			--     isConverted = true 
-			--     break
-			-- end
 			if getClientStatCache("Eggs", "Micro-Converter") ~= 0 then
 				Events.ClientCall("PlayerActivesCommand", {Name = "Micro-Converter"})
 				isConverted = true 
@@ -2278,7 +2117,6 @@ function instaConvFunc()
 end
 
 function convertHoney(defaultMask)
-	-- print("Convert Honey Called")
 	local hivePos = (player.SpawnPos.Value * CFrame.fromEulerAnglesXYZ(0, 110, 0) + Vector3.new(0, 0, 9)).p
 	while shouldIConvert(true) and perfect.toggles.convertHoney do
 		if perfect.toggles.AutoHoneyM then requestAccessoryEquip("Honey Mask") end
@@ -2289,12 +2127,8 @@ function convertHoney(defaultMask)
 		setIdentity(2)
 		local hiveInfo = ActivatablesHives.ButtonText(player)
 		setIdentity(origThreadIdentity)
-		-- print(hiveInfo)
 		if hiveInfo == "Make Honey" then
 			secureCall(ActivatablesHives.ButtonEffect, Activatables, player, plrHive.Platform.Value)
-			-- setIdentity(2)
-			-- ActivatablesHives.ButtonEffect(player, plrHive.Platform.Value)
-			-- setIdentity(7)
 			task.wait(3)
 		elseif hiveInfo == "To Make Honey, Collect Pollen From Flower Fields." then
 			break
@@ -2842,18 +2676,7 @@ function selectField(fieldName)
 	if temptable.fieldSelected and temptable.fieldSelected.Name == fieldName then return "Field already selected" end
 	temptable.fieldSelected = Workspace.FlowerZones[fieldName] or "Dandelion Field"
 	temptable.fieldPosition = temptable.fieldSelected.Position
-	-- print("Selected field "..fieldName)
 end
-
--- whitelistedTasks = {
---     "Collect Pollen", 
---     "Collect Goo",
---     "Defeat Monsters",
---     "Use Items",
---     "Use Toy",
---     "Match Pairs",
---     "Complete Quests"
--- }
 
 function getQuestTasks(NPC)
 	NPC = NPC or false
@@ -3367,8 +3190,6 @@ end
 if _G.debugging then
 	warn("Other Functions init.")
 end
-
--- writefile("plantersData.json", jsonEncode(plantersTable))
 
 function isPlanterExists(pNum)
 	local exists = false
