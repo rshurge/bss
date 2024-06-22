@@ -4,8 +4,8 @@ for i,v in pairs(workspace.Decorations["Diamond Mask Hall"]:GetChildren()) do
 	end
 end
 
-local getcustomasset = getsynasset or getcustomasset or function() end
-local requestfunc = syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or request or function() end 
+local getcustomasset = getcustomasset or function() end
+local requestfunc = or http and http.request or http_request or fluxus and fluxus.request or request or function() end 
 local isfile = isfile or function(file)
 	local suc, res = pcall(function() return readfile(file) end)
 	return suc and res ~= nil
