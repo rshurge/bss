@@ -4431,10 +4431,8 @@ function t.CreateMain(H)
     return dj
 end
 return t end
-print("\nTai sao Vo Hoang lai nang den muc vay\nWhy Vo Hoang can be that tard")
-print("Sucvat123")
+print("suckass")
 local rnd = tostring(math.random(1,100000))
-local Library = GetUi()
 
 local keylist = {"af298fe2fe0361c","e69327320bfcb7e","66036fb2f36e983","f27c0d2a3bee5a6","","ad4f5fc1ec8dd0a","2341aff65def585"} --,"d96d10a1b806168"
 local key = getgenv().Key or ""
