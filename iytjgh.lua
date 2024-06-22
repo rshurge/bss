@@ -81,7 +81,6 @@ local Collectors = require(ReplicatedStorage.Collectors)
 local checkAccessory = require(ReplicatedStorage.ItemPackages.Accessory).PlayerHas
 local checkTool = require(ReplicatedStorage.ItemPackages.Collector).PlayerHas
 local BuffTileModule = require(ReplicatedStorage.Gui.TileDisplay.BuffTile)
-local ClientMonsterTools = require(ReplicatedStorage.ClientMonsterTools)
 local MemoryMatchModule = require(ReplicatedStorage.Gui.MemoryMatch)
 local ClientStatCache = require(ReplicatedStorage.ClientStatCache)
 local MinigameGui = require(ReplicatedStorage.Gui.MinigameGui)
