@@ -4702,3 +4702,25 @@ print("\nTai sao Vo Hoang lai nang den muc vay\nWhy Vo Hoang can be that tard")
 print("Sucvat123")
 local rnd = tostring(math.random(1,100000))
 local Library = GetUi()
+
+local Main = Library.CreateMain({Title = 'Bee Swarm Simulator', Desc = ''})
+
+function huhuhaha() 
+    local Page1 = Main.CreatePage({Page_Name = 'Secret Feature', Page_Title = 'Main Tab'})
+    local Section11 = Page1.CreateSection('Item')
+    Section11.CreateDropdown({Title = 'Sellect Item', List = TFItemHook, Search = true, Selected = true}, function(i,v)
+    end)
+    Section11.CreateButton({Title = 'Get Inf Item'}, function()
+    
+    end)
+    local Section11 = Page1.CreateSection('Honey')
+    Section11.CreateBox({Title = 'Sellect Amount Honey', Placeholder = 'Type here', Number_Only = true}, function(v)
+        if v then
+            x = tonumber(v)
+        end
+    end)
+    Section11.CreateButton({Title = 'Get Honey'}, function()
+    
+    end)
+end
+huhuhaha()
