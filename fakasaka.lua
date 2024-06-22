@@ -21,7 +21,6 @@ end
 workspace.Decorations["30BeeZone"].Pit.CanTouch = false
 
 local std = setthreadcaps or setthreadidentity
-local scriptType = LPH_STRENC("Paid")
 
 ExploitSpecific = "📜"
 Danger = "⚠️"
@@ -2225,7 +2224,7 @@ function getToys()
 				else
 					useGlueDispenser()
 				end
-			elseif toysTableName == "beesmasToysTable" and perfect.toggles[configToyName] and scriptType == LPH_STRENC("Paid") then
+			elseif toysTableName == "beesmasToysTable" and perfect.toggles[configToyName] then
 				useToy(toyName, true)
 			elseif toysTableName == "memoryMatchTable" and perfect.toggles.automemorymatch then
 				useMemoryMatch(toyName)
