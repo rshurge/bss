@@ -1,3 +1,9 @@
+repeat 
+	task.wait() 
+until game:IsLoaded() 
+	and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") 
+	and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
+
 for i,v in pairs(workspace.Decorations["Diamond Mask Hall"]:GetChildren()) do
 	if v:FindFirstChild("GateScript") and v.Name == "Part" then
 		v.CanTouch = false
@@ -346,3 +352,378 @@ else
 		end
 	end    
 end
+
+local currentvitalyLoadedAt = tick()
+getgenv().vitalyLoadedAt = currentvitalyLoadedAt
+
+plrHive = nil
+httpreq = (syn and syn.request) or http_request or (http and http.request) or request
+setIdentity = (syn and syn.set_thread_identity) or setthreadcontodo or setidentity or setthreadidentity or set_thread_identity
+getIdentity = (syn and syn.get_thread_identity) or getidentity or getthreadidentity or get_thread_identity
+local origThreadIdentity = getIdentity and getIdentity() or 8
+
+local Tasks = {_LIST={}}
+function Tasks:Add(taskName, taskFunction, isLuraphNoVirtualize)
+	local spawnedtask
+	if isLuraphNoVirtualize then
+		spawnedtask = task.spawn(function() 
+			LPH_NO_VIRTUALIZE(function() taskFunction() end)()
+		end)
+	else
+		spawnedtask = task.spawn(taskFunction)
+	end
+	if spawnedtask then
+		Tasks._LIST[taskName] = spawnedtask
+	end
+end
+
+function Tasks:Cancel(taskName)
+	if Tasks._LIST[taskName] ~= nil then
+		pcall(function()
+			task.cancel(Tasks._LIST[taskName])
+		end)
+		Tasks._LIST[taskName] = nil 
+	end
+end
+function Tasks:Get(taskName)
+	if Tasks._LIST[taskName] ~= nil then
+		return Tasks._LIST[taskName]
+	end
+end
+function Tasks:CancelAll()
+	for i,v in pairs(Tasks._LIST) do
+		pcall(function() 
+			task.cancel(v)
+		end)
+	end
+end
+
+getgenv().vitaly = {
+	toggles = {
+		autodispensers = false,
+		autoboosters = false,
+		automemorymatch = false,
+
+		autofarm = false,
+		autodig = false,
+		converthiveballoon = false,
+		convertHoney = true,
+
+		autoPlanters = false,
+
+		speedhack = false,
+
+		autoMotherHouse = false,
+		autoWealthClock = false,
+		autoHoneystorm = false,
+		autoFreeAntPass = false,
+		autoFreeRoboPass = false,
+		autoSamovar = false,
+		autoStockings = false,
+		autoOnettArt = false,
+		autoCandles = false,
+		autoFeast = false,
+		autoSnowMachine = false,
+		autoHoneyWreath = false,
+		farmrares = false,
+		AutoHoneyM = false,
+		autoFireFly = false
+	},
+	vars = {
+		equipAccessoryMethod = "Tween",
+		defaultmask = "None",
+		rares = {},
+	},
+	autoFarmSettings = {
+		field = "Dandelion Field",
+
+		autoSprinkler = true,
+
+		farmShower = false,
+		farmCoconuts = false,
+		farmBubbles = false,
+		farmFlames = false,
+		farmUnderClouds = false,
+		farmUnderBalloons = false,
+		farmFuzzyBombs = false,
+		farmDupedTokens = false,
+
+		smartBubbleBloat = false,
+		smartPreciseCrosshair = false,
+		smartPreciseMethod = "Fast Tween "..Danger,
+		ignoreHoneyTokens = false,
+		farmSprouts = false,
+
+		faceBalloons = false,
+		faceFlames = false,
+		faceCenter = false,
+	},
+	convertSettings = {
+		secondsBeforeConvert = 0,
+		convertat = 100,
+		convertballoonat = 0,
+		instantToggle = false,
+		selectedInstant = {},
+	},
+	autodispensersettings = {
+		treatDispenser = false,
+		royalJellyDispenser = false,
+		blueberryDispenser = false,
+		strawberryDispenser = false,
+		coconutDispenser = false,
+		glueDispenser = false,
+		freerobopass = false,
+		freeantpass = false
+	},
+	autoboostersettings = {
+		whiteBooster = false,
+		redBooster = false,
+		blueBooster = false
+	},
+	rares = {},
+	autoQuestSettings = {
+		doQuests = false,
+		doRepeatables = true,
+		acceptAllQuests = false,
+
+		BlackBearQuests = false,
+		BrownBearQuests = false,
+		PandaBearQuests = false,
+		ScienceBearQuests = false,
+		PolarBearQuests = false,
+		SpiritsBearQuests = false,
+		BuckoBeeQuests = false,
+		RileyBeeQuests = false,
+		HoneyBeeQuests = false,
+		OnettQuests = false,
+
+		-- 
+		enablePriorities = false,
+		prioritizeMobKill = true,
+
+		BlackBearPriority = 1,
+		BrownBearPriority = 1,
+		PandaBearPriority = 1,
+		ScienceBearPriority = 1,
+		PolarBearPriority = 1,
+		SpiritBearPriority = 1,
+		BuckoBeePriority = 1,
+		RileyBeePriority = 1,
+		HoneyBeePriority = 1,
+		OnettPriority = 1,
+		BeeBearPriority = 1,
+
+		BeeBearQuests = false,
+
+		farmPollen = false,
+		farmGoo = false,
+		killMobs = false,
+		feedBees = false,
+		useToys = false,
+		useMemoryMatch = false,
+		doQuestQuests = false,
+
+
+		tpToNPC = false,
+		doAnts = false,
+
+		bestBlueField = "Pine Tree Forest",
+		bestRedField = "Rose Field",
+		bestWhiteField = "Pumpkin Patch"
+
+	},
+	webhookSettings = {
+		useWebhook = false,
+		onlyTruncated = false,
+		showTotalHoney = false,
+		showHoneyPerHour = false,
+		showDailyHoney = false,
+		showPlanters = false,
+		showNectars = false,
+		showItems = false,
+		sendQuests = false,
+
+		discordId = "0",
+		webhookUrl = "",
+		webhookColor = "0xfcdf03",
+		pingUser = false,
+		messageFrequency = 30,
+
+		itemsList = {},
+	},
+	autoPlantersSettings = {
+		doPlanters = false,
+		planterHarvestAt = 20,
+		doCustomPlanters = false,
+		blacklistedNectars = {},
+		blacklistedPlanters = {}
+	},
+	autoPuffshroomSettings = {
+		farmPuffshrooms = false,
+		farmRemaining = true,
+		rarityPriority = "Mythic > Common",
+		levelPriority = "High > Low",
+		minimumLevel = 1,
+		maximumLevel = 16
+	},
+	localPlayerSettings = {
+		walkSpeed = 60,
+		tweenSpeed = 7
+	},
+	combatSettings = {
+		trainCrab = false,
+		trainKingBeetle = false,
+		trainTunnelBear = false,
+		trainStumpSnail = false,
+		snailConvertHoney = false,
+		killVicious = false,
+		viciousMinLevel = 1,
+		viciousMaxLevel = 12,
+
+		killSpidor = false,
+		killMantis = false,
+		killScorpion = false,
+		killWerewolf = false
+	},
+	customPlanterSettings = {
+		customPlanters1 = {
+			[1] = {planter = "", field = "", harvestAmount = 75},
+			[2] = {planter = "", field = "", harvestAmount = 75},
+			[3] = {planter = "", field = "", harvestAmount = 75},
+			[4] = {planter = "", field = "", harvestAmount = 75},
+			[5] = {planter = "", field = "", harvestAmount = 75}
+		},
+		customPlanters2 = {
+			[1] = {planter = "", field = "", harvestAmount = 75},
+			[2] = {planter = "", field = "", harvestAmount = 75},
+			[3] = {planter = "", field = "", harvestAmount = 75},
+			[4] = {planter = "", field = "", harvestAmount = 75},
+			[5] = {planter = "", field = "", harvestAmount = 75}
+		},
+		customPlanters3 = {
+			[1] = {planter = "", field = "", harvestAmount = 75},
+			[2] = {planter = "", field = "", harvestAmount = 75},
+			[3] = {planter = "", field = "", harvestAmount = 75},
+			[4] = {planter = "", field = "", harvestAmount = 75},
+			[5] = {planter = "", field = "", harvestAmount = 75}
+		},
+	},
+	alertSettings = {
+		viciousAlert = true
+	},
+	RoboBearChallangeSettings = {
+		autoRBC = false
+	},
+	raresList = {}
+}
+
+
+getgenv().temptable = {
+	version = "0.1",
+	convertingHoney = false,
+	stopAll = false,
+	activeMemoryMatch = nil,
+
+	honeyAtStart = ClientStatCache.Get(nil,{"Totals", "Honey"}),
+	lastWebhookSent = 0,
+
+	tokenpath = Workspace.Collectibles,
+	fieldDecosFolder = Workspace:FindFirstChild("FieldDecos") or ReplicatedStorage:FindFirstChild("FieldDecos"),
+	lastWalkToNearest = 0,
+
+	fieldSelected,
+	fieldPosition,
+	floversRow = {},
+
+	customWalkSpeed = {enabled = false, speed = 50},
+
+	plantingPlanter = false,
+
+	detected = {
+		vicious = false,
+		windy = false
+	},
+
+	doingShower = false,
+	doingMonster = false,
+	doingTokens = false,
+
+	stopAutofarm = false,
+
+	autoRJSettings = {
+		requireGifted = false,
+		requireAnyGifted = false,
+		xCoord = 3,
+		yCoord = 1,
+		runningAutoRJ = false,
+		selectedBees = {},
+		selectedRarities = {}
+	},
+	showersTable = {},
+	coconutsTable = {},
+	lastShowerRegistered = 0,
+
+	sproutsTable = {},
+	susTokenPositions = {},
+
+	leafTable = {},
+	sparklesTable = {},
+	balloonsTable = {},
+
+	FieldBalloons = nil,
+
+	codesTable = {
+		"Wax",
+		"Roof",
+		"Nectar",
+		"Crawlers",
+		"Connoisseur",
+		"Cog",
+		"Buzz",
+		"Bopmaster",
+		"38217",
+		"GumdropsForScience",
+		"ClubConverters",
+		"BeesBuzz123",
+		"PlushFriday",
+	}, codesActivated = false,
+
+	stopEverything = false,
+
+	puffsDetected = false,
+	popStarActive = false,
+
+	lastConvertAtHive = 0,
+	lastFullBag = 0,
+
+	MConverterUsedAt = 0,
+	IConverterUsedAt = 0,
+
+	tokensTable = {},
+	lastTweenToRare = 0,
+
+	selectedPriorityNpc = "Black Bear",
+	npcPrioLabel = nil,
+	npcPrioSlider = nil,
+
+	autoRBC = {
+		isActive = false,
+		isUnlocked = nil,
+		latestRBC = 0
+	},
+
+	questUseItemCooldown = false,
+	questFeedCooldown = false,
+	questUseToyCooldown = false,
+
+	dupedTokensTable = {},
+	EquippedCollector = "Not loaded"
+}
+
+local cocoPad = Instance.new("Part")
+cocoPad.Position = Workspace.Territories.CoconutTerritory.Position + Vector3.new(0,15,0)
+cocoPad.Size = Workspace.Territories.CoconutTerritory.Size * Vector3.new(1,0,1) + Vector3.new(0,1,0)
+cocoPad.Anchored = true
+cocoPad.CanCollide = false
+cocoPad.Transparency = 1
+cocoPad.Parent = Workspace
