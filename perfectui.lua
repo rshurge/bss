@@ -1,8 +1,8 @@
 function GetUi() 
     if getgenv().Tvk then
-    if game.CoreGui:FindFirstChild("Sea Hub GUI") then
+    if game.CoreGui:FindFirstChild("Perfect Hub GUI") then
         for a, v in ipairs(game.CoreGui:GetChildren()) do
-            if v.Name == "Sea Hub GUI" then
+            if v.Name == "Perfect Hub GUI" then
                 v:Destroy()
             end
         end
@@ -14,7 +14,6 @@ getgenv().Chon = true
 local oldcolor = {
     ["Border Color"] = Color3.fromRGB(131, 181, 255),
     ["Click Effect Color"] = Color3.fromRGB(230, 230, 230),
-    ["Setting Icon Color"] = Color3.fromRGB(230, 230, 230),
     ["Logo Image"] = "rbxassetid://6248942117",
     ["Search Icon Color"] = Color3.fromRGB(255, 255, 255),
     ["Search Icon Highlight Color"] = Color3.fromRGB(131, 181, 255),
@@ -49,7 +48,6 @@ local oldcolor = {
 local b = {
     ["Border Color"] = Color3.fromRGB(255,255,255),
     ["Click Effect Color"] = Color3.fromRGB(230, 230, 230),
-    ["Setting Icon Color"] = Color3.fromRGB(230, 230, 230),
     ["Logo Image"] = "rbxassetid://6248942117",
     ["Search Icon Color"] = Color3.fromRGB(255, 255, 255),
     ["Search Icon Highlight Color"] = Color3.fromRGB(142, 172, 255),
@@ -123,20 +121,20 @@ local j = game:GetService("HttpService")
 local k = "!CustomUI.json"
 function SaveCustomUISettings()
     local j = game:GetService("HttpService")
-    if not isfolder("Sea Hub") then
-        makefolder("Sea Hub")
+    if not isfolder("Perfect Hub") then
+        makefolder("Perfect Hub")
     end
-    writefile("Sea Hub/" .. k, j:JSONEncode(CorrectTable(e)))
+    writefile("Perfect Hub/" .. k, j:JSONEncode(CorrectTable(e)))
 end
 function ReadCustomUISetting()
     local l, m =
         pcall(
         function()
             local j = game:GetService("HttpService")
-            if not isfolder("Sea Hub") then
-                makefolder("Sea Hub")
+            if not isfolder("Perfect Hub") then
+                makefolder("Perfect Hub")
             end
-            local n = j:JSONDecode(readfile("Sea Hub/" .. k))
+            local n = j:JSONDecode(readfile("Perfect Hub/" .. k))
             for d, v in pairs(n) do
                 local function o()
                     if v.Color == nil then
@@ -275,7 +273,7 @@ u.GetIMG = function(C)
 end
 u.Gui = Instance.new("ScreenGui")
 u.Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-u.Gui.Name = "Sea Hub GUI"
+u.Gui.Name = "Perfect Hub GUI"
 getgenv().ReadyForGuiLoaded = false
 spawn(
     function()
@@ -288,7 +286,7 @@ spawn(
 )
 u.NotiGui = Instance.new("ScreenGui")
 u.NotiGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-u.NotiGui.Name = "Sea Hub Notification"
+u.NotiGui.Name = "Perfect Hub Notification"
 local F = Instance.new("Frame")
 local G = Instance.new("UIListLayout")
 F.Name = "NotiContainer"
@@ -375,7 +373,7 @@ function t.CreateNoti(H)
     local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
     local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
     local g = V .. "," .. W .. "," .. X
-    Q.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().TitleNameNoti
+    Q.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().TitleNameNoti
     table.insert(
         c["Title Text Color"],
         function()
@@ -383,7 +381,7 @@ function t.CreateNoti(H)
             local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
             local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
             local g = V .. "," .. W .. "," .. X
-            Q.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().TitleNameNoti
+            Q.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().TitleNameNoti
         end
     )
     Q.Name = "TextLabelNoti"
@@ -501,7 +499,7 @@ function t.CreateNoti(H)
     )
 end
 function t.CreateMain(H)
-    local Z = tostring(H.Title) or "Sea Hub"
+    local Z = tostring(H.Title) or "Perfect Hub"
     getgenv().MainDesc = H.Desc or ""
     local _ = false
     cac = false
@@ -604,7 +602,7 @@ function t.CreateMain(H)
         local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
         local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
         local g = V .. "," .. W .. "," .. X
-        ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+        ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
         table.insert(
             c["Title Text Color"],
             function()
@@ -613,7 +611,7 @@ function t.CreateMain(H)
                 local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
                 local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
                 local g = V .. "," .. W .. "," .. X
-                ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+                ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
             end
         )
         local as
@@ -674,7 +672,7 @@ function t.CreateMain(H)
     local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
     local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
     local g = V .. "," .. W .. "," .. X
-    ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+    ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
     table.insert(
         c["Title Text Color"],
         function()
@@ -683,7 +681,7 @@ function t.CreateMain(H)
             local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
             local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
             local g = V .. "," .. W .. "," .. X
-            ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+            ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
         end
     )
     local ar
@@ -813,7 +811,7 @@ function t.CreateMain(H)
     local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
     local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
     local g = V .. "," .. W .. "," .. X
-    ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+    ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
     table.insert(
         c["Title Text Color"],
         function()
@@ -821,7 +819,7 @@ function t.CreateMain(H)
             local W = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[2])
             local X = tostring(u.Getcolor(getgenv().UIColor["Title Text Color"])[3])
             local g = V .. "," .. W .. "," .. X
-            ad.Text = '<font color="rgb(' .. g .. ')">Sea Hub</font> ' .. getgenv().MainDesc
+            ad.Text = '<font color="rgb(' .. g .. ')">Perfect Hub</font> ' .. getgenv().MainDesc
         end
     )
     ak.Name = "SettionMain"
@@ -842,7 +840,6 @@ function t.CreateMain(H)
     al.TextColor3 = Color3.fromRGB(0, 0, 0)
     al.TextSize = 14.000
     al.Visible = true
-    am.Name = "SettingIcon"
     am.Parent = ak
     am.AnchorPoint = Vector2.new(0.5, 0.5)
     am.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1145,7 +1142,6 @@ function t.CreateMain(H)
             local aQ = Instance.new("UIGradient")
             local aR = Instance.new("UIListLayout")
             local aS = aL or "Section"
-            aM.Name = aL .. "Section"
             aM.Parent = aw
             aM.Size = UDim2.new(1, 0, 0, 285)
             aM.BackgroundColor3 = getgenv().UIColor["Background 3 Color"]
@@ -2959,7 +2955,6 @@ function t.CreateMain(H)
             local aP = Instance.new("Frame")
             local aQ = Instance.new("UIGradient")
             local aR = Instance.new("UIListLayout")
-            aM.Name = aL .. "_Dot"
             aM.Parent = dA
             aM.Size = UDim2.new(0, 415, 0, 100)
             aM.BackgroundColor3 = getgenv().UIColor["Background 3 Color"]
@@ -4434,5 +4429,5 @@ return t end
 print("suckass")
 local rnd = tostring(math.random(1,100000))
 
-local keylist = {"af298fe2fe0361c","e69327320bfcb7e","66036fb2f36e983","f27c0d2a3bee5a6","","ad4f5fc1ec8dd0a","2341aff65def585"} --,"d96d10a1b806168"
+local keylist = {"af298fe2fe0361c"} --,"d96d10a1b806168"
 local key = getgenv().Key or ""
